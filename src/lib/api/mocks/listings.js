@@ -1,0 +1,77 @@
+// Mock data shaped exactly like the `listings` table / API response
+// defined in docs/api_design.md and infra/migrations/0001_init.sql.
+// When the backend is live, getListings() in ../listings.js will call
+// GET /v1/listings instead of returning this array.
+
+export const MOCK_LISTINGS = [
+  {
+    id: 'l_001',
+    title: 'Sony HDC-3500 4K Studio Camera',
+    brand: 'Sony',
+    model: 'HDC-3500',
+    year_manufactured: 2019,
+    condition: 'excellent',
+    price_amount: 14500,
+    currency: 'USD',
+    origin_country: 'FR',
+    status: 'active',
+    seller: { name: 'MBC Broadcasting', verified: true, account_type: 'organization' },
+    category: 'cameras',
+    new_price_estimate: 38000,
+  },
+  {
+    id: 'l_002',
+    title: 'Harris Platinum HT Transmitter 10kW',
+    brand: 'Harris',
+    model: 'Platinum HT',
+    year_manufactured: 2018,
+    condition: 'excellent',
+    price_amount: 34000,
+    currency: 'USD',
+    origin_country: 'FR',
+    status: 'active',
+    seller: { name: 'RFI Broadcast', verified: true, account_type: 'organization' },
+    category: 'transmitters',
+    new_price_estimate: 120000,
+  },
+  {
+    id: 'l_003',
+    title: 'Grass Valley LDX 86N 4K Camera',
+    brand: 'Grass Valley',
+    model: 'LDX 86N',
+    year_manufactured: 2020,
+    condition: 'good',
+    price_amount: 22000,
+    currency: 'USD',
+    origin_country: 'CI',
+    status: 'active',
+    seller: { name: 'Canal+ Afrique', verified: true, account_type: 'organization' },
+    category: 'cameras',
+    new_price_estimate: 95000,
+  },
+  {
+    id: 'l_004',
+    title: 'SSL 9000K 96-ch Mixing Console',
+    brand: 'SSL',
+    model: '9000K',
+    year_manufactured: 2017,
+    condition: 'excellent',
+    price_amount: 58000,
+    currency: 'USD',
+    origin_country: 'CM',
+    status: 'active',
+    seller: { name: 'RTM Cameroon', verified: true, account_type: 'organization' },
+    category: 'audio',
+    new_price_estimate: 250000,
+  },
+];
+
+export const MOCK_PLATFORM_STATS = {
+  asset_value_identified_usd: 2_400_000_000,
+  equipment_models: 25_000,
+  countries: 120,
+  valuation_accuracy_pct: 98,
+  avg_value_recovery_pct: 35,
+  active_listings: 5000,
+  verified_sellers: 120,
+};

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, ArrowUpRight, Sun, Moon, ShoppingCart, LogOut, Store } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -72,6 +72,7 @@ export default function Navbar() {
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const isDark = theme === 'dark';
 
   async function handleLogout() {
@@ -139,6 +140,10 @@ export default function Navbar() {
                 display: 'flex', alignItems: 'center', gap: 6,
                 background: 'transparent', border: 'none', color: 'var(--text2)', padding: '8px 14px', fontSize: 14, fontWeight: 450,
               }}><Store size={14} /> Sell</Link>
+              <span style={{
+                fontSize: 13, color: 'var(--text2)', maxWidth: 140, overflow: 'hidden',
+                textOverflow: 'ellipsis', whiteSpace: 'nowrap', padding: '0 4px',
+              }}>{user.full_name || user.email}</span>
               <button onClick={handleLogout} title="Log out" style={{
                 width: 40, height: 40, borderRadius: 10, background: 'var(--surface)', border: '1px solid var(--border)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text2)', flexShrink: 0,
@@ -146,7 +151,7 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link to="/login" style={{
+              <Link to="/login" state={{ from: location.pathname }} style={{
                 background: 'transparent', border: 'none',
                 color: 'var(--text2)', padding: '8px 14px',
                 fontSize: 14, fontWeight: 450, transition: 'color .2s',
@@ -194,8 +199,9 @@ export default function Navbar() {
           ))}
           {user ? (
             <>
+              <div style={{ padding: '12px 8px', fontSize: 13, color: 'var(--text3)' }}>Signed in as {user.full_name || user.email}</div>
               <Link to="/account/orders" onClick={() => setMobileOpen(false)} style={{ padding: '12px 8px', fontSize: 15, color: 'var(--text2)', borderBottom: '1px solid var(--border)' }}>Orders</Link>
-              <Link to="/account/seller" onClick={() => setMobileOpen(false)} style={{ padding: '12px 8px', fontSize: 15, color: 'var(--text2)', borderBottom: '1px solid var(--border)' }}>Sell on AssetWave</Link>
+              <Link to="/account/seller" onClick={() => setMobileOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '12px 8px', fontSize: 15, color: 'var(--text2)', borderBottom: '1px solid var(--border)' }}><Store size={14} /> Sell on AssetWave</Link>
               <button onClick={() => { setMobileOpen(false); handleLogout(); }} style={{
                 marginTop: 16, background: 'var(--surface2)', color: 'var(--text)', border: '1px solid var(--border)',
                 padding: '12px', borderRadius: 100, fontSize: 14, fontWeight: 600,
@@ -203,7 +209,7 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link to="/login" onClick={() => setMobileOpen(false)} style={{ padding: '12px 8px', fontSize: 15, color: 'var(--text2)', borderBottom: '1px solid var(--border)' }}>Log in</Link>
+              <Link to="/login" state={{ from: location.pathname }} onClick={() => setMobileOpen(false)} style={{ padding: '12px 8px', fontSize: 15, color: 'var(--text2)', borderBottom: '1px solid var(--border)' }}>Log in</Link>
               <Link to="/register" onClick={() => setMobileOpen(false)} style={{
                 marginTop: 16, background: 'var(--inverse-bg)', color: 'var(--inverse-text)', border: 'none',
                 padding: '12px', borderRadius: 100, fontSize: 14, fontWeight: 600, textAlign: 'center',

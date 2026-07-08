@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Search, ArrowUpRight } from 'lucide-react';
 
 const CASES = [
@@ -7,6 +8,11 @@ const CASES = [
 ];
 
 export default function CaseStudies() {
+  const [query, setQuery] = useState('');
+  const filtered = CASES.filter(c =>
+    !query || c.title.toLowerCase().includes(query.toLowerCase()) || c.tag.toLowerCase().includes(query.toLowerCase())
+  );
+
   return (
     <section className="section" style={{ background: 'var(--bg2)', borderTop: '1px solid var(--border)' }}>
       <div className="container">
@@ -23,7 +29,12 @@ export default function CaseStudies() {
             borderRadius: 100, padding: '10px 16px', minWidth: 220,
           }}>
             <Search size={15} color="var(--text3)" />
-            <span style={{ fontSize: 13, color: 'var(--text3)' }}>Search case studies</span>
+            <input
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Search case studies"
+              style={{ flex: 1, background: 'none', border: 'none', outline: 'none', color: 'var(--text)', fontSize: 13 }}
+            />
           </div>
         </div>
 
@@ -63,7 +74,10 @@ export default function CaseStudies() {
 
           {/* Small stacked cards */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {CASES.map((c, i) => (
+            {filtered.length === 0 && (
+              <div style={{ fontSize: 13, color: 'var(--text3)', padding: '20px 0' }}>No case studies match "{query}".</div>
+            )}
+            {filtered.map((c, i) => (
               <div key={i} style={{
                 background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 18,
                 padding: 22, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center',

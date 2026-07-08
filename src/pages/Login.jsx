@@ -3,13 +3,16 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { LogIn } from 'lucide-react';
 import PageHeader from '../components/shared/PageHeader';
 import { useAuth } from '../context/AuthContext';
+import { inputStyle, labelStyle } from '../components/shared/ui/styles';
 
-const inputStyle = {
-  width: '100%', background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 10,
-  padding: '12px 16px', color: 'var(--text)', fontSize: 14, outline: 'none',
+const REASON_MESSAGES = {
+  cart: 'Log in to view your cart.',
+  checkout: 'Log in to complete your purchase.',
+  orders: 'Log in to view your orders.',
+  seller: 'Log in to access your seller dashboard.',
+  buy: 'Log in to buy this item.',
+  'add-to-cart': 'Log in to add this item to your cart.',
 };
-
-const labelStyle = { display: 'block', fontSize: 13, color: 'var(--text3)', marginBottom: 8, fontWeight: 500 };
 
 export default function Login() {
   const { login, loading } = useAuth();
@@ -19,7 +22,8 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const redirectTo = location.state?.from || '/account/orders';
+  const redirectTo = location.state?.from || '/';
+  const contextMessage = REASON_MESSAGES[location.state?.reason];
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -34,7 +38,7 @@ export default function Login() {
 
   return (
     <>
-      <PageHeader eyebrow="Welcome back" title="Log in to" titleItalic="AssetWave" />
+      <PageHeader eyebrow="Welcome back" title="Log in to" titleItalic="AssetWave" desc={contextMessage} />
       <section className="section-sm" style={{ background: 'var(--bg)' }}>
         <div className="container" style={{ maxWidth: 420 }}>
           <form onSubmit={handleSubmit} style={{
@@ -59,7 +63,7 @@ export default function Login() {
               <LogIn size={15} /> {loading ? 'Logging in…' : 'Log in'}
             </button>
             <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--text3)' }}>
-              Don't have an account? <Link to="/register" style={{ color: 'var(--violet3)', fontWeight: 500 }}>Create one</Link>
+              Don't have an account? <Link to="/register" state={location.state} style={{ color: 'var(--violet3)', fontWeight: 500 }}>Create one</Link>
             </div>
           </form>
         </div>

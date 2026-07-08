@@ -8,14 +8,17 @@ export function CartProvider({ children }) {
   const { user } = useAuth();
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const refresh = useCallback(async () => {
-    if (!user) { setCart(null); return; }
+    if (!user) { setCart(null); setError(''); return; }
     setLoading(true);
+    setError('');
     try {
       setCart(await cartApi.getCart());
-    } catch {
+    } catch (err) {
       setCart(null);
+      setError(err.message || 'Could not load your cart.');
     } finally {
       setLoading(false);
     }
@@ -38,7 +41,7 @@ export function CartProvider({ children }) {
   const itemCount = (cart?.items || []).reduce((sum, i) => sum + i.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ cart, loading, itemCount, addItem, updateItem, removeItem, refresh }}>
+    <CartContext.Provider value={{ cart, loading, error, itemCount, addItem, updateItem, removeItem, refresh }}>
       {children}
     </CartContext.Provider>
   );

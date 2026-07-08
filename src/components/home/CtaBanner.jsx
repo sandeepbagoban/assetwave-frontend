@@ -1,4 +1,5 @@
 import { Sparkles, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function CtaBanner() {
   return (
@@ -37,7 +38,7 @@ export default function CtaBanner() {
           </div>
 
           <div style={{ display: 'flex', gap: 12, position: 'relative', zIndex: 1, flexShrink: 0 }}>
-            <button style={{
+            <Link to="/register" style={{
               background: '#fff', color: '#0A0A12', border: 'none', padding: '14px 26px',
               borderRadius: 100, fontSize: 14, fontWeight: 600,
               whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 8,
@@ -46,8 +47,8 @@ export default function CtaBanner() {
             onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
             onMouseLeave={e => { e.currentTarget.style.transform = 'none'; }}>
               Request a Demo <ArrowRight size={15} />
-            </button>
-            <button style={{
+            </Link>
+            <a href="mailto:ceo@awxchange.com" style={{
               background: 'transparent', border: '1px solid var(--border2)',
               color: '#fff', padding: '14px 26px',
               borderRadius: 100, fontSize: 14, fontWeight: 500,
@@ -56,7 +57,7 @@ export default function CtaBanner() {
             onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--violet3)'; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border2)'; }}>
               Talk to an Expert
-            </button>
+            </a>
           </div>
         </div>
       </div>

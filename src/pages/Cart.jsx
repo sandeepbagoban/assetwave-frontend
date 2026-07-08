@@ -3,22 +3,38 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, Minus, Plus, ShoppingBag, ArrowRight } from 'lucide-react';
 import PageHeader from '../components/shared/PageHeader';
 import { useCart } from '../context/CartContext';
+import { ErrorBlock } from '../components/shared/ui/AsyncBlocks';
 
 export default function Cart() {
-  const { cart, loading, updateItem, removeItem } = useCart();
+  const { cart, loading, error, updateItem, removeItem } = useCart();
   const navigate = useNavigate();
   const [busyId, setBusyId] = useState(null);
+  const [rowError, setRowError] = useState({ id: null, message: '' });
 
   async function changeQty(item, delta) {
     const next = item.quantity + delta;
     if (next < 1) return;
     setBusyId(item.id);
-    try { await updateItem(item.id, next); } finally { setBusyId(null); }
+    setRowError({ id: null, message: '' });
+    try {
+      await updateItem(item.id, next);
+    } catch (err) {
+      setRowError({ id: item.id, message: err.message || "Couldn't update — try again" });
+    } finally {
+      setBusyId(null);
+    }
   }
 
   async function remove(item) {
     setBusyId(item.id);
-    try { await removeItem(item.id); } finally { setBusyId(null); }
+    setRowError({ id: null, message: '' });
+    try {
+      await removeItem(item.id);
+    } catch (err) {
+      setRowError({ id: item.id, message: err.message || "Couldn't remove — try again" });
+    } finally {
+      setBusyId(null);
+    }
   }
 
   const items = cart?.items || [];
@@ -30,7 +46,9 @@ export default function Cart() {
         <div className="container" style={{ maxWidth: 760 }}>
           {loading && <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text3)' }}>Loading cart…</div>}
 
-          {!loading && items.length === 0 && (
+          {!loading && error && <ErrorBlock message={error} prefix="Couldn't load your cart" />}
+
+          {!loading && !error && items.length === 0 && (
             <div style={{ textAlign: 'center', padding: '60px 0' }}>
               <ShoppingBag size={32} color="var(--text4)" style={{ marginBottom: 16 }} />
               <div style={{ color: 'var(--text3)', fontSize: 14, marginBottom: 20 }}>Your cart is empty.</div>
@@ -41,34 +59,39 @@ export default function Cart() {
             </div>
           )}
 
-          {!loading && items.length > 0 && (
+          {!loading && !error && items.length > 0 && (
             <>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 28 }}>
                 {items.map(item => (
-                  <div key={item.id} style={{
-                    display: 'flex', alignItems: 'center', gap: 16, background: 'var(--bg3)',
-                    border: '1px solid var(--border)', borderRadius: 16, padding: 18,
-                    opacity: busyId === item.id ? 0.6 : 1,
-                  }}>
+                  <div key={item.id}>
                     <div style={{
-                      width: 64, height: 64, borderRadius: 12, flexShrink: 0,
-                      background: 'linear-gradient(160deg, #1A1430, #0F0F1A)',
-                    }} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 14.5, fontWeight: 600, color: 'var(--text)', marginBottom: 4 }}>{item.listing.title}</div>
-                      <div style={{ fontSize: 12.5, color: 'var(--text3)' }}>{item.listing.seller?.name}</div>
+                      display: 'flex', alignItems: 'center', gap: 16, background: 'var(--bg3)',
+                      border: '1px solid var(--border)', borderRadius: 16, padding: 18,
+                      opacity: busyId === item.id ? 0.6 : 1,
+                    }}>
+                      <div style={{
+                        width: 64, height: 64, borderRadius: 12, flexShrink: 0,
+                        background: 'linear-gradient(160deg, #1A1430, #0F0F1A)',
+                      }} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 14.5, fontWeight: 600, color: 'var(--text)', marginBottom: 4 }}>{item.listing.title}</div>
+                        <div style={{ fontSize: 12.5, color: 'var(--text3)' }}>{item.listing.seller?.name}</div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <button onClick={() => changeQty(item, -1)} disabled={busyId === item.id} style={qtyBtnStyle}><Minus size={13} /></button>
+                        <span style={{ fontSize: 14, color: 'var(--text)', minWidth: 20, textAlign: 'center' }}>{item.quantity}</span>
+                        <button onClick={() => changeQty(item, 1)} disabled={busyId === item.id} style={qtyBtnStyle}><Plus size={13} /></button>
+                      </div>
+                      <div className="serif" style={{ fontSize: 18, color: 'var(--text)', minWidth: 90, textAlign: 'right' }}>
+                        ${(item.listing.price_amount * item.quantity).toLocaleString()}
+                      </div>
+                      <button onClick={() => remove(item)} disabled={busyId === item.id} style={{
+                        background: 'none', border: 'none', color: 'var(--text4)', cursor: 'pointer', padding: 6,
+                      }}><Trash2 size={16} /></button>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <button onClick={() => changeQty(item, -1)} disabled={busyId === item.id} style={qtyBtnStyle}><Minus size={13} /></button>
-                      <span style={{ fontSize: 14, color: 'var(--text)', minWidth: 20, textAlign: 'center' }}>{item.quantity}</span>
-                      <button onClick={() => changeQty(item, 1)} disabled={busyId === item.id} style={qtyBtnStyle}><Plus size={13} /></button>
-                    </div>
-                    <div className="serif" style={{ fontSize: 18, color: 'var(--text)', minWidth: 90, textAlign: 'right' }}>
-                      ${(item.listing.price_amount * item.quantity).toLocaleString()}
-                    </div>
-                    <button onClick={() => remove(item)} disabled={busyId === item.id} style={{
-                      background: 'none', border: 'none', color: 'var(--text4)', cursor: 'pointer', padding: 6,
-                    }}><Trash2 size={16} /></button>
+                    {rowError.id === item.id && (
+                      <div style={{ fontSize: 12.5, color: 'var(--red)', marginTop: 6, paddingLeft: 4 }}>{rowError.message}</div>
+                    )}
                   </div>
                 ))}
               </div>

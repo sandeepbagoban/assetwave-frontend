@@ -1,4 +1,5 @@
 import { ShoppingBag, Search, CircleDollarSign, FileBadge, RefreshCw, LineChart, ArrowUpRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const FEATURES = [
   { num: '01', icon: ShoppingBag, title: 'Asset Marketplace', desc: 'Buy and sell quality used broadcast equipment globally with escrow-protected payments and verified counterparties.' },
@@ -41,9 +42,9 @@ export default function Features() {
                 </div>
                 <h3 style={{ fontSize: 17, fontWeight: 600, color: 'var(--text)', marginBottom: 10 }}>{f.title}</h3>
                 <p style={{ fontSize: 13.5, color: 'var(--text3)', lineHeight: 1.7, marginBottom: 20 }}>{f.desc}</p>
-                <a href="#" style={{ fontSize: 13, fontWeight: 600, color: 'var(--violet3)', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <Link to="/features" style={{ fontSize: 13, fontWeight: 600, color: 'var(--violet3)', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                   Learn more <ArrowUpRight size={13} />
-                </a>
+                </Link>
               </div>
             );
           })}

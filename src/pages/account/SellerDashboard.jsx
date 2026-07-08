@@ -3,15 +3,15 @@ import { Store, Plus, Trash2, Pencil, Truck, Clock, X } from 'lucide-react';
 import PageHeader from '../../components/shared/PageHeader';
 import { useAuth } from '../../context/AuthContext';
 import { applyAsSeller, getMyListings, getMySellerOrders } from '../../lib/api/sellers';
-import { createListing, updateListing, deleteListing } from '../../lib/api/listings';
+import { createListing, updateListing, deleteListing, addListingImages } from '../../lib/api/listings';
 import { markShipped } from '../../lib/api/orders';
 import { getCategories } from '../../lib/api/categories';
+import ImagePicker from '../../components/shared/ui/ImagePicker';
+import ConfirmButton from '../../components/shared/ui/ConfirmButton';
+import { iconBtnStyle, inputStyle as baseInputStyle, labelStyle as baseLabelStyle } from '../../components/shared/ui/styles';
 
-const inputStyle = {
-  width: '100%', background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10,
-  padding: '10px 14px', color: 'var(--text)', fontSize: 13.5, outline: 'none',
-};
-const labelStyle = { display: 'block', fontSize: 12, color: 'var(--text3)', marginBottom: 6, fontWeight: 500 };
+const inputStyle = { ...baseInputStyle, background: 'var(--bg2)', padding: '10px 14px', fontSize: 13.5 };
+const labelStyle = { ...baseLabelStyle, fontSize: 12, marginBottom: 6 };
 
 const EMPTY_FORM = {
   title: '', category_id: '', brand: '', model: '', year_manufactured: '', condition: 'good',
@@ -78,7 +78,9 @@ function ApplyForm({ onApplied }) {
 
 function ListingForm({ categories, initial, onSaved, onCancel }) {
   const [form, setForm] = useState(initial || EMPTY_FORM);
+  const [files, setFiles] = useState([]);
   const [busy, setBusy] = useState(false);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [error, setError] = useState('');
 
   function update(field) {
@@ -97,15 +99,30 @@ function ListingForm({ categories, initial, onSaved, onCancel }) {
       quantity: Number(form.quantity) || 1,
       status: 'active',
     };
+    let saved;
     try {
-      if (initial?.id) await updateListing(initial.id, payload);
-      else await createListing(payload);
-      onSaved();
+      saved = initial?.id ? await updateListing(initial.id, payload) : await createListing(payload);
     } catch (err) {
       setError(err.message || 'Could not save listing.');
-    } finally {
       setBusy(false);
+      return;
     }
+
+    if (files.length) {
+      setUploadingPhotos(true);
+      try {
+        await addListingImages(saved.id, files);
+      } catch (err) {
+        setError(`Listing saved, but photo upload failed: ${err.message}. You can retry from Edit.`);
+        setBusy(false);
+        setUploadingPhotos(false);
+        onSaved();
+        return;
+      }
+      setUploadingPhotos(false);
+    }
+    setBusy(false);
+    onSaved();
   }
 
   return (
@@ -166,13 +183,17 @@ function ListingForm({ categories, initial, onSaved, onCancel }) {
           <label style={labelStyle}>Description</label>
           <textarea style={{ ...inputStyle, minHeight: 80, resize: 'vertical' }} value={form.description} onChange={update('description')} />
         </div>
+        <div style={{ gridColumn: '1 / -1' }}>
+          <label style={labelStyle}>Photos</label>
+          <ImagePicker existingImages={initial?.images || []} files={files} onFilesChange={setFiles} />
+        </div>
         {error && <div style={{ gridColumn: '1 / -1', color: 'var(--red)', fontSize: 13 }}>{error}</div>}
         <div style={{ gridColumn: '1 / -1' }}>
           <button type="submit" disabled={busy} style={{
             background: 'var(--inverse-bg)', color: 'var(--inverse-text)', border: 'none',
             padding: '12px 22px', borderRadius: 100, fontSize: 14, fontWeight: 600,
             opacity: busy ? 0.6 : 1, cursor: busy ? 'default' : 'pointer',
-          }}>{busy ? 'Saving…' : initial?.id ? 'Save changes' : 'Publish listing'}</button>
+          }}>{busy ? (uploadingPhotos ? 'Uploading photos…' : 'Saving…') : initial?.id ? 'Save changes' : 'Publish listing'}</button>
         </div>
       </form>
     </div>
@@ -187,6 +208,8 @@ export default function SellerDashboard() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [shippingId, setShippingId] = useState(null);
+  const [shipError, setShipError] = useState({ id: null, message: '' });
 
   const isApproved = sellerProfile?.kyb_status === 'approved';
 
@@ -205,14 +228,20 @@ export default function SellerDashboard() {
   useEffect(() => { loadData(); }, [loadData]);
 
   async function handleDelete(id) {
-    if (!window.confirm('Delete this listing?')) return;
     await deleteListing(id);
-    loadData();
   }
 
   async function handleShip(orderId) {
-    await markShipped(orderId);
-    loadData();
+    setShippingId(orderId);
+    setShipError({ id: null, message: '' });
+    try {
+      await markShipped(orderId);
+      await loadData();
+    } catch (err) {
+      setShipError({ id: orderId, message: err.message || 'Could not mark as shipped.' });
+    } finally {
+      setShippingId(null);
+    }
   }
 
   return (
@@ -277,9 +306,9 @@ export default function SellerDashboard() {
                         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{listing.title}</div>
                         <div style={{ fontSize: 12, color: 'var(--text3)' }}>{listing.status} · ${listing.price_amount.toLocaleString()} · qty {listing.quantity}</div>
                       </div>
-                      <div style={{ display: 'flex', gap: 8 }}>
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                         <button onClick={() => { setEditing({ ...listing, price_amount: String(listing.price_amount) }); setShowForm(true); }} style={iconBtnStyle}><Pencil size={14} /></button>
-                        <button onClick={() => handleDelete(listing.id)} style={iconBtnStyle}><Trash2 size={14} /></button>
+                        <ConfirmButton icon={Trash2} confirmLabel="Delete this listing?" onConfirm={() => handleDelete(listing.id)} onDone={loadData} />
                       </div>
                     </div>
                   ))}
@@ -292,7 +321,8 @@ export default function SellerDashboard() {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {orders.map(item => (
-                    <div key={item.order_item_id} style={{
+                    <div key={item.order_item_id}>
+                    <div style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
                       background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 14, padding: 16,
                     }}>
@@ -303,11 +333,16 @@ export default function SellerDashboard() {
                         </div>
                       </div>
                       {item.order_status === 'paid' && (
-                        <button onClick={() => handleShip(item.order_id)} style={{
+                        <button onClick={() => handleShip(item.order_id)} disabled={shippingId === item.order_id} style={{
                           display: 'flex', alignItems: 'center', gap: 6, background: 'var(--surface2)', border: '1px solid var(--border)',
-                          color: 'var(--text)', padding: '8px 14px', borderRadius: 100, fontSize: 12.5, fontWeight: 500, cursor: 'pointer',
-                        }}><Truck size={13} /> Mark shipped</button>
+                          color: 'var(--text)', padding: '8px 14px', borderRadius: 100, fontSize: 12.5, fontWeight: 500,
+                          opacity: shippingId === item.order_id ? 0.6 : 1, cursor: shippingId === item.order_id ? 'default' : 'pointer',
+                        }}><Truck size={13} /> {shippingId === item.order_id ? 'Marking…' : 'Mark shipped'}</button>
                       )}
+                    </div>
+                    {shipError.id === item.order_id && (
+                      <div style={{ fontSize: 12, color: 'var(--red)', marginTop: 6, paddingLeft: 4 }}>{shipError.message}</div>
+                    )}
                     </div>
                   ))}
                 </div>
@@ -319,8 +354,3 @@ export default function SellerDashboard() {
     </>
   );
 }
-
-const iconBtnStyle = {
-  width: 32, height: 32, borderRadius: 8, background: 'var(--surface2)', border: '1px solid var(--border)',
-  color: 'var(--text2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-};

@@ -14,13 +14,33 @@ import { MOCK_LISTINGS, MOCK_PLATFORM_STATS } from './mocks/listings';
 
 export async function getListings(params = {}) {
   if (apiClient.isUsingMocks) {
-    // Simulate basic filtering so UI built against mocks behaves
-    // the same way it will against the real API.
+    // Simulate basic filtering/pagination so UI built against mocks behaves
+    // the same way it will against the real API (which supports all of
+    // these params server-side — see listing.service.js:list).
     let results = [...MOCK_LISTINGS];
     if (params.category) {
       results = results.filter(l => l.category === params.category);
     }
-    return { data: results, meta: { total: results.length, page: 1, limit: 20 } };
+    if (params.condition) {
+      results = results.filter(l => l.condition === params.condition);
+    }
+    if (params.min_price) {
+      results = results.filter(l => l.price_amount >= Number(params.min_price));
+    }
+    if (params.max_price) {
+      results = results.filter(l => l.price_amount <= Number(params.max_price));
+    }
+    if (params.q) {
+      const q = params.q.toLowerCase();
+      results = results.filter(l =>
+        l.title.toLowerCase().includes(q) || l.brand.toLowerCase().includes(q) || (l.model || '').toLowerCase().includes(q)
+      );
+    }
+    const total = results.length;
+    const page = Number(params.page) || 1;
+    const limit = Number(params.limit) || 20;
+    const start = (page - 1) * limit;
+    return { data: results.slice(start, start + limit), meta: { total, page, limit } };
   }
 
   const query = new URLSearchParams(params).toString();

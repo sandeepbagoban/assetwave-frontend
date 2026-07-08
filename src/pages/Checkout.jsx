@@ -4,12 +4,10 @@ import { ShieldCheck, Lock } from 'lucide-react';
 import PageHeader from '../components/shared/PageHeader';
 import { useCart } from '../context/CartContext';
 import { checkout } from '../lib/api/orders';
+import { inputStyle as baseInputStyle, labelStyle as baseLabelStyle } from '../components/shared/ui/styles';
 
-const inputStyle = {
-  width: '100%', background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 10,
-  padding: '11px 14px', color: 'var(--text)', fontSize: 14, outline: 'none',
-};
-const labelStyle = { display: 'block', fontSize: 12.5, color: 'var(--text3)', marginBottom: 6, fontWeight: 500 };
+const inputStyle = { ...baseInputStyle, padding: '11px 14px' };
+const labelStyle = { ...baseLabelStyle, fontSize: 12.5, marginBottom: 6 };
 
 export default function Checkout() {
   const { cart, loading, refresh } = useCart();

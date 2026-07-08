@@ -1,9 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, SlidersHorizontal, ShieldCheck, ArrowUpRight } from 'lucide-react';
+import { Search, SlidersHorizontal, ShieldCheck, ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useListings } from '../hooks/useListings';
 import PageHeader from '../components/shared/PageHeader';
 import CtaBanner from '../components/home/CtaBanner';
+import { LoadingBlock, ErrorBlock, EmptyBlock } from '../components/shared/ui/AsyncBlocks';
+
+const CONDITIONS = [
+  { id: '', label: 'Any condition' },
+  { id: 'excellent', label: 'Excellent' },
+  { id: 'good', label: 'Good' },
+  { id: 'fair', label: 'Fair' },
+];
 
 const CATEGORIES = [
   { id: '', label: 'All equipment' },
@@ -76,8 +84,8 @@ function ListingCard({ listing }) {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         fontSize: 11, color: 'var(--text3)',
       }}>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--violet3)', fontWeight: 500 }}>
-          <ShieldCheck size={12} /> Escrow protected
+        <span title="Simulated for this demo — no real payment is captured" style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--violet3)', fontWeight: 500, cursor: 'help' }}>
+          <ShieldCheck size={12} /> Escrow protected (demo)
         </span>
         <ArrowUpRight size={13} />
       </div>
@@ -88,11 +96,34 @@ function ListingCard({ listing }) {
 export default function Marketplace() {
   const [category, setCategory] = useState('');
   const [query, setQuery] = useState('');
-  const { data: listings, loading, error } = useListings(category ? { category } : {});
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [condition, setCondition] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [page, setPage] = useState(1);
+  const limit = 20;
 
-  const filtered = listings.filter(l =>
-    !query || l.title.toLowerCase().includes(query.toLowerCase()) || l.brand.toLowerCase().includes(query.toLowerCase())
-  );
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(query), 300);
+    return () => clearTimeout(t);
+  }, [query]);
+
+  // Any filter change resets to page 1 — otherwise a narrower result set
+  // could leave the user stranded on a page that no longer exists.
+  useEffect(() => { setPage(1); }, [category, debouncedQuery, condition, minPrice, maxPrice]);
+
+  const params = {
+    ...(category && { category }),
+    ...(debouncedQuery && { q: debouncedQuery }),
+    ...(condition && { condition }),
+    ...(minPrice && { min_price: minPrice }),
+    ...(maxPrice && { max_price: maxPrice }),
+    page,
+    limit,
+  };
+  const { data: listings, meta, loading, error } = useListings(params);
+  const totalPages = meta ? Math.max(1, Math.ceil(meta.total / limit)) : 1;
 
   return (
     <>
@@ -100,7 +131,7 @@ export default function Marketplace() {
         eyebrow="Marketplace"
         title="Professional gear,"
         titleItalic="verified sellers"
-        desc="Every listing comes from a KYB-verified broadcaster or media company. Every payment is escrow-protected until you confirm receipt."
+        desc="Every listing comes from a KYB-verified broadcaster or media company. This demo simulates escrow-protected payments end-to-end."
       />
 
       <section className="section-sm" style={{ background: 'var(--bg)' }}>
@@ -120,14 +151,56 @@ export default function Marketplace() {
                 style={{ flex: 1, background: 'none', border: 'none', outline: 'none', color: 'var(--text)', fontSize: 14 }}
               />
             </div>
-            <button style={{
+            <button onClick={() => setShowFilters(v => !v)} style={{
               display: 'flex', alignItems: 'center', gap: 8,
-              background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 100,
-              padding: '12px 20px', color: 'var(--text2)', fontSize: 14, fontWeight: 500,
+              background: showFilters ? 'var(--surface3)' : 'var(--bg3)',
+              border: '1px solid ' + (showFilters ? 'var(--violet)' : 'var(--border)'),
+              borderRadius: 100, padding: '12px 20px', color: 'var(--text2)', fontSize: 14, fontWeight: 500,
             }}>
               <SlidersHorizontal size={15} /> Filters
             </button>
           </div>
+
+          {showFilters && (
+            <div style={{
+              display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'flex-end',
+              background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 16,
+              padding: 20, marginBottom: 24,
+            }}>
+              <div>
+                <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 8 }}>Condition</div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {CONDITIONS.map(c => (
+                    <button key={c.id} onClick={() => setCondition(c.id)} style={{
+                      padding: '7px 14px', borderRadius: 100, fontSize: 12.5, fontWeight: 500,
+                      border: '1px solid ' + (condition === c.id ? 'var(--violet)' : 'var(--border)'),
+                      background: condition === c.id ? 'var(--surface3)' : 'transparent',
+                      color: condition === c.id ? 'var(--text)' : 'var(--text3)',
+                    }}>{c.label}</button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 8 }}>Min price ($)</div>
+                <input type="number" min="0" value={minPrice} onChange={e => setMinPrice(e.target.value)} placeholder="0" style={{
+                  width: 110, background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 8,
+                  padding: '8px 12px', color: 'var(--text)', fontSize: 13, outline: 'none',
+                }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 8 }}>Max price ($)</div>
+                <input type="number" min="0" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} placeholder="Any" style={{
+                  width: 110, background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 8,
+                  padding: '8px 12px', color: 'var(--text)', fontSize: 13, outline: 'none',
+                }} />
+              </div>
+              {(condition || minPrice || maxPrice) && (
+                <button onClick={() => { setCondition(''); setMinPrice(''); setMaxPrice(''); }} style={{
+                  background: 'none', border: 'none', color: 'var(--violet3)', fontSize: 12.5, fontWeight: 500, cursor: 'pointer',
+                }}>Clear filters</button>
+              )}
+            </div>
+          )}
 
           {/* Category pills */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 40, flexWrap: 'wrap' }}>
@@ -145,25 +218,33 @@ export default function Marketplace() {
           </div>
 
           {/* Results */}
-          {loading && (
-            <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text3)', fontSize: 14 }}>
-              Loading listings&hellip;
-            </div>
+          {loading && <LoadingBlock label="Loading listings…" />}
+          {error && <ErrorBlock message={error} prefix="Couldn't load listings" />}
+          {!loading && !error && listings.length === 0 && (
+            <EmptyBlock message="No listings match your search yet." />
           )}
-          {error && (
-            <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--red)', fontSize: 14 }}>
-              Couldn't load listings: {error}
-            </div>
-          )}
-          {!loading && !error && filtered.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text3)', fontSize: 14 }}>
-              No listings match your search yet.
-            </div>
-          )}
-          {!loading && !error && filtered.length > 0 && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
-              {filtered.map(l => <ListingCard key={l.id} listing={l} />)}
-            </div>
+          {!loading && !error && listings.length > 0 && (
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
+                {listings.map(l => <ListingCard key={l.id} listing={l} />)}
+              </div>
+
+              {totalPages > 1 && (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginTop: 40 }}>
+                  <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} style={{
+                    display: 'flex', alignItems: 'center', gap: 6, background: 'var(--bg3)', border: '1px solid var(--border)',
+                    borderRadius: 100, padding: '8px 16px', color: 'var(--text2)', fontSize: 13,
+                    opacity: page <= 1 ? 0.5 : 1, cursor: page <= 1 ? 'default' : 'pointer',
+                  }}><ChevronLeft size={14} /> Prev</button>
+                  <span style={{ fontSize: 13, color: 'var(--text3)' }}>Page {page} of {totalPages}</span>
+                  <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages} style={{
+                    display: 'flex', alignItems: 'center', gap: 6, background: 'var(--bg3)', border: '1px solid var(--border)',
+                    borderRadius: 100, padding: '8px 16px', color: 'var(--text2)', fontSize: 13,
+                    opacity: page >= totalPages ? 0.5 : 1, cursor: page >= totalPages ? 'default' : 'pointer',
+                  }}>Next <ChevronRight size={14} /></button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>

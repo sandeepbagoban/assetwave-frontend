@@ -1,4 +1,5 @@
 import { Star, TrendingUp, ArrowRight, Sparkles, Leaf, Zap } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import SignalSculpture from '../visuals/SignalSculpture';
 
 const FLOATING_BADGES = [
@@ -81,7 +82,7 @@ export default function Hero() {
             position: 'absolute', bottom: '18%', left: 'calc(50% - 300px)',
             display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'flex-start',
           }}>
-            <button style={{
+            <Link to="/register" state={{ intent: 'seller' }} style={{
               display: 'flex', alignItems: 'center', gap: 8,
               background: 'var(--inverse-bg)', color: 'var(--inverse-text)', border: 'none',
               borderRadius: 100, padding: '11px 18px 11px 14px',
@@ -94,7 +95,7 @@ export default function Hero() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}><ArrowRight size={12} color="var(--inverse-text)" /></span>
               Start Selling
-            </button>
+            </Link>
             <div className="glass-pill" style={{ animationDelay: '.3s' }}>
               <TrendingUp size={13} color="var(--violet3)" /> Carbon Tracking
             </div>
@@ -126,7 +127,7 @@ export default function Hero() {
             <span style={{ fontSize: 12, color: 'var(--text3)', lineHeight: 1.4 }}>Trusted by<br/>top broadcasters</span>
           </div>
 
-          <button style={{
+          <Link to="/marketplace" style={{
             background: 'var(--inverse-bg)', color: 'var(--inverse-text)', border: 'none',
             padding: '14px 26px', borderRadius: 100, fontSize: 14, fontWeight: 600,
             display: 'flex', alignItems: 'center', gap: 8,
@@ -135,8 +136,8 @@ export default function Hero() {
           onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = 'var(--shadow)'; }}
           onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}>
             Browse Marketplace <ArrowRight size={15} />
-          </button>
-          <button style={{
+          </Link>
+          <Link to="/register" state={{ intent: 'seller' }} style={{
             background: 'transparent', color: 'var(--text)', border: '1px solid var(--border2)',
             padding: '14px 26px', borderRadius: 100, fontSize: 14, fontWeight: 500,
             transition: 'all .2s',
@@ -144,7 +145,7 @@ export default function Hero() {
           onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--violet3)'}
           onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border2)'}>
             List Your Equipment
-          </button>
+          </Link>
         </div>
       </div>
 

@@ -3,11 +3,12 @@ import { Link } from 'react-router-dom';
 import { ArrowUpRight, Package } from 'lucide-react';
 import PageHeader from '../../components/shared/PageHeader';
 import { getOrders } from '../../lib/api/orders';
+import Skeleton from '../../components/shared/ui/Skeleton';
 
 const STATUS_COLOR = {
-  pending_payment: '#FBBF24', paid: '#7DD3E8', shipped: '#B4A9FB',
-  delivered: '#4ADE80', released: '#4ADE80', refunded: '#F87171',
-  disputed: '#F87171', cancelled: 'var(--text4)',
+  pending_payment: 'var(--amber)', paid: 'var(--ice)', shipped: 'var(--violet3)',
+  delivered: 'var(--green)', released: 'var(--green)', refunded: 'var(--red)',
+  disputed: 'var(--red)', cancelled: 'var(--text4)',
 };
 
 export default function OrderHistory() {
@@ -27,7 +28,22 @@ export default function OrderHistory() {
       <PageHeader eyebrow="Your account" title="Order" titleItalic="history" />
       <section className="section-sm" style={{ background: 'var(--bg)' }}>
         <div className="container" style={{ maxWidth: 760 }}>
-          {loading && <div style={{ textAlign: 'center', color: 'var(--text3)', padding: '40px 0' }}>Loading orders…</div>}
+          {loading && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+                  background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 14, padding: 18,
+                }}>
+                  <div>
+                    <Skeleton width={140} height={14} style={{ marginBottom: 8 }} />
+                    <Skeleton width={100} height={12} />
+                  </div>
+                  <Skeleton width={70} height={17} />
+                </div>
+              ))}
+            </div>
+          )}
           {error && <div style={{ textAlign: 'center', color: 'var(--red)', padding: '40px 0' }}>{error}</div>}
           {!loading && !error && orders.length === 0 && (
             <div style={{ textAlign: 'center', padding: '60px 0' }}>
@@ -37,9 +53,9 @@ export default function OrderHistory() {
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {orders.map(order => (
-              <Link key={order.id} to={`/orders/${order.id}`} style={{
+              <Link key={order.id} to={`/orders/${order.id}`} className="aw-card" style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
-                background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 14, padding: 18,
+                borderRadius: 14, padding: 18,
               }}>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 4 }}>

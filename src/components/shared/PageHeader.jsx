@@ -5,7 +5,7 @@ export default function PageHeader({ eyebrow, title, titleItalic, desc }) {
       background: 'radial-gradient(ellipse 70% 50% at 50% -10%, rgba(139,124,246,0.16), transparent), var(--bg)',
       borderBottom: '1px solid var(--border)',
     }}>
-      <div className="container" style={{ textAlign: 'center' }}>
+      <div className="container aw-fade-up" style={{ textAlign: 'center' }}>
         <div className="eyebrow" style={{ justifyContent: 'center', display: 'flex', marginBottom: 20 }}>{eyebrow}</div>
         <h1 className="serif" style={{
           fontSize: 'clamp(36px,5vw,64px)', color: 'var(--text)', letterSpacing: '-0.01em',

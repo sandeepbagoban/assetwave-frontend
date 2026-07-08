@@ -33,12 +33,9 @@ export default function Resources() {
             {SUPPORT_LINKS.map((s, i) => {
               const Icon = s.icon;
               return (
-                <a key={i} href="#" style={{
-                  display: 'block', background: 'var(--bg3)', border: '1px solid var(--border)',
-                  borderRadius: 18, padding: 26, transition: 'border-color .2s',
-                }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--violet)'}
-                onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}>
+                <a key={i} href="#" className="aw-card" style={{
+                  display: 'block', borderRadius: 18, padding: 26,
+                }}>
                   <div style={{
                     width: 42, height: 42, borderRadius: 12, marginBottom: 16,
                     background: 'var(--surface2)', border: '1px solid var(--border2)',
@@ -63,12 +60,9 @@ export default function Resources() {
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
             {GUIDES.map((g, i) => (
-              <a key={i} href="#" style={{
-                display: 'block', background: 'var(--bg3)', border: '1px solid var(--border)',
-                borderRadius: 16, padding: 24, transition: 'all .2s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--violet)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'none'; }}>
+              <a key={i} href="#" className="aw-card" style={{
+                display: 'block', borderRadius: 16, padding: 24,
+              }}>
                 <span style={{
                   fontSize: 10.5, fontWeight: 600, color: 'var(--violet3)', textTransform: 'uppercase',
                   letterSpacing: '0.05em', marginBottom: 12, display: 'inline-block',

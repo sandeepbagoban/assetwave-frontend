@@ -76,7 +76,7 @@ export default function About() {
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
             {TEAM.map((t, i) => (
-              <div key={i} style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 18, padding: 28 }}>
+              <div key={i} className="aw-surface" style={{ borderRadius: 18, padding: 28 }}>
                 <div style={{
                   width: 44, height: 44, borderRadius: 12, marginBottom: 18,
                   background: 'linear-gradient(135deg, #8B7CF6, #7DD3E8)', opacity: 0.85,

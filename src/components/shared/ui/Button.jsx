@@ -10,11 +10,12 @@ const VARIANTS = {
 
 export default function Button({
   variant = 'primary', icon: Icon, busy = false, busyLabel, children,
-  style, disabled, ...rest
+  style, disabled, className = '', ...rest
 }) {
   return (
     <button
       disabled={disabled || busy}
+      className={`aw-btn ${className}`.trim()}
       style={{
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
         padding: '13px 20px', borderRadius: 100, fontSize: 14, fontWeight: 600,

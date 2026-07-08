@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { CheckCircle2, PackageCheck, Truck, ShieldCheck, Clock } from 'lucide-react';
 import PageHeader from '../components/shared/PageHeader';
 import { getOrder, confirmDelivery } from '../lib/api/orders';
+import Skeleton from '../components/shared/ui/Skeleton';
 
 const STATUS_LABEL = {
   pending_payment: 'Payment pending', paid: 'Paid — in escrow', shipped: 'Shipped',
@@ -11,9 +12,9 @@ const STATUS_LABEL = {
 };
 
 const STATUS_COLOR = {
-  pending_payment: '#FBBF24', paid: '#7DD3E8', shipped: '#B4A9FB',
-  delivered: '#4ADE80', released: '#4ADE80', refunded: '#F87171',
-  disputed: '#F87171', cancelled: 'var(--text4)',
+  pending_payment: 'var(--amber)', paid: 'var(--ice)', shipped: 'var(--violet3)',
+  delivered: 'var(--green)', released: 'var(--green)', refunded: 'var(--red)',
+  disputed: 'var(--red)', cancelled: 'var(--text4)',
 };
 
 export default function OrderDetail() {
@@ -48,7 +49,21 @@ export default function OrderDetail() {
     }
   }
 
-  if (loading) return <div style={{ padding: '180px 0 80px', textAlign: 'center', color: 'var(--text3)' }}>Loading order…</div>;
+  if (loading) {
+    return (
+      <section className="section-sm" style={{ background: 'var(--bg)', paddingTop: 180 }}>
+        <div className="container" style={{ maxWidth: 760 }}>
+          {[24, 24, 24].map((_, i) => (
+            <div key={i} style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 18, padding: 24, marginBottom: 24 }}>
+              <Skeleton width="40%" height={16} style={{ marginBottom: 16 }} />
+              <Skeleton width="90%" height={13} style={{ marginBottom: 10 }} />
+              <Skeleton width="70%" height={13} />
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
   if (error && !order) return <div style={{ padding: '180px 0 80px', textAlign: 'center', color: 'var(--red)' }}>{error}</div>;
   if (!order) return null;
 
@@ -62,8 +77,8 @@ export default function OrderDetail() {
       />
       <section className="section-sm" style={{ background: 'var(--bg)' }}>
         <div className="container" style={{ maxWidth: 760 }}>
-          <div style={{
-            background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 18, padding: 24, marginBottom: 24,
+          <div className="aw-surface" style={{
+            borderRadius: 18, padding: 24, marginBottom: 24,
             display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -83,7 +98,7 @@ export default function OrderDetail() {
 
           {error && <div style={{ color: 'var(--red)', fontSize: 13, marginBottom: 16 }}>{error}</div>}
 
-          <div style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 18, padding: 24, marginBottom: 24 }}>
+          <div className="aw-surface" style={{ borderRadius: 18, padding: 24, marginBottom: 24 }}>
             <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 16 }}>Items</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
               {order.items.map(item => (
@@ -99,7 +114,7 @@ export default function OrderDetail() {
             </div>
           </div>
 
-          <div style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 18, padding: 24, marginBottom: 24 }}>
+          <div className="aw-surface" style={{ borderRadius: 18, padding: 24, marginBottom: 24 }}>
             <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
               <ShieldCheck size={16} color="var(--violet3)" /> Escrow &amp; shipping timeline
             </h3>
@@ -117,7 +132,7 @@ export default function OrderDetail() {
             </div>
           </div>
 
-          <div style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 18, padding: 24 }}>
+          <div className="aw-surface" style={{ borderRadius: 18, padding: 24 }}>
             <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
               <Truck size={16} /> Shipping to
             </h3>

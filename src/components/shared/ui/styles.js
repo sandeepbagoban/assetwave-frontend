@@ -11,6 +11,7 @@ export const labelStyle = { display: 'block', fontSize: 13, color: 'var(--text3)
 
 export const cardStyle = {
   background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 18, padding: 24,
+  boxShadow: 'var(--shadow-card)',
 };
 
 export const iconBtnStyle = {

@@ -71,8 +71,8 @@ export default function Register() {
             ))}
           </div>
 
-          <form onSubmit={handleSubmit} style={{
-            background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 18, padding: 32,
+          <form onSubmit={handleSubmit} className="aw-surface" style={{
+            borderRadius: 18, padding: 32,
             display: 'flex', flexDirection: 'column', gap: 18,
           }}>
             <div>
@@ -123,7 +123,7 @@ export default function Register() {
 
             {error && <div style={{ color: 'var(--red)', fontSize: 13 }}>{error}</div>}
 
-            <button type="submit" disabled={busy} style={{
+            <button type="submit" disabled={busy} className="aw-btn" style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               background: 'var(--inverse-bg)', color: 'var(--inverse-text)', border: 'none',
               padding: '13px 20px', borderRadius: 100, fontSize: 14, fontWeight: 600,

@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { resolveAssetUrl } from '../lib/api/client';
 import { clearOtherItems } from '../lib/api/cart';
+import Skeleton from '../components/shared/ui/Skeleton';
 
 const CONDITION_STYLE = {
   excellent: { bg: 'rgba(74,222,128,0.12)', color: '#4ADE80' },
@@ -25,7 +26,30 @@ export default function ProductDetail() {
   const [otherCartCount, setOtherCartCount] = useState(0);
 
   if (loading) {
-    return <div style={{ padding: '180px 0 80px', textAlign: 'center', color: 'var(--text3)' }}>Loading listing…</div>;
+    return (
+      <section className="section-sm" style={{ background: 'var(--bg)', paddingTop: 140 }}>
+        <div className="container">
+          <Skeleton width={160} height={13} style={{ marginBottom: 28 }} />
+          <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: 48 }}>
+            <div>
+              <Skeleton height={380} radius={20} />
+              <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
+                {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} width={72} height={72} radius={10} />)}
+              </div>
+            </div>
+            <div>
+              <Skeleton width="90%" height={32} style={{ marginBottom: 16 }} />
+              <Skeleton width={180} height={13} style={{ marginBottom: 24 }} />
+              <div style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 18, padding: 24 }}>
+                <Skeleton width={140} height={34} style={{ marginBottom: 18 }} />
+                <Skeleton height={48} radius={100} style={{ marginBottom: 10 }} />
+                <Skeleton height={48} radius={100} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
   }
   if (error || !listing) {
     return (
@@ -166,7 +190,7 @@ export default function ProductDetail() {
               {listing.seller?.verified && <ShieldCheck size={14} color="var(--violet3)" />}
             </div>
 
-            <div style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 18, padding: 24, marginBottom: 20 }}>
+            <div className="aw-surface" style={{ borderRadius: 18, padding: 24, marginBottom: 20 }}>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, marginBottom: 6 }}>
                 <span className="serif" style={{ fontSize: 34, color: 'var(--text)' }}>${listing.price_amount.toLocaleString()}</span>
                 {listing.new_price_estimate && (
@@ -186,7 +210,7 @@ export default function ProductDetail() {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <button onClick={handleBuyNow} disabled={busy} style={{
+                <button onClick={handleBuyNow} disabled={busy} className="aw-btn" style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                   background: 'var(--inverse-bg)', color: 'var(--inverse-text)', border: 'none',
                   padding: '14px 20px', borderRadius: 100, fontSize: 14.5, fontWeight: 600,
@@ -194,7 +218,7 @@ export default function ProductDetail() {
                 }}>
                   <Zap size={16} /> Buy now
                 </button>
-                <button onClick={handleAddToCart} disabled={busy} style={{
+                <button onClick={handleAddToCart} disabled={busy} className="aw-btn" style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                   background: 'transparent', color: 'var(--text)', border: '1px solid var(--border)',
                   padding: '14px 20px', borderRadius: 100, fontSize: 14.5, fontWeight: 600,

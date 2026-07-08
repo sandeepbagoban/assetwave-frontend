@@ -4,7 +4,8 @@ import { Search, SlidersHorizontal, ShieldCheck, ArrowUpRight, ChevronLeft, Chev
 import { useListings } from '../hooks/useListings';
 import PageHeader from '../components/shared/PageHeader';
 import CtaBanner from '../components/home/CtaBanner';
-import { LoadingBlock, ErrorBlock, EmptyBlock } from '../components/shared/ui/AsyncBlocks';
+import { ErrorBlock, EmptyBlock } from '../components/shared/ui/AsyncBlocks';
+import Skeleton from '../components/shared/ui/Skeleton';
 
 const CONDITIONS = [
   { id: '', label: 'Any condition' },
@@ -35,12 +36,9 @@ function ListingCard({ listing }) {
     : null;
 
   return (
-    <Link to={`/marketplace/${listing.id}`} style={{
-      display: 'block', background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 18,
-      overflow: 'hidden', transition: 'all .25s', cursor: 'pointer',
-    }}
-    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'var(--violet)'; }}
-    onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.borderColor = 'var(--border)'; }}>
+    <Link to={`/marketplace/${listing.id}`} className="aw-card" style={{
+      display: 'block', borderRadius: 18, overflow: 'hidden', cursor: 'pointer',
+    }}>
       <div style={{
         height: 180, background: 'linear-gradient(160deg, #1A1430, #0F0F1A)',
         position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -90,6 +88,23 @@ function ListingCard({ listing }) {
         <ArrowUpRight size={13} />
       </div>
     </Link>
+  );
+}
+
+function ListingCardSkeleton() {
+  return (
+    <div style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 18, overflow: 'hidden' }}>
+      <Skeleton height={180} radius={0} />
+      <div style={{ padding: '18px 18px 16px' }}>
+        <Skeleton width={110} height={11} style={{ marginBottom: 12 }} />
+        <Skeleton width="85%" height={15} style={{ marginBottom: 8 }} />
+        <Skeleton width="50%" height={12} style={{ marginBottom: 18 }} />
+        <Skeleton width={90} height={22} />
+      </div>
+      <div style={{ padding: '10px 18px', borderTop: '1px solid var(--border)' }}>
+        <Skeleton width={130} height={11} />
+      </div>
+    </div>
   );
 }
 
@@ -218,7 +233,11 @@ export default function Marketplace() {
           </div>
 
           {/* Results */}
-          {loading && <LoadingBlock label="Loading listings…" />}
+          {loading && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
+              {Array.from({ length: 8 }).map((_, i) => <ListingCardSkeleton key={i} />)}
+            </div>
+          )}
           {error && <ErrorBlock message={error} prefix="Couldn't load listings" />}
           {!loading && !error && listings.length === 0 && (
             <EmptyBlock message="No listings match your search yet." />

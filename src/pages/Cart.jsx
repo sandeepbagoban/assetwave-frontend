@@ -4,6 +4,7 @@ import { Trash2, Minus, Plus, ShoppingBag, ArrowRight } from 'lucide-react';
 import PageHeader from '../components/shared/PageHeader';
 import { useCart } from '../context/CartContext';
 import { ErrorBlock } from '../components/shared/ui/AsyncBlocks';
+import Skeleton from '../components/shared/ui/Skeleton';
 
 export default function Cart() {
   const { cart, loading, error, updateItem, removeItem } = useCart();
@@ -44,7 +45,23 @@ export default function Cart() {
       <PageHeader eyebrow="Your cart" title="Review your" titleItalic="equipment" />
       <section className="section-sm" style={{ background: 'var(--bg)' }}>
         <div className="container" style={{ maxWidth: 760 }}>
-          {loading && <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text3)' }}>Loading cart…</div>}
+          {loading && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} style={{
+                  display: 'flex', alignItems: 'center', gap: 16, background: 'var(--bg3)',
+                  border: '1px solid var(--border)', borderRadius: 16, padding: 18,
+                }}>
+                  <Skeleton width={64} height={64} radius={12} />
+                  <div style={{ flex: 1 }}>
+                    <Skeleton width="60%" height={15} style={{ marginBottom: 8 }} />
+                    <Skeleton width="35%" height={12} />
+                  </div>
+                  <Skeleton width={90} height={20} />
+                </div>
+              ))}
+            </div>
+          )}
 
           {!loading && error && <ErrorBlock message={error} prefix="Couldn't load your cart" />}
 
@@ -64,9 +81,8 @@ export default function Cart() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 28 }}>
                 {items.map(item => (
                   <div key={item.id}>
-                    <div style={{
-                      display: 'flex', alignItems: 'center', gap: 16, background: 'var(--bg3)',
-                      border: '1px solid var(--border)', borderRadius: 16, padding: 18,
+                    <div className="aw-surface" style={{
+                      display: 'flex', alignItems: 'center', gap: 16, borderRadius: 16, padding: 18,
                       opacity: busyId === item.id ? 0.6 : 1,
                     }}>
                       <div style={{
@@ -96,15 +112,15 @@ export default function Cart() {
                 ))}
               </div>
 
-              <div style={{
+              <div className="aw-surface" style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 16, padding: 22,
+                borderRadius: 16, padding: 22,
               }}>
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 4 }}>Subtotal</div>
                   <div className="serif" style={{ fontSize: 26, color: 'var(--text)' }}>${cart.subtotal.toLocaleString()}</div>
                 </div>
-                <button onClick={() => navigate('/checkout')} style={{
+                <button onClick={() => navigate('/checkout')} className="aw-btn" style={{
                   display: 'flex', alignItems: 'center', gap: 8,
                   background: 'var(--inverse-bg)', color: 'var(--inverse-text)', border: 'none',
                   padding: '14px 26px', borderRadius: 100, fontSize: 14.5, fontWeight: 600,

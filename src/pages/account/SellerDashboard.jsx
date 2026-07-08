@@ -8,6 +8,7 @@ import { markShipped } from '../../lib/api/orders';
 import { getCategories } from '../../lib/api/categories';
 import ImagePicker from '../../components/shared/ui/ImagePicker';
 import ConfirmButton from '../../components/shared/ui/ConfirmButton';
+import Skeleton from '../../components/shared/ui/Skeleton';
 import { iconBtnStyle, inputStyle as baseInputStyle, labelStyle as baseLabelStyle } from '../../components/shared/ui/styles';
 
 const inputStyle = { ...baseInputStyle, background: 'var(--bg2)', padding: '10px 14px', fontSize: 13.5 };
@@ -38,7 +39,7 @@ function ApplyForm({ onApplied }) {
   }
 
   return (
-    <div style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 18, padding: 28, maxWidth: 480 }}>
+    <div className="aw-surface" style={{ borderRadius: 18, padding: 28, maxWidth: 480 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
         <Store size={18} color="var(--violet3)" />
         <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text)' }}>Become a seller</h3>
@@ -126,7 +127,7 @@ function ListingForm({ categories, initial, onSaved, onCancel }) {
   }
 
   return (
-    <div style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 18, padding: 24, marginBottom: 24 }}>
+    <div className="aw-surface" style={{ borderRadius: 18, padding: 24, marginBottom: 24 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
         <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}>{initial?.id ? 'Edit listing' : 'New listing'}</h3>
         <button onClick={onCancel} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer' }}><X size={16} /></button>
@@ -252,7 +253,7 @@ export default function SellerDashboard() {
           {!sellerProfile && <ApplyForm onApplied={refreshSellerProfile} />}
 
           {sellerProfile?.kyb_status === 'pending' && (
-            <div style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 18, padding: 28, maxWidth: 480 }}>
+            <div className="aw-surface" style={{ borderRadius: 18, padding: 28, maxWidth: 480 }}>
               <Clock size={20} color="var(--amber)" style={{ marginBottom: 12 }} />
               <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>Application under review</h3>
               <p style={{ fontSize: 13.5, color: 'var(--text3)', lineHeight: 1.6 }}>
@@ -262,7 +263,7 @@ export default function SellerDashboard() {
           )}
 
           {(sellerProfile?.kyb_status === 'rejected' || sellerProfile?.kyb_status === 'suspended') && (
-            <div style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 18, padding: 28, maxWidth: 480 }}>
+            <div className="aw-surface" style={{ borderRadius: 18, padding: 28, maxWidth: 480 }}>
               <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--red)', marginBottom: 6 }}>
                 {sellerProfile.kyb_status === 'rejected' ? 'Application not approved' : 'Seller account suspended'}
               </h3>
@@ -292,15 +293,28 @@ export default function SellerDashboard() {
               )}
 
               {loading ? (
-                <div style={{ color: 'var(--text3)', fontSize: 14, padding: '20px 0' }}>Loading…</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 40 }}>
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+                      background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 14, padding: 16,
+                    }}>
+                      <div style={{ flex: 1 }}>
+                        <Skeleton width="45%" height={14} style={{ marginBottom: 8 }} />
+                        <Skeleton width="30%" height={12} />
+                      </div>
+                      <Skeleton width={64} height={32} radius={8} />
+                    </div>
+                  ))}
+                </div>
               ) : listings.length === 0 ? (
                 <div style={{ color: 'var(--text3)', fontSize: 14, padding: '20px 0' }}>You haven't listed any equipment yet.</div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 40 }}>
                   {listings.map(listing => (
-                    <div key={listing.id} style={{
+                    <div key={listing.id} className="aw-surface" style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
-                      background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 14, padding: 16,
+                      borderRadius: 14, padding: 16,
                     }}>
                       <div>
                         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{listing.title}</div>
@@ -322,9 +336,9 @@ export default function SellerDashboard() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {orders.map(item => (
                     <div key={item.order_item_id}>
-                    <div style={{
+                    <div className="aw-surface" style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
-                      background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 14, padding: 16,
+                      borderRadius: 14, padding: 16,
                     }}>
                       <div>
                         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{item.title_snapshot} × {item.quantity}</div>

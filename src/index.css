@@ -51,9 +51,19 @@
   --radius-lg: 20px;
   --radius-xl: 28px;
 
+  --shadow-xs: 0 2px 8px rgba(0,0,0,0.28);
+  --shadow-sm: 0 4px 16px rgba(0,0,0,0.32);
   --shadow:    0 8px 32px rgba(0,0,0,0.4);
+  --shadow-card:       0 4px 20px rgba(0,0,0,0.28), 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-card-hover: 0 16px 40px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.35);
   --shadow-lg: 0 24px 64px rgba(0,0,0,0.55);
   --shadow-violet: 0 12px 40px rgba(139,124,246,0.28);
+
+  --focus-ring: 0 0 0 3px rgba(139,124,246,0.38);
+  --ease: cubic-bezier(.2,.8,.2,1);
+
+  --skeleton-base:  rgba(255,255,255,0.06);
+  --skeleton-shine: rgba(255,255,255,0.14);
 }
 
 :root[data-theme="light"],
@@ -104,9 +114,19 @@
   --radius-lg: 20px;
   --radius-xl: 28px;
 
+  --shadow-xs: 0 2px 8px rgba(20,16,40,0.05);
+  --shadow-sm: 0 4px 16px rgba(20,16,40,0.06);
   --shadow:    0 8px 32px rgba(20,16,40,0.08);
+  --shadow-card:       0 2px 10px rgba(20,16,40,0.06), 0 1px 2px rgba(20,16,40,0.05);
+  --shadow-card-hover: 0 16px 36px rgba(20,16,40,0.12), 0 2px 6px rgba(20,16,40,0.08);
   --shadow-lg: 0 24px 64px rgba(20,16,40,0.12);
   --shadow-violet: 0 12px 40px rgba(120,96,239,0.18);
+
+  --focus-ring: 0 0 0 3px rgba(120,96,239,0.25);
+  --ease: cubic-bezier(.2,.8,.2,1);
+
+  --skeleton-base:  rgba(10,10,20,0.05);
+  --skeleton-shine: rgba(10,10,20,0.1);
 }
 
 html { scroll-behavior: smooth; }
@@ -127,10 +147,67 @@ button { cursor: pointer; font-family: var(--font-body); }
 a { text-decoration: none; color: inherit; }
 img, svg { display: block; max-width: 100%; }
 
+input:focus-visible, textarea:focus-visible, select:focus-visible,
+button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-color: var(--violet3);
+}
+
 .container {
   max-width: 1320px;
   margin: 0 auto;
   padding: 0 56px;
+}
+
+/* Static elevated panel — no hover-lift, for non-clickable card surfaces */
+.aw-surface {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+}
+
+/* Clickable card — lifts on hover. Only apply to elements that are
+   themselves the click target (a Link/anchor wrapping the whole card). */
+.aw-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  transition: transform .25s var(--ease), box-shadow .25s var(--ease), border-color .25s var(--ease);
+}
+.aw-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--border2);
+}
+
+.aw-btn {
+  transition: transform .2s var(--ease), box-shadow .2s var(--ease), opacity .2s var(--ease);
+}
+.aw-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+.aw-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.aw-fade-up {
+  animation: fadeUp .6s var(--ease) both;
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--skeleton-base);
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--skeleton-shine), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
 }
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }

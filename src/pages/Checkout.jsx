@@ -51,8 +51,8 @@ export default function Checkout() {
       <PageHeader eyebrow="Checkout" title="Confirm your" titleItalic="order" />
       <section className="section-sm" style={{ background: 'var(--bg)' }}>
         <div className="container" style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: 40, alignItems: 'flex-start' }}>
-          <form onSubmit={handlePlaceOrder} style={{
-            background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 18, padding: 28,
+          <form onSubmit={handlePlaceOrder} className="aw-surface" style={{
+            borderRadius: 18, padding: 28,
             display: 'flex', flexDirection: 'column', gap: 16,
           }}>
             <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 4 }}>Shipping address</h3>
@@ -101,7 +101,7 @@ export default function Checkout() {
 
             {error && <div style={{ color: 'var(--red)', fontSize: 13 }}>{error}</div>}
 
-            <button type="submit" disabled={placing} style={{
+            <button type="submit" disabled={placing} className="aw-btn" style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               background: 'var(--inverse-bg)', color: 'var(--inverse-text)', border: 'none',
               padding: '14px 20px', borderRadius: 100, fontSize: 14.5, fontWeight: 600,
@@ -111,7 +111,7 @@ export default function Checkout() {
             </button>
           </form>
 
-          <div style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 18, padding: 24 }}>
+          <div className="aw-surface" style={{ borderRadius: 18, padding: 24 }}>
             <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 16 }}>Order summary</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
               {items.map(item => (

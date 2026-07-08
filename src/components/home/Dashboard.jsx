@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Calendar } from 'lucide-react';
+import { Sparkline, DonutChart } from '../shared/ui/charts';
 
 const METRICS = [
   { label: 'Total Assets', value: '18,742', delta: '+8.2%', pos: true },
@@ -26,68 +27,6 @@ const CATEGORIES = [
 
 const SPARKLINE_DATA = [80, 95, 70, 110, 140, 130, 160, 200, 185, 220, 260, 245, 290];
 
-function Sparkline({ data, color }) {
-  const max = Math.max(...data);
-  const min = Math.min(...data);
-  const w = 220, h = 60;
-  const pts = data.map((v, i) => {
-    const x = (i / (data.length - 1)) * w;
-    const y = h - ((v - min) / (max - min)) * (h - 10) - 5;
-    return `${x},${y}`;
-  }).join(' ');
-
-  const fillPts = `0,${h} ` + pts + ` ${w},${h}`;
-
-  return (
-    <svg width={w} height={h} style={{ overflow: 'visible' }}>
-      <defs>
-        <linearGradient id={`sg-${color.replace('#','')}`} x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={color} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <polygon points={fillPts} fill={`url(#sg-${color.replace('#','')})`} />
-      <polyline points={pts} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function DonutChart({ data }) {
-  const size = 120, stroke = 22, r = (size - stroke) / 2;
-  const circ = 2 * Math.PI * r;
-  let offset = 0;
-
-  return (
-    <div style={{ position: 'relative', width: size, height: size }}>
-      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth={stroke} />
-        {data.map((d, i) => {
-          const dash = (d.pct / 100) * circ;
-          const gap = circ - dash;
-          const seg = (
-            <circle key={i} cx={size/2} cy={size/2} r={r}
-              fill="none" stroke={d.color}
-              strokeWidth={stroke}
-              strokeDasharray={`${dash} ${gap}`}
-              strokeDashoffset={-offset}
-              strokeLinecap="round"
-            />
-          );
-          offset += dash;
-          return seg;
-        })}
-      </svg>
-      <div style={{
-        position: 'absolute', inset: 0,
-        display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center',
-      }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 400, color: '#fff', lineHeight: 1 }}>18,742</div>
-        <div style={{ fontSize: 10, color: 'var(--text3)', marginTop: 2 }}>Total</div>
-      </div>
-    </div>
-  );
-}
 
 export default function Dashboard() {
   const [visible, setVisible] = useState(false);
@@ -183,7 +122,7 @@ export default function Dashboard() {
               <div style={{ padding: 18, borderRight: '1px solid var(--border)' }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Assets by Status</div>
                 <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-                  <DonutChart data={DONUT_DATA} />
+                  <DonutChart data={DONUT_DATA} centerValue="18,742" centerLabel="Total" />
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                     {DONUT_DATA.map(d => (
                       <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>

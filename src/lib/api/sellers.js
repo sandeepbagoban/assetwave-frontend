@@ -32,3 +32,9 @@ export async function getMySellerOrders(params = {}) {
   const query = new URLSearchParams(params).toString();
   return apiClient.get(`/sellers/me/orders${query ? `?${query}` : ''}`);
 }
+
+export async function getMyStats() {
+  requireBackend();
+  const res = await apiClient.get('/sellers/me/stats');
+  return res.data;
+}

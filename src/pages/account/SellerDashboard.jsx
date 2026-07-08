@@ -1,14 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Store, Plus, Trash2, Pencil, Truck, Clock, X } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Store, Plus, Trash2, Pencil, Truck, Clock, X, Upload } from 'lucide-react';
 import PageHeader from '../../components/shared/PageHeader';
 import { useAuth } from '../../context/AuthContext';
-import { applyAsSeller, getMyListings, getMySellerOrders } from '../../lib/api/sellers';
+import { applyAsSeller, getMyListings, getMySellerOrders, getMyStats } from '../../lib/api/sellers';
 import { createListing, updateListing, deleteListing, addListingImages } from '../../lib/api/listings';
+import { previewSellerImport, commitSellerImport, SELLER_IMPORT_COLUMNS } from '../../lib/api/sellerImports';
 import { markShipped } from '../../lib/api/orders';
 import { getCategories } from '../../lib/api/categories';
 import ImagePicker from '../../components/shared/ui/ImagePicker';
 import ConfirmButton from '../../components/shared/ui/ConfirmButton';
 import Skeleton from '../../components/shared/ui/Skeleton';
+import { Sparkline, DonutChart } from '../../components/shared/ui/charts';
 import { iconBtnStyle, inputStyle as baseInputStyle, labelStyle as baseLabelStyle } from '../../components/shared/ui/styles';
 
 const inputStyle = { ...baseInputStyle, background: 'var(--bg2)', padding: '10px 14px', fontSize: 13.5 };
@@ -17,6 +19,12 @@ const labelStyle = { ...baseLabelStyle, fontSize: 12, marginBottom: 6 };
 const EMPTY_FORM = {
   title: '', category_id: '', brand: '', model: '', year_manufactured: '', condition: 'good',
   description: '', price_amount: '', currency: 'USD', origin_country: '', new_price_estimate: '', quantity: 1,
+};
+
+const STATUS_CHART_COLORS = {
+  pending_payment: '#FBBF24', paid: '#7DD3E8', shipped: '#B4A9FB',
+  delivered: '#4ADE80', released: '#4ADE80', refunded: '#F87171',
+  disputed: '#F87171', cancelled: '#64748B',
 };
 
 function ApplyForm({ onApplied }) {
@@ -67,7 +75,7 @@ function ApplyForm({ onApplied }) {
           <input style={inputStyle} value={form.registration_no} onChange={e => setForm(f => ({ ...f, registration_no: e.target.value }))} />
         </div>
         {error && <div style={{ color: 'var(--red)', fontSize: 13 }}>{error}</div>}
-        <button type="submit" disabled={busy} style={{
+        <button type="submit" disabled={busy} className="aw-btn" style={{
           background: 'var(--inverse-bg)', color: 'var(--inverse-text)', border: 'none',
           padding: '12px 20px', borderRadius: 100, fontSize: 14, fontWeight: 600,
           opacity: busy ? 0.6 : 1, cursor: busy ? 'default' : 'pointer',
@@ -190,7 +198,7 @@ function ListingForm({ categories, initial, onSaved, onCancel }) {
         </div>
         {error && <div style={{ gridColumn: '1 / -1', color: 'var(--red)', fontSize: 13 }}>{error}</div>}
         <div style={{ gridColumn: '1 / -1' }}>
-          <button type="submit" disabled={busy} style={{
+          <button type="submit" disabled={busy} className="aw-btn" style={{
             background: 'var(--inverse-bg)', color: 'var(--inverse-text)', border: 'none',
             padding: '12px 22px', borderRadius: 100, fontSize: 14, fontWeight: 600,
             opacity: busy ? 0.6 : 1, cursor: busy ? 'default' : 'pointer',
@@ -201,12 +209,268 @@ function ListingForm({ categories, initial, onSaved, onCancel }) {
   );
 }
 
+const thStyle = { textAlign: 'left', padding: '8px 10px', color: 'var(--text3)', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.03em', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' };
+const tdStyle = { padding: '8px 10px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap', color: 'var(--text2)' };
+
+function MiniStat({ label, value, color }) {
+  return (
+    <div className="aw-surface" style={{ borderRadius: 12, padding: '14px 16px' }}>
+      <div style={{ fontSize: 11, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.03em', marginBottom: 4 }}>{label}</div>
+      <div className="serif" style={{ fontSize: 22, color: color || 'var(--text)' }}>{value}</div>
+    </div>
+  );
+}
+
+function BulkImportPanel({ onCancel, onImported }) {
+  const fileInputRef = useRef(null);
+  const [fileName, setFileName] = useState('');
+  const [preview, setPreviewState] = useState(null);
+  const [commitResult, setCommitResult] = useState(null);
+  const [error, setError] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [committing, setCommitting] = useState(false);
+
+  async function handleFileChange(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setFileName(file.name);
+    setError('');
+    setCommitResult(null);
+    setPreviewState(null);
+    setUploading(true);
+    try {
+      setPreviewState(await previewSellerImport(file));
+    } catch (err) {
+      setError(err.message || 'Could not preview this file.');
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function handleCommit() {
+    if (!preview) return;
+    setError('');
+    setCommitting(true);
+    try {
+      setCommitResult(await commitSellerImport(preview.job_id));
+    } catch (err) {
+      setError(err.message || 'Could not commit this import.');
+    } finally {
+      setCommitting(false);
+    }
+  }
+
+  function resetAll() {
+    setPreviewState(null);
+    setCommitResult(null);
+    setError('');
+    setFileName('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+
+  return (
+    <div className="aw-surface" style={{ borderRadius: 18, padding: 24, marginBottom: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+        <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}>Bulk upload listings</h3>
+        <button onClick={onCancel} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer' }}><X size={16} /></button>
+      </div>
+
+      <div style={{ background: 'var(--bg2)', border: '1px dashed var(--border)', borderRadius: 12, padding: '14px 16px', fontSize: 12.5, color: 'var(--text3)', marginBottom: 18, lineHeight: 1.6 }}>
+        <strong style={{ color: 'var(--text2)' }}>Expected column headers (row 1, case-insensitive):</strong>
+        <div style={{ marginTop: 6, fontFamily: 'monospace', fontSize: 11.5, color: 'var(--text2)', wordBreak: 'break-word' }}>{SELLER_IMPORT_COLUMNS.join(', ')}</div>
+        <div style={{ marginTop: 8 }}><code>category_slug</code> must match an existing category slug (e.g. <code>cameras</code>, <code>audio</code>) or that row will error out.</div>
+      </div>
+
+      {error && <div style={{ color: 'var(--red)', fontSize: 13, marginBottom: 14 }}>{error}</div>}
+
+      {!commitResult && (
+        <>
+          <div style={{ border: '1px dashed var(--border)', borderRadius: 12, padding: 24, textAlign: 'center', marginBottom: 18 }}>
+            <p style={{ fontSize: 13.5, color: 'var(--text2)', marginBottom: 10 }}>Select an .xlsx file to preview</p>
+            <input ref={fileInputRef} type="file" accept=".xlsx" onChange={handleFileChange} style={{ fontSize: 13, color: 'var(--text3)' }} />
+            {fileName && <p style={{ fontSize: 12.5, color: 'var(--text3)', marginTop: 8 }}>Selected: {fileName}</p>}
+            {uploading && <p style={{ fontSize: 12.5, color: 'var(--text3)', marginTop: 4 }}>Uploading and validating…</p>}
+          </div>
+
+          {preview && (
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginBottom: 18 }}>
+                <MiniStat label="Total rows" value={preview.row_count} />
+                <MiniStat label="Valid" value={preview.valid_count} color="var(--green)" />
+                <MiniStat label="Errors" value={preview.error_count} color="var(--red)" />
+              </div>
+
+              <div style={{ overflowX: 'auto', marginBottom: 18, border: '1px solid var(--border)', borderRadius: 12 }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
+                  <thead>
+                    <tr>
+                      <th style={thStyle}>Row</th>
+                      {SELLER_IMPORT_COLUMNS.map(col => <th key={col} style={thStyle}>{col}</th>)}
+                      <th style={thStyle}>Errors</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {preview.rows.map(row => (
+                      <tr key={row.row_num} style={{ background: row.errors.length ? 'rgba(248,113,113,0.08)' : 'transparent' }}>
+                        <td style={tdStyle}>{row.row_num}</td>
+                        {SELLER_IMPORT_COLUMNS.map(col => <td key={col} style={tdStyle}>{row.data[col] ?? ''}</td>)}
+                        <td style={{ ...tdStyle, color: row.errors.length ? 'var(--red)' : 'var(--text4)' }}>{row.errors.length ? row.errors.join('; ') : '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button onClick={resetAll} className="aw-btn" style={{
+                  background: 'transparent', color: 'var(--text)', border: '1px solid var(--border)',
+                  padding: '12px 20px', borderRadius: 100, fontSize: 13.5, fontWeight: 600, cursor: 'pointer',
+                }}>Upload a different file</button>
+                <button onClick={handleCommit} disabled={committing || preview.valid_count === 0} className="aw-btn" style={{
+                  background: 'var(--inverse-bg)', color: 'var(--inverse-text)', border: 'none',
+                  padding: '12px 20px', borderRadius: 100, fontSize: 13.5, fontWeight: 600,
+                  opacity: (committing || preview.valid_count === 0) ? 0.6 : 1,
+                  cursor: (committing || preview.valid_count === 0) ? 'default' : 'pointer',
+                }}>{committing ? 'Committing…' : `Commit ${preview.valid_count} valid row(s)`}</button>
+              </div>
+            </>
+          )}
+        </>
+      )}
+
+      {commitResult && (
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 12, marginBottom: 18 }}>
+            <MiniStat label="Created" value={commitResult.created_count} color="var(--green)" />
+            <MiniStat label="Skipped" value={commitResult.skipped_count} color="var(--red)" />
+          </div>
+
+          {commitResult.skipped.length > 0 && (
+            <div style={{ overflowX: 'auto', marginBottom: 18, border: '1px solid var(--border)', borderRadius: 12 }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
+                <thead><tr><th style={thStyle}>Row</th><th style={thStyle}>Errors</th></tr></thead>
+                <tbody>
+                  {commitResult.skipped.map(s => (
+                    <tr key={s.row_num}><td style={tdStyle}>{s.row_num}</td><td style={{ ...tdStyle, color: 'var(--red)' }}>{s.errors.join('; ')}</td></tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <button onClick={() => { resetAll(); onImported(); }} className="aw-btn" style={{
+            background: 'var(--inverse-bg)', color: 'var(--inverse-text)', border: 'none',
+            padding: '12px 22px', borderRadius: 100, fontSize: 13.5, fontWeight: 600, cursor: 'pointer',
+          }}>Done</button>
+        </>
+      )}
+    </div>
+  );
+}
+
+function OverviewTab() {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    getMyStats()
+      .then(data => { if (!cancelled) setStats(data); })
+      .catch(err => { if (!cancelled) setError(err.message || 'Could not load stats.'); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 24 }}>
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="aw-surface" style={{ borderRadius: 12, padding: '14px 16px' }}>
+            <Skeleton width="60%" height={11} style={{ marginBottom: 10 }} />
+            <Skeleton width="40%" height={22} />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) return <div style={{ color: 'var(--red)', fontSize: 13.5, padding: '20px 0' }}>{error}</div>;
+  if (!stats) return null;
+
+  const donutData = Object.entries(stats.orders_by_status).map(([status, count]) => ({
+    label: status.replace('_', ' '), count, pct: 0, color: STATUS_CHART_COLORS[status] || '#64748B',
+  }));
+  const totalOrders = donutData.reduce((sum, d) => sum + d.count, 0);
+  donutData.forEach(d => { d.pct = totalOrders ? (d.count / totalOrders) * 100 : 0; });
+
+  const sparkValues = stats.sales_last_30_days.map(d => d.revenue_usd);
+
+  return (
+    <>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 24 }}>
+        <MiniStat label="Active listings" value={stats.active_listings} />
+        <MiniStat label="Total revenue" value={`$${stats.total_revenue_usd.toLocaleString()}`} color="var(--green)" />
+        <MiniStat label="Total listings" value={stats.total_listings} />
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 14, marginBottom: 24 }}>
+        <div className="aw-surface" style={{ borderRadius: 18, padding: 20 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Orders by status</div>
+          {totalOrders === 0 ? (
+            <div style={{ fontSize: 13, color: 'var(--text3)' }}>No orders yet.</div>
+          ) : (
+            <div style={{ display: 'flex', gap: 18, alignItems: 'center' }}>
+              <DonutChart data={donutData} centerValue={totalOrders} centerLabel="Orders" />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {donutData.map(d => (
+                  <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: 2, background: d.color, flexShrink: 0 }} />
+                    <div>
+                      <div style={{ fontSize: 11, color: 'var(--text3)', textTransform: 'capitalize' }}>{d.label}</div>
+                      <div style={{ fontSize: 12.5, color: 'var(--text)', fontWeight: 600 }}>{d.count}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="aw-surface" style={{ borderRadius: 18, padding: 20 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Sales — last 30 days</div>
+          <div style={{ fontSize: 11, color: 'var(--text4)', marginBottom: 8 }}>Revenue (USD)</div>
+          <Sparkline data={sparkValues.length ? sparkValues : [0, 0]} color="#8B7CF6" width={320} height={70} />
+        </div>
+      </div>
+
+      <div className="aw-surface" style={{ borderRadius: 18, padding: 20 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Top listings by revenue</div>
+        {stats.top_listings.length === 0 ? (
+          <div style={{ fontSize: 13, color: 'var(--text3)' }}>No sales yet.</div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {stats.top_listings.map(l => (
+              <div key={l.listing_id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13.5 }}>
+                <span style={{ color: 'var(--text2)' }}>{l.title} <span style={{ color: 'var(--text4)', fontSize: 12 }}>× {l.units_sold}</span></span>
+                <span style={{ color: 'var(--text)', fontWeight: 600 }}>${l.revenue_usd.toLocaleString()}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
 export default function SellerDashboard() {
   const { sellerProfile, refreshSellerProfile } = useAuth();
+  const [tab, setTab] = useState('overview');
   const [categories, setCategories] = useState([]);
   const [listings, setListings] = useState([]);
   const [orders, setOrders] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [showBulk, setShowBulk] = useState(false);
   const [editing, setEditing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [shippingId, setShippingId] = useState(null);
@@ -245,6 +509,12 @@ export default function SellerDashboard() {
     }
   }
 
+  const TABS = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'listings', label: 'Listings' },
+    { id: 'orders', label: 'Orders' },
+  ];
+
   return (
     <>
       <PageHeader eyebrow="Your account" title="Seller" titleItalic="dashboard" />
@@ -273,93 +543,127 @@ export default function SellerDashboard() {
 
           {isApproved && (
             <>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-                <h3 style={{ fontSize: 17, fontWeight: 600, color: 'var(--text)' }}>Your listings</h3>
-                {!showForm && (
-                  <button onClick={() => { setEditing(null); setShowForm(true); }} style={{
-                    display: 'flex', alignItems: 'center', gap: 8, background: 'var(--inverse-bg)', color: 'var(--inverse-text)',
-                    border: 'none', padding: '10px 18px', borderRadius: 100, fontSize: 13.5, fontWeight: 600,
-                  }}><Plus size={15} /> New listing</button>
-                )}
+              <div style={{ display: 'flex', gap: 8, marginBottom: 28 }}>
+                {TABS.map(t => (
+                  <button key={t.id} onClick={() => setTab(t.id)} style={{
+                    padding: '9px 18px', borderRadius: 100, fontSize: 13.5, fontWeight: 500,
+                    border: '1px solid ' + (tab === t.id ? 'var(--violet)' : 'var(--border)'),
+                    background: tab === t.id ? 'var(--surface3)' : 'transparent',
+                    color: tab === t.id ? 'var(--text)' : 'var(--text3)',
+                  }}>{t.label}</button>
+                ))}
               </div>
 
-              {showForm && (
-                <ListingForm
-                  categories={categories}
-                  initial={editing}
-                  onCancel={() => setShowForm(false)}
-                  onSaved={() => { setShowForm(false); loadData(); }}
-                />
-              )}
+              {tab === 'overview' && <OverviewTab />}
 
-              {loading ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 40 }}>
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
-                      background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 14, padding: 16,
-                    }}>
-                      <div style={{ flex: 1 }}>
-                        <Skeleton width="45%" height={14} style={{ marginBottom: 8 }} />
-                        <Skeleton width="30%" height={12} />
+              {tab === 'listings' && (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+                    <h3 style={{ fontSize: 17, fontWeight: 600, color: 'var(--text)' }}>Your listings</h3>
+                    {!showForm && !showBulk && (
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button onClick={() => setShowBulk(true)} className="aw-btn" style={{
+                          display: 'flex', alignItems: 'center', gap: 8, background: 'transparent', color: 'var(--text)',
+                          border: '1px solid var(--border)', padding: '10px 18px', borderRadius: 100, fontSize: 13.5, fontWeight: 600,
+                        }}><Upload size={15} /> Bulk upload</button>
+                        <button onClick={() => { setEditing(null); setShowForm(true); }} className="aw-btn" style={{
+                          display: 'flex', alignItems: 'center', gap: 8, background: 'var(--inverse-bg)', color: 'var(--inverse-text)',
+                          border: 'none', padding: '10px 18px', borderRadius: 100, fontSize: 13.5, fontWeight: 600,
+                        }}><Plus size={15} /> New listing</button>
                       </div>
-                      <Skeleton width={64} height={32} radius={8} />
-                    </div>
-                  ))}
-                </div>
-              ) : listings.length === 0 ? (
-                <div style={{ color: 'var(--text3)', fontSize: 14, padding: '20px 0' }}>You haven't listed any equipment yet.</div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 40 }}>
-                  {listings.map(listing => (
-                    <div key={listing.id} className="aw-surface" style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
-                      borderRadius: 14, padding: 16,
-                    }}>
-                      <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{listing.title}</div>
-                        <div style={{ fontSize: 12, color: 'var(--text3)' }}>{listing.status} · ${listing.price_amount.toLocaleString()} · qty {listing.quantity}</div>
-                      </div>
-                      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                        <button onClick={() => { setEditing({ ...listing, price_amount: String(listing.price_amount) }); setShowForm(true); }} style={iconBtnStyle}><Pencil size={14} /></button>
-                        <ConfirmButton icon={Trash2} confirmLabel="Delete this listing?" onConfirm={() => handleDelete(listing.id)} onDone={loadData} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <h3 style={{ fontSize: 17, fontWeight: 600, color: 'var(--text)', marginBottom: 20 }}>Orders on your items</h3>
-              {orders.length === 0 ? (
-                <div style={{ color: 'var(--text3)', fontSize: 14 }}>No orders yet.</div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {orders.map(item => (
-                    <div key={item.order_item_id}>
-                    <div className="aw-surface" style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
-                      borderRadius: 14, padding: 16,
-                    }}>
-                      <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{item.title_snapshot} × {item.quantity}</div>
-                        <div style={{ fontSize: 12, color: 'var(--text3)' }}>
-                          {item.order_status.replace('_', ' ')} · buyer: {item.buyer_name || 'unknown'}
-                        </div>
-                      </div>
-                      {item.order_status === 'paid' && (
-                        <button onClick={() => handleShip(item.order_id)} disabled={shippingId === item.order_id} style={{
-                          display: 'flex', alignItems: 'center', gap: 6, background: 'var(--surface2)', border: '1px solid var(--border)',
-                          color: 'var(--text)', padding: '8px 14px', borderRadius: 100, fontSize: 12.5, fontWeight: 500,
-                          opacity: shippingId === item.order_id ? 0.6 : 1, cursor: shippingId === item.order_id ? 'default' : 'pointer',
-                        }}><Truck size={13} /> {shippingId === item.order_id ? 'Marking…' : 'Mark shipped'}</button>
-                      )}
-                    </div>
-                    {shipError.id === item.order_id && (
-                      <div style={{ fontSize: 12, color: 'var(--red)', marginTop: 6, paddingLeft: 4 }}>{shipError.message}</div>
                     )}
+                  </div>
+
+                  {showBulk && (
+                    <BulkImportPanel
+                      onCancel={() => setShowBulk(false)}
+                      onImported={() => { setShowBulk(false); loadData(); }}
+                    />
+                  )}
+
+                  {showForm && (
+                    <ListingForm
+                      categories={categories}
+                      initial={editing}
+                      onCancel={() => setShowForm(false)}
+                      onSaved={() => { setShowForm(false); loadData(); }}
+                    />
+                  )}
+
+                  {loading ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 40 }}>
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} style={{
+                          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+                          background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 14, padding: 16,
+                        }}>
+                          <div style={{ flex: 1 }}>
+                            <Skeleton width="45%" height={14} style={{ marginBottom: 8 }} />
+                            <Skeleton width="30%" height={12} />
+                          </div>
+                          <Skeleton width={64} height={32} radius={8} />
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  ) : listings.length === 0 ? (
+                    <div style={{ color: 'var(--text3)', fontSize: 14, padding: '20px 0' }}>You haven't listed any equipment yet.</div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      {listings.map(listing => (
+                        <div key={listing.id} className="aw-surface" style={{
+                          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+                          borderRadius: 14, padding: 16,
+                        }}>
+                          <div>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{listing.title}</div>
+                            <div style={{ fontSize: 12, color: 'var(--text3)' }}>{listing.status} · ${listing.price_amount.toLocaleString()} · qty {listing.quantity}</div>
+                          </div>
+                          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                            <button onClick={() => { setEditing({ ...listing, price_amount: String(listing.price_amount) }); setShowForm(true); }} style={iconBtnStyle}><Pencil size={14} /></button>
+                            <ConfirmButton icon={Trash2} confirmLabel="Delete this listing?" onConfirm={() => handleDelete(listing.id)} onDone={loadData} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {tab === 'orders' && (
+                <>
+                  <h3 style={{ fontSize: 17, fontWeight: 600, color: 'var(--text)', marginBottom: 20 }}>Orders on your items</h3>
+                  {orders.length === 0 ? (
+                    <div style={{ color: 'var(--text3)', fontSize: 14 }}>No orders yet.</div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      {orders.map(item => (
+                        <div key={item.order_item_id}>
+                        <div className="aw-surface" style={{
+                          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+                          borderRadius: 14, padding: 16,
+                        }}>
+                          <div>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{item.title_snapshot} × {item.quantity}</div>
+                            <div style={{ fontSize: 12, color: 'var(--text3)' }}>
+                              {item.order_status.replace('_', ' ')} · buyer: {item.buyer_name || 'unknown'}
+                            </div>
+                          </div>
+                          {item.order_status === 'paid' && (
+                            <button onClick={() => handleShip(item.order_id)} disabled={shippingId === item.order_id} style={{
+                              display: 'flex', alignItems: 'center', gap: 6, background: 'var(--surface2)', border: '1px solid var(--border)',
+                              color: 'var(--text)', padding: '8px 14px', borderRadius: 100, fontSize: 12.5, fontWeight: 500,
+                              opacity: shippingId === item.order_id ? 0.6 : 1, cursor: shippingId === item.order_id ? 'default' : 'pointer',
+                            }}><Truck size={13} /> {shippingId === item.order_id ? 'Marking…' : 'Mark shipped'}</button>
+                          )}
+                        </div>
+                        {shipError.id === item.order_id && (
+                          <div style={{ fontSize: 12, color: 'var(--red)', marginTop: 6, paddingLeft: 4 }}>{shipError.message}</div>
+                        )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
             </>
           )}

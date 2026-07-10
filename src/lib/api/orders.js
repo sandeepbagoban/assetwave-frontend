@@ -9,9 +9,15 @@ function requireBackend() {
   }
 }
 
-export async function checkout(shipping_address) {
+export async function checkout(shipping_address, logistics_provider_id) {
   requireBackend();
-  const res = await apiClient.post('/orders/checkout', { shipping_address });
+  const res = await apiClient.post('/orders/checkout', { shipping_address, logistics_provider_id });
+  return res.data;
+}
+
+export async function recordTracking(id, tracking_number) {
+  requireBackend();
+  const res = await apiClient.post(`/orders/${id}/tracking`, { tracking_number });
   return res.data;
 }
 

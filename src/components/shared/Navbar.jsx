@@ -11,6 +11,7 @@ const NAV_LINKS = [
   { label: 'Impact', to: '/impact' },
   { label: 'Marketplace', to: '/marketplace' },
   { label: 'Resources', to: '/resources' },
+  { label: 'Contact', to: '/contact' },
 ];
 
 function ThemeToggle() {

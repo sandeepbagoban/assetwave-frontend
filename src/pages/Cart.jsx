@@ -5,6 +5,7 @@ import PageHeader from '../components/shared/PageHeader';
 import { useCart } from '../context/CartContext';
 import { ErrorBlock } from '../components/shared/ui/AsyncBlocks';
 import Skeleton from '../components/shared/ui/Skeleton';
+import { countryFlag } from '../lib/format';
 
 export default function Cart() {
   const { cart, loading, error, updateItem, removeItem } = useCart();
@@ -91,7 +92,10 @@ export default function Cart() {
                       }} />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 14.5, fontWeight: 600, color: 'var(--text)', marginBottom: 4 }}>{item.listing.title}</div>
-                        <div style={{ fontSize: 12.5, color: 'var(--text3)' }}>{item.listing.seller?.name}</div>
+                        <div style={{ fontSize: 12.5, color: 'var(--text3)' }}>
+                          {countryFlag(item.listing.seller?.country)} {item.listing.seller?.name}
+                          {item.listing.weight_kg && <> &middot; {item.listing.weight_kg} kg</>}
+                        </div>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <button onClick={() => changeQty(item, -1)} disabled={busyId === item.id} style={qtyBtnStyle}><Minus size={13} /></button>
@@ -119,6 +123,9 @@ export default function Cart() {
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 4 }}>Subtotal</div>
                   <div className="serif" style={{ fontSize: 26, color: 'var(--text)' }}>${cart.subtotal.toLocaleString()}</div>
+                  {cart.total_weight_kg > 0 && (
+                    <div style={{ fontSize: 12, color: 'var(--text3)', marginTop: 4 }}>Total weight: {cart.total_weight_kg} kg</div>
+                  )}
                 </div>
                 <button onClick={() => navigate('/checkout')} className="aw-btn" style={{
                   display: 'flex', alignItems: 'center', gap: 8,

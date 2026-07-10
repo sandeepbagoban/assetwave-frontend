@@ -12,7 +12,7 @@ export default function Register() {
   const location = useLocation();
   const [intent, setIntent] = useState(location.state?.intent === 'seller' ? 'seller' : 'buyer');
   const [form, setForm] = useState({ full_name: '', email: '', phone: '', password: '' });
-  const [sellerForm, setSellerForm] = useState({ org_name: '', country: '', account_type: 'organization', registration_no: '' });
+  const [sellerForm, setSellerForm] = useState({ org_name: '', nickname: '', country: '', account_type: 'organization', registration_no: '' });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -100,6 +100,11 @@ export default function Register() {
                 <div>
                   <label style={labelStyle}>Organization / business name</label>
                   <input style={inputStyle} required value={sellerForm.org_name} onChange={updateSeller('org_name')} />
+                  <div style={{ fontSize: 11.5, color: 'var(--text4)', marginTop: 6 }}>Kept private — never shown to buyers.</div>
+                </div>
+                <div>
+                  <label style={labelStyle}>Public nickname</label>
+                  <input style={inputStyle} required value={sellerForm.nickname} onChange={updateSeller('nickname')} placeholder="Shown to buyers instead of your company name" />
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                   <div>

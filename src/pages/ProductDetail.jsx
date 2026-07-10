@@ -172,6 +172,9 @@ export default function ProductDetail() {
               {[
                 ['Brand', listing.brand], ['Model', listing.model],
                 ['Year', listing.year_manufactured], ['Origin', listing.origin_country],
+                ['Weight', listing.weight_kg ? `${listing.weight_kg} kg` : null],
+                ['Dimensions', (listing.length_cm && listing.width_cm && listing.height_cm)
+                  ? `${listing.length_cm} × ${listing.width_cm} × ${listing.height_cm} cm` : null],
               ].filter(([, v]) => v).map(([label, value]) => (
                 <div key={label} style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 12, padding: '12px 16px' }}>
                   <div style={{ fontSize: 11, color: 'var(--text4)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>{label}</div>
@@ -186,7 +189,7 @@ export default function ProductDetail() {
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--text3)', marginBottom: 24 }}>
               <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#4ADE80' }} />
-              Sold by <strong style={{ color: 'var(--text2)' }}>{listing.seller?.name}</strong>
+              Sold by {countryFlag(listing.seller?.country)} <strong style={{ color: 'var(--text2)' }}>{listing.seller?.name}</strong>
               {listing.seller?.verified && <ShieldCheck size={14} color="var(--violet3)" />}
             </div>
 

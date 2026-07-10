@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Store, Plus, Trash2, Pencil, Truck, Clock, X, Upload } from 'lucide-react';
+import { Store, Plus, Trash2, Pencil, Truck, Clock, X, Upload, Calendar } from 'lucide-react';
 import PageHeader from '../../components/shared/PageHeader';
 import { useAuth } from '../../context/AuthContext';
 import { applyAsSeller, getMyListings, getMySellerOrders, getMyStats } from '../../lib/api/sellers';
 import { createListing, updateListing, deleteListing, addListingImages } from '../../lib/api/listings';
 import { previewSellerImport, commitSellerImport, SELLER_IMPORT_COLUMNS } from '../../lib/api/sellerImports';
-import { markShipped } from '../../lib/api/orders';
+import { markShipped, recordTracking } from '../../lib/api/orders';
 import { getCategories } from '../../lib/api/categories';
 import ImagePicker from '../../components/shared/ui/ImagePicker';
 import ConfirmButton from '../../components/shared/ui/ConfirmButton';
@@ -19,6 +19,7 @@ const labelStyle = { ...baseLabelStyle, fontSize: 12, marginBottom: 6 };
 const EMPTY_FORM = {
   title: '', category_id: '', brand: '', model: '', year_manufactured: '', condition: 'good',
   description: '', price_amount: '', currency: 'USD', origin_country: '', new_price_estimate: '', quantity: 1,
+  weight_kg: '', length_cm: '', width_cm: '', height_cm: '',
 };
 
 const STATUS_CHART_COLORS = {
@@ -28,7 +29,7 @@ const STATUS_CHART_COLORS = {
 };
 
 function ApplyForm({ onApplied }) {
-  const [form, setForm] = useState({ org_name: '', country: '', account_type: 'organization', registration_no: '' });
+  const [form, setForm] = useState({ org_name: '', nickname: '', country: '', account_type: 'organization', registration_no: '' });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -56,6 +57,11 @@ function ApplyForm({ onApplied }) {
         <div>
           <label style={labelStyle}>Organization / business name</label>
           <input style={inputStyle} required value={form.org_name} onChange={e => setForm(f => ({ ...f, org_name: e.target.value }))} />
+          <div style={{ fontSize: 11, color: 'var(--text4)', marginTop: 6 }}>Kept private — never shown to buyers.</div>
+        </div>
+        <div>
+          <label style={labelStyle}>Public nickname</label>
+          <input style={inputStyle} required value={form.nickname} onChange={e => setForm(f => ({ ...f, nickname: e.target.value }))} placeholder="Shown to buyers instead of your company name" />
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <div>
@@ -106,6 +112,10 @@ function ListingForm({ categories, initial, onSaved, onCancel }) {
       price_amount: Number(form.price_amount),
       new_price_estimate: form.new_price_estimate ? Number(form.new_price_estimate) : undefined,
       quantity: Number(form.quantity) || 1,
+      weight_kg: form.weight_kg ? Number(form.weight_kg) : undefined,
+      length_cm: form.length_cm ? Number(form.length_cm) : undefined,
+      width_cm: form.width_cm ? Number(form.width_cm) : undefined,
+      height_cm: form.height_cm ? Number(form.height_cm) : undefined,
       status: 'active',
     };
     let saved;
@@ -187,6 +197,24 @@ function ListingForm({ categories, initial, onSaved, onCancel }) {
         <div>
           <label style={labelStyle}>Quantity</label>
           <input style={inputStyle} type="number" min="1" value={form.quantity} onChange={update('quantity')} />
+        </div>
+        <div>
+          <label style={labelStyle}>Weight (kg, optional)</label>
+          <input style={inputStyle} type="number" min="0" step="0.01" value={form.weight_kg} onChange={update('weight_kg')} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+          <div>
+            <label style={labelStyle}>Length (cm)</label>
+            <input style={inputStyle} type="number" min="0" step="0.1" value={form.length_cm} onChange={update('length_cm')} />
+          </div>
+          <div>
+            <label style={labelStyle}>Width (cm)</label>
+            <input style={inputStyle} type="number" min="0" step="0.1" value={form.width_cm} onChange={update('width_cm')} />
+          </div>
+          <div>
+            <label style={labelStyle}>Height (cm)</label>
+            <input style={inputStyle} type="number" min="0" step="0.1" value={form.height_cm} onChange={update('height_cm')} />
+          </div>
         </div>
         <div style={{ gridColumn: '1 / -1' }}>
           <label style={labelStyle}>Description</label>
@@ -368,6 +396,8 @@ function BulkImportPanel({ onCancel, onImported }) {
   );
 }
 
+const PANEL_LABEL_STYLE = { fontSize: 11, fontWeight: 600, color: 'var(--text3)', marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.06em' };
+
 function OverviewTab() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -384,13 +414,21 @@ function OverviewTab() {
 
   if (loading) {
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 24 }}>
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="aw-surface" style={{ borderRadius: 12, padding: '14px 16px' }}>
-            <Skeleton width="60%" height={11} style={{ marginBottom: 10 }} />
-            <Skeleton width="40%" height={22} />
-          </div>
-        ))}
+      <div className="aw-surface" style={{ borderRadius: 20, overflow: 'hidden' }}>
+        <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', background: 'var(--bg3)' }}>
+          <Skeleton width={140} height={13} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', borderBottom: '1px solid var(--border)' }}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} style={{ padding: 14, borderRight: i < 4 ? '1px solid var(--border)' : 'none' }}>
+              <Skeleton width="70%" height={10} style={{ marginBottom: 8 }} />
+              <Skeleton width="50%" height={17} />
+            </div>
+          ))}
+        </div>
+        <div style={{ padding: 18 }}>
+          <Skeleton width="100%" height={100} />
+        </div>
       </div>
     );
   }
@@ -406,29 +444,59 @@ function OverviewTab() {
 
   const sparkValues = stats.sales_last_30_days.map(d => d.revenue_usd);
 
+  const KPIS = [
+    { label: 'Total Products', value: stats.total_listings.toLocaleString() },
+    { label: 'Inventory Value', value: `$${stats.inventory_value_usd.toLocaleString()}` },
+    { label: 'Active Listings', value: stats.active_listings.toLocaleString() },
+    { label: 'Sold Listings', value: stats.sold_listings.toLocaleString() },
+    { label: 'Pending Orders', value: stats.pending_orders.toLocaleString() },
+  ];
+
   return (
-    <>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 24 }}>
-        <MiniStat label="Active listings" value={stats.active_listings} />
-        <MiniStat label="Total revenue" value={`$${stats.total_revenue_usd.toLocaleString()}`} color="var(--green)" />
-        <MiniStat label="Total listings" value={stats.total_listings} />
+    <div className="aw-surface" style={{ borderRadius: 20, overflow: 'hidden' }}>
+      {/* Header bar */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '14px 20px', borderBottom: '1px solid var(--border)', background: 'var(--bg3)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--violet)' }} />
+          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>Seller Overview</span>
+        </div>
+        <div style={{
+          fontSize: 11, color: 'var(--text3)', background: 'var(--surface)', padding: '4px 10px',
+          borderRadius: 6, display: 'flex', alignItems: 'center', gap: 6,
+        }}>
+          <Calendar size={12} /> Last 30 days
+        </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 14, marginBottom: 24 }}>
-        <div className="aw-surface" style={{ borderRadius: 18, padding: 20 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Orders by status</div>
+      {/* KPI row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', borderBottom: '1px solid var(--border)' }}>
+        {KPIS.map((k, i) => (
+          <div key={k.label} style={{ padding: 14, borderRight: i < KPIS.length - 1 ? '1px solid var(--border)' : 'none' }}>
+            <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4, fontWeight: 500 }}>{k.label}</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 17, fontWeight: 400, color: 'var(--text)', lineHeight: 1 }}>{k.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Charts row */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr 1fr' }}>
+        <div style={{ padding: 18, borderRight: '1px solid var(--border)' }}>
+          <div style={PANEL_LABEL_STYLE}>Orders by Status</div>
           {totalOrders === 0 ? (
-            <div style={{ fontSize: 13, color: 'var(--text3)' }}>No orders yet.</div>
+            <div style={{ fontSize: 12, color: 'var(--text3)' }}>No orders yet.</div>
           ) : (
-            <div style={{ display: 'flex', gap: 18, alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
               <DonutChart data={donutData} centerValue={totalOrders} centerLabel="Orders" />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {donutData.map(d => (
-                  <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <div style={{ width: 8, height: 8, borderRadius: 2, background: d.color, flexShrink: 0 }} />
                     <div>
-                      <div style={{ fontSize: 11, color: 'var(--text3)', textTransform: 'capitalize' }}>{d.label}</div>
-                      <div style={{ fontSize: 12.5, color: 'var(--text)', fontWeight: 600 }}>{d.count}</div>
+                      <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'capitalize' }}>{d.label}</div>
+                      <div style={{ fontSize: 10, color: 'var(--text)', fontWeight: 600 }}>{d.count}</div>
                     </div>
                   </div>
                 ))}
@@ -437,29 +505,29 @@ function OverviewTab() {
           )}
         </div>
 
-        <div className="aw-surface" style={{ borderRadius: 18, padding: 20 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Sales — last 30 days</div>
-          <div style={{ fontSize: 11, color: 'var(--text4)', marginBottom: 8 }}>Revenue (USD)</div>
-          <Sparkline data={sparkValues.length ? sparkValues : [0, 0]} color="#8B7CF6" width={320} height={70} />
+        <div style={{ padding: 18, borderRight: '1px solid var(--border)' }}>
+          <div style={PANEL_LABEL_STYLE}>Sales Over Time</div>
+          <div style={{ fontSize: 9, color: 'var(--text3)', marginBottom: 6 }}>Revenue (USD) — last 30 days</div>
+          <Sparkline data={sparkValues.length ? sparkValues : [0, 0]} color="#8B7CF6" width={220} height={60} />
+        </div>
+
+        <div style={{ padding: 18 }}>
+          <div style={PANEL_LABEL_STYLE}>Top Listings by Revenue</div>
+          {stats.top_listings.length === 0 ? (
+            <div style={{ fontSize: 12, color: 'var(--text3)' }}>No sales yet.</div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {stats.top_listings.map(l => (
+                <div key={l.listing_id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: 11, color: 'var(--text2)' }}>{l.title}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--green)' }}>${l.revenue_usd.toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
-
-      <div className="aw-surface" style={{ borderRadius: 18, padding: 20 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Top listings by revenue</div>
-        {stats.top_listings.length === 0 ? (
-          <div style={{ fontSize: 13, color: 'var(--text3)' }}>No sales yet.</div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {stats.top_listings.map(l => (
-              <div key={l.listing_id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13.5 }}>
-                <span style={{ color: 'var(--text2)' }}>{l.title} <span style={{ color: 'var(--text4)', fontSize: 12 }}>× {l.units_sold}</span></span>
-                <span style={{ color: 'var(--text)', fontWeight: 600 }}>${l.revenue_usd.toLocaleString()}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </>
+    </div>
   );
 }
 
@@ -475,6 +543,9 @@ export default function SellerDashboard() {
   const [loading, setLoading] = useState(true);
   const [shippingId, setShippingId] = useState(null);
   const [shipError, setShipError] = useState({ id: null, message: '' });
+  const [trackingDrafts, setTrackingDrafts] = useState({});
+  const [trackingSavingId, setTrackingSavingId] = useState(null);
+  const [trackingError, setTrackingError] = useState({ id: null, message: '' });
 
   const isApproved = sellerProfile?.kyb_status === 'approved';
 
@@ -506,6 +577,21 @@ export default function SellerDashboard() {
       setShipError({ id: orderId, message: err.message || 'Could not mark as shipped.' });
     } finally {
       setShippingId(null);
+    }
+  }
+
+  async function handleSaveTracking(orderId) {
+    const value = (trackingDrafts[orderId] || '').trim();
+    if (!value) return;
+    setTrackingSavingId(orderId);
+    setTrackingError({ id: null, message: '' });
+    try {
+      await recordTracking(orderId, value);
+      await loadData();
+    } catch (err) {
+      setTrackingError({ id: orderId, message: err.message || 'Could not save tracking number.' });
+    } finally {
+      setTrackingSavingId(null);
     }
   }
 
@@ -658,6 +744,34 @@ export default function SellerDashboard() {
                         </div>
                         {shipError.id === item.order_id && (
                           <div style={{ fontSize: 12, color: 'var(--red)', marginTop: 6, paddingLeft: 4 }}>{shipError.message}</div>
+                        )}
+                        {['shipped', 'delivered', 'released'].includes(item.order_status) && (
+                          item.tracking_number ? (
+                            <div style={{ fontSize: 12, color: 'var(--text3)', marginTop: 6, paddingLeft: 4 }}>
+                              Tracking number: <strong style={{ color: 'var(--text)' }}>{item.tracking_number}</strong>
+                            </div>
+                          ) : (
+                            <div style={{ display: 'flex', gap: 8, marginTop: 8, paddingLeft: 4, alignItems: 'center' }}>
+                              <input
+                                placeholder="Tracking number"
+                                value={trackingDrafts[item.order_id] || ''}
+                                onChange={e => setTrackingDrafts(d => ({ ...d, [item.order_id]: e.target.value }))}
+                                style={{ ...inputStyle, maxWidth: 220, padding: '7px 12px', fontSize: 12.5 }}
+                              />
+                              <button
+                                onClick={() => handleSaveTracking(item.order_id)}
+                                disabled={trackingSavingId === item.order_id || !(trackingDrafts[item.order_id] || '').trim()}
+                                style={{
+                                  background: 'var(--surface2)', border: '1px solid var(--border)', color: 'var(--text)',
+                                  padding: '7px 14px', borderRadius: 100, fontSize: 12.5, fontWeight: 500,
+                                  opacity: trackingSavingId === item.order_id ? 0.6 : 1, cursor: trackingSavingId === item.order_id ? 'default' : 'pointer',
+                                }}
+                              >{trackingSavingId === item.order_id ? 'Saving…' : 'Save tracking'}</button>
+                            </div>
+                          )
+                        )}
+                        {trackingError.id === item.order_id && (
+                          <div style={{ fontSize: 12, color: 'var(--red)', marginTop: 6, paddingLeft: 4 }}>{trackingError.message}</div>
                         )}
                         </div>
                       ))}

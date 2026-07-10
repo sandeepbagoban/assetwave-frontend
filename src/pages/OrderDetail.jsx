@@ -141,6 +141,12 @@ export default function OrderDetail() {
               {order.shipping_address.line1}{order.shipping_address.line2 ? `, ${order.shipping_address.line2}` : ''}<br />
               {order.shipping_address.city}, {order.shipping_address.country} {order.shipping_address.postal_code}
             </div>
+            {(order.logistics_provider || order.tracking_number) && (
+              <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border)', fontSize: 13.5, color: 'var(--text2)' }}>
+                {order.logistics_provider && <div>Carrier: <strong style={{ color: 'var(--text)' }}>{order.logistics_provider.name}</strong></div>}
+                {order.tracking_number && <div style={{ marginTop: 4 }}>Tracking number: <strong style={{ color: 'var(--text)' }}>{order.tracking_number}</strong></div>}
+              </div>
+            )}
           </div>
 
           <div style={{ textAlign: 'center', marginTop: 32 }}>

@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ShieldCheck, Lock } from 'lucide-react';
 import PageHeader from '../components/shared/PageHeader';
 import { useCart } from '../context/CartContext';
 import { checkout } from '../lib/api/orders';
+import { getLogisticsProviders } from '../lib/api/logisticsProviders';
 import { inputStyle as baseInputStyle, labelStyle as baseLabelStyle } from '../components/shared/ui/styles';
 
 const inputStyle = { ...baseInputStyle, padding: '11px 14px' };
@@ -13,8 +14,14 @@ export default function Checkout() {
   const { cart, loading, refresh } = useCart();
   const navigate = useNavigate();
   const [address, setAddress] = useState({ name: '', line1: '', line2: '', city: '', country: '', postal_code: '', phone: '' });
+  const [providers, setProviders] = useState([]);
+  const [providerId, setProviderId] = useState('');
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    getLogisticsProviders().then(setProviders).catch(() => setProviders([]));
+  }, []);
 
   function update(field) {
     return (e) => setAddress(a => ({ ...a, [field]: e.target.value }));
@@ -27,7 +34,7 @@ export default function Checkout() {
     setError('');
     setPlacing(true);
     try {
-      const order = await checkout(address);
+      const order = await checkout(address, providerId || undefined);
       await refresh();
       navigate(`/orders/${order.id}`, { replace: true });
     } catch (err) {
@@ -88,6 +95,18 @@ export default function Checkout() {
                 <input style={inputStyle} value={address.phone} onChange={update('phone')} />
               </div>
             </div>
+
+            {providers.length > 0 && (
+              <div>
+                <label style={labelStyle}>Shipping method</label>
+                <select style={inputStyle} required value={providerId} onChange={e => setProviderId(e.target.value)}>
+                  <option value="" disabled>Select a shipping provider…</option>
+                  {providers.map(p => (
+                    <option key={p.id} value={p.id}>{p.name}{p.regions_served ? ` — ${p.regions_served}` : ''}</option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div style={{
               marginTop: 8, padding: 16, borderRadius: 12, background: 'var(--surface)', border: '1px solid var(--border)',

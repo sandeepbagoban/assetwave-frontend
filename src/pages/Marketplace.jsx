@@ -6,6 +6,7 @@ import PageHeader from '../components/shared/PageHeader';
 import CtaBanner from '../components/home/CtaBanner';
 import { ErrorBlock, EmptyBlock } from '../components/shared/ui/AsyncBlocks';
 import Skeleton from '../components/shared/ui/Skeleton';
+import { countryFlag } from '../lib/format';
 
 const CONDITIONS = [
   { id: '', label: 'Any condition' },
@@ -58,11 +59,11 @@ function ListingCard({ listing }) {
       <div style={{ padding: '18px 18px 16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11.5, color: 'var(--text3)', marginBottom: 10 }}>
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ADE80' }} />
-          {listing.seller.name}
+          {countryFlag(listing.seller.country)} {listing.seller.name}
           {listing.seller.verified && <ShieldCheck size={12} color="var(--violet3)" />}
         </div>
         <h3 style={{ fontSize: 14.5, fontWeight: 600, color: 'var(--text)', marginBottom: 4, lineHeight: 1.35 }}>{listing.title}</h3>
-        <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 16 }}>{listing.year_manufactured} &middot; {listing.origin_country}</div>
+        <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 16 }}>{listing.year_manufactured} &middot; {countryFlag(listing.origin_country)} {listing.origin_country}</div>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
           <div>
             {listing.new_price_estimate && (
@@ -115,6 +116,7 @@ export default function Marketplace() {
   const [condition, setCondition] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
+  const [country, setCountry] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
   const limit = 20;
@@ -126,7 +128,7 @@ export default function Marketplace() {
 
   // Any filter change resets to page 1 — otherwise a narrower result set
   // could leave the user stranded on a page that no longer exists.
-  useEffect(() => { setPage(1); }, [category, debouncedQuery, condition, minPrice, maxPrice]);
+  useEffect(() => { setPage(1); }, [category, debouncedQuery, condition, minPrice, maxPrice, country]);
 
   const params = {
     ...(category && { category }),
@@ -134,6 +136,7 @@ export default function Marketplace() {
     ...(condition && { condition }),
     ...(minPrice && { min_price: minPrice }),
     ...(maxPrice && { max_price: maxPrice }),
+    ...(country && { country }),
     page,
     limit,
   };
@@ -209,8 +212,15 @@ export default function Marketplace() {
                   padding: '8px 12px', color: 'var(--text)', fontSize: 13, outline: 'none',
                 }} />
               </div>
-              {(condition || minPrice || maxPrice) && (
-                <button onClick={() => { setCondition(''); setMinPrice(''); setMaxPrice(''); }} style={{
+              <div>
+                <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 8 }}>Country (2-letter code)</div>
+                <input maxLength={2} value={country} onChange={e => setCountry(e.target.value.toUpperCase())} placeholder="Any" style={{
+                  width: 90, background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 8,
+                  padding: '8px 12px', color: 'var(--text)', fontSize: 13, outline: 'none', textTransform: 'uppercase',
+                }} />
+              </div>
+              {(condition || minPrice || maxPrice || country) && (
+                <button onClick={() => { setCondition(''); setMinPrice(''); setMaxPrice(''); setCountry(''); }} style={{
                   background: 'none', border: 'none', color: 'var(--violet3)', fontSize: 12.5, fontWeight: 500, cursor: 'pointer',
                 }}>Clear filters</button>
               )}

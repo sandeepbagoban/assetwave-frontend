@@ -128,7 +128,7 @@ export default function Navbar() {
         </div>
 
         {/* Actions */}
-        <div className="nav-desktop-actions" style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, marginLeft: 24 }}>
+        {/* <div className="nav-desktop-actions" style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, marginLeft: 24 }}>
           <ThemeToggle />
           {user && <CartLink />}
           {user ? (
@@ -170,7 +170,7 @@ export default function Navbar() {
               </Link>
             </>
           )}
-        </div>
+        </div> */}
 
         {/* Mobile toggle */}
         <div className="nav-mobile-actions" style={{ display: 'none', alignItems: 'center', gap: 8 }}>
@@ -186,7 +186,7 @@ export default function Navbar() {
       </div>
 
       {/* Mobile menu */}
-      {mobileOpen && (
+      {/* {mobileOpen && (
         <div style={{
           background: 'var(--bg2)', borderTop: '1px solid var(--border)',
           padding: '16px 24px 24px', display: 'flex', flexDirection: 'column', gap: 4,
@@ -218,7 +218,7 @@ export default function Navbar() {
             </>
           )}
         </div>
-      )}
+      )} */}
 
       <style>{`
         @media (max-width: 980px) {

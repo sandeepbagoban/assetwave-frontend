@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { resolveAssetUrl } from '../lib/api/client';
 import { clearOtherItems } from '../lib/api/cart';
+import { countryFlag } from '../lib/format';
 import Skeleton from '../components/shared/ui/Skeleton';
 
 const CONDITION_STYLE = {

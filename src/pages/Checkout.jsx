@@ -28,6 +28,13 @@ export default function Checkout() {
   }
 
   const items = cart?.items || [];
+  const selectedProvider = providers.find(p => p.id === providerId);
+  const matchedRate = selectedProvider
+    ? (selectedProvider.rates.find(r => r.country_code === address.country) || selectedProvider.rates.find(r => !r.country_code) || null)
+    : null;
+  const shippingAmount = matchedRate?.price_amount || 0;
+  const noRateForCountry = Boolean(selectedProvider) && !matchedRate && address.country;
+  const total = (cart?.subtotal || 0) + shippingAmount;
 
   async function handlePlaceOrder(e) {
     e.preventDefault();
@@ -57,7 +64,7 @@ export default function Checkout() {
     <>
       <PageHeader eyebrow="Checkout" title="Confirm your" titleItalic="order" />
       <section className="section-sm" style={{ background: 'var(--bg)' }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: 40, alignItems: 'flex-start' }}>
+        <div className="container aw-split-hero" style={{ display: 'grid', gap: 40, alignItems: 'flex-start' }}>
           <form onSubmit={handlePlaceOrder} className="aw-surface" style={{
             borderRadius: 18, padding: 28,
             display: 'flex', flexDirection: 'column', gap: 16,
@@ -75,7 +82,7 @@ export default function Checkout() {
               <label style={labelStyle}>Address line 2 (optional)</label>
               <input style={inputStyle} value={address.line2} onChange={update('line2')} />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <div className="aw-grid-2" style={{ display: 'grid', gap: 14 }}>
               <div>
                 <label style={labelStyle}>City</label>
                 <input style={inputStyle} required value={address.city} onChange={update('city')} />
@@ -85,7 +92,7 @@ export default function Checkout() {
                 <input style={inputStyle} required value={address.postal_code} onChange={update('postal_code')} />
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <div className="aw-grid-2" style={{ display: 'grid', gap: 14 }}>
               <div>
                 <label style={labelStyle}>Country (2-letter code)</label>
                 <input style={inputStyle} required maxLength={2} placeholder="US" value={address.country} onChange={e => setAddress(a => ({ ...a, country: e.target.value.toUpperCase() }))} />
@@ -105,6 +112,11 @@ export default function Checkout() {
                     <option key={p.id} value={p.id}>{p.name}{p.regions_served ? ` — ${p.regions_served}` : ''}</option>
                   ))}
                 </select>
+                {noRateForCountry && (
+                  <div style={{ color: 'var(--red)', fontSize: 12.5, marginTop: 6 }}>
+                    {selectedProvider.name} doesn't ship to {address.country} — please choose a different provider.
+                  </div>
+                )}
               </div>
             )}
 
@@ -120,13 +132,13 @@ export default function Checkout() {
 
             {error && <div style={{ color: 'var(--red)', fontSize: 13 }}>{error}</div>}
 
-            <button type="submit" disabled={placing} className="aw-btn" style={{
+            <button type="submit" disabled={placing || noRateForCountry} className="aw-btn" style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               background: 'var(--inverse-bg)', color: 'var(--inverse-text)', border: 'none',
               padding: '14px 20px', borderRadius: 100, fontSize: 14.5, fontWeight: 600,
-              opacity: placing ? 0.6 : 1, cursor: placing ? 'default' : 'pointer', marginTop: 4,
+              opacity: (placing || noRateForCountry) ? 0.6 : 1, cursor: (placing || noRateForCountry) ? 'default' : 'pointer', marginTop: 4,
             }}>
-              <ShieldCheck size={16} /> {placing ? 'Placing order…' : `Pay $${(cart?.subtotal || 0).toLocaleString()} & place order`}
+              <ShieldCheck size={16} /> {placing ? 'Placing order…' : `Pay $${total.toLocaleString()} & place order`}
             </button>
           </form>
 
@@ -140,9 +152,21 @@ export default function Checkout() {
                 </div>
               ))}
             </div>
-            <div style={{ borderTop: '1px solid var(--border)', paddingTop: 14, display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>Total</span>
-              <span className="serif" style={{ fontSize: 20, color: 'var(--text)' }}>${(cart?.subtotal || 0).toLocaleString()}</span>
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+                <span style={{ color: 'var(--text3)' }}>Subtotal</span>
+                <span style={{ color: 'var(--text2)' }}>${(cart?.subtotal || 0).toLocaleString()}</span>
+              </div>
+              {shippingAmount > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+                  <span style={{ color: 'var(--text3)' }}>Shipping ({selectedProvider?.name})</span>
+                  <span style={{ color: 'var(--text2)' }}>${shippingAmount.toLocaleString()}</span>
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>Total</span>
+                <span className="serif" style={{ fontSize: 20, color: 'var(--text)' }}>${total.toLocaleString()}</span>
+              </div>
             </div>
           </div>
         </div>

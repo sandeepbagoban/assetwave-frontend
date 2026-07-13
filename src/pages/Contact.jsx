@@ -19,7 +19,7 @@ export default function Contact() {
 
       <section className="section-sm" style={{ background: 'var(--bg)' }}>
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+          <div className="aw-grid-3" style={{ display: 'grid', gap: 20 }}>
             {CONTACTS.map((c, i) => {
               const Icon = c.icon;
               return (

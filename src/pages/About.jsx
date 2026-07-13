@@ -45,7 +45,7 @@ export default function About() {
           <h2 className="serif" style={{ fontSize: 'clamp(28px,3.2vw,40px)', color: 'var(--text)', marginBottom: 56, letterSpacing: '-0.01em' }}>
             Principles, not slogans
           </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 24 }}>
+          <div className="aw-grid-2" style={{ display: 'grid', gap: 24 }}>
             {VALUES.map((v, i) => {
               const Icon = v.icon;
               return (
@@ -74,7 +74,7 @@ export default function About() {
           <h2 className="serif" style={{ fontSize: 'clamp(28px,3.2vw,40px)', color: 'var(--text)', marginBottom: 56, letterSpacing: '-0.01em' }}>
             A small team, deliberately
           </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+          <div className="aw-grid-3" style={{ display: 'grid', gap: 24 }}>
             {TEAM.map((t, i) => (
               <div key={i} className="aw-surface" style={{ borderRadius: 18, padding: 28 }}>
                 <div style={{

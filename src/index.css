@@ -196,6 +196,13 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
   animation: fadeUp .6s var(--ease) both;
 }
 
+.aw-table-row {
+  transition: background .15s var(--ease);
+}
+.aw-table-row:hover {
+  background: var(--surface2);
+}
+
 .skeleton {
   position: relative;
   overflow: hidden;
@@ -244,6 +251,25 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
 @media (max-width: 1024px) {
   .container { padding: 0 24px; }
   .section { padding: 72px 0; }
+}
+
+/* Responsive grid utilities — column count only; callers keep their own
+   gap/alignItems via inline style alongside these classes. */
+.aw-split-hero { grid-template-columns: 1.1fr 0.9fr; }
+.aw-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.aw-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.aw-grid-4 { grid-template-columns: repeat(4, 1fr); }
+.aw-grid-5 { grid-template-columns: repeat(5, 1fr); }
+
+@media (max-width: 900px) {
+  .aw-split-hero { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .aw-grid-4, .aw-grid-5 { grid-template-columns: repeat(2, 1fr); }
+  .aw-grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .aw-grid-2, .aw-grid-3, .aw-grid-4, .aw-grid-5 { grid-template-columns: 1fr; }
 }
 
 @keyframes fadeUp {

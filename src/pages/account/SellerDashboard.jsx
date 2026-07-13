@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Store, Plus, Trash2, Pencil, Truck, Clock, X, Upload, Calendar } from 'lucide-react';
+import { Store, Plus, Trash2, Pencil, Truck, Clock, X, Upload, Calendar, LayoutDashboard, Package, ClipboardList } from 'lucide-react';
 import PageHeader from '../../components/shared/PageHeader';
 import { useAuth } from '../../context/AuthContext';
 import { applyAsSeller, getMyListings, getMySellerOrders, getMyStats } from '../../lib/api/sellers';
@@ -11,6 +11,8 @@ import ImagePicker from '../../components/shared/ui/ImagePicker';
 import ConfirmButton from '../../components/shared/ui/ConfirmButton';
 import Skeleton from '../../components/shared/ui/Skeleton';
 import { Sparkline, DonutChart } from '../../components/shared/ui/charts';
+import OrderTracker from '../../components/shared/ui/OrderTracker';
+import Table from '../../components/shared/ui/Table';
 import { iconBtnStyle, inputStyle as baseInputStyle, labelStyle as baseLabelStyle } from '../../components/shared/ui/styles';
 
 const inputStyle = { ...baseInputStyle, background: 'var(--bg2)', padding: '10px 14px', fontSize: 13.5 };
@@ -63,7 +65,7 @@ function ApplyForm({ onApplied }) {
           <label style={labelStyle}>Public nickname</label>
           <input style={inputStyle} required value={form.nickname} onChange={e => setForm(f => ({ ...f, nickname: e.target.value }))} placeholder="Shown to buyers instead of your company name" />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div className="aw-grid-2" style={{ display: 'grid', gap: 12 }}>
           <div>
             <label style={labelStyle}>Country (2-letter code)</label>
             <input style={inputStyle} required maxLength={2} value={form.country} onChange={e => setForm(f => ({ ...f, country: e.target.value.toUpperCase() }))} />
@@ -150,7 +152,7 @@ function ListingForm({ categories, initial, onSaved, onCancel }) {
         <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}>{initial?.id ? 'Edit listing' : 'New listing'}</h3>
         <button onClick={onCancel} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer' }}><X size={16} /></button>
       </div>
-      <form onSubmit={submit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+      <form onSubmit={submit} className="aw-grid-2" style={{ display: 'grid', gap: 14 }}>
         <div style={{ gridColumn: '1 / -1' }}>
           <label style={labelStyle}>Title</label>
           <input style={inputStyle} required value={form.title} onChange={update('title')} />
@@ -202,7 +204,7 @@ function ListingForm({ categories, initial, onSaved, onCancel }) {
           <label style={labelStyle}>Weight (kg, optional)</label>
           <input style={inputStyle} type="number" min="0" step="0.01" value={form.weight_kg} onChange={update('weight_kg')} />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+        <div className="aw-grid-3" style={{ display: 'grid', gap: 8 }}>
           <div>
             <label style={labelStyle}>Length (cm)</label>
             <input style={inputStyle} type="number" min="0" step="0.1" value={form.length_cm} onChange={update('length_cm')} />
@@ -322,7 +324,7 @@ function BulkImportPanel({ onCancel, onImported }) {
 
           {preview && (
             <>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginBottom: 18 }}>
+              <div className="aw-grid-3" style={{ display: 'grid', gap: 12, marginBottom: 18 }}>
                 <MiniStat label="Total rows" value={preview.row_count} />
                 <MiniStat label="Valid" value={preview.valid_count} color="var(--green)" />
                 <MiniStat label="Errors" value={preview.error_count} color="var(--red)" />
@@ -368,7 +370,7 @@ function BulkImportPanel({ onCancel, onImported }) {
 
       {commitResult && (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 12, marginBottom: 18 }}>
+          <div className="aw-grid-2" style={{ display: 'grid', gap: 12, marginBottom: 18 }}>
             <MiniStat label="Created" value={commitResult.created_count} color="var(--green)" />
             <MiniStat label="Skipped" value={commitResult.skipped_count} color="var(--red)" />
           </div>
@@ -418,7 +420,7 @@ function OverviewTab() {
         <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', background: 'var(--bg3)' }}>
           <Skeleton width={140} height={13} />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', borderBottom: '1px solid var(--border)' }}>
+        <div className="aw-grid-5" style={{ display: 'grid', borderBottom: '1px solid var(--border)' }}>
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} style={{ padding: 14, borderRight: i < 4 ? '1px solid var(--border)' : 'none' }}>
               <Skeleton width="70%" height={10} style={{ marginBottom: 8 }} />
@@ -482,7 +484,7 @@ function OverviewTab() {
       </div>
 
       {/* Charts row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr 1fr' }}>
+      <div className="seller-overview-charts" style={{ display: 'grid' }}>
         <div style={{ padding: 18, borderRight: '1px solid var(--border)' }}>
           <div style={PANEL_LABEL_STYLE}>Orders by Status</div>
           {totalOrders === 0 ? (
@@ -596,16 +598,110 @@ export default function SellerDashboard() {
   }
 
   const TABS = [
-    { id: 'overview', label: 'Overview' },
-    { id: 'listings', label: 'Listings' },
-    { id: 'orders', label: 'Orders' },
+    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'listings', label: 'Listings', icon: Package },
+    { id: 'orders', label: 'Orders', icon: ClipboardList },
+  ];
+
+  const listingColumns = [
+    {
+      key: 'title', header: 'Listing',
+      render: (listing) => (
+        <div>
+          <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text)' }}>{listing.title}</div>
+          <div style={{ fontSize: 11.5, color: 'var(--text4)', marginTop: 2 }}>{listing.status}</div>
+        </div>
+      ),
+    },
+    { key: 'price', header: 'Price', render: (listing) => `$${listing.price_amount.toLocaleString()}` },
+    { key: 'quantity', header: 'Qty' },
+    {
+      key: 'actions', header: '',
+      render: (listing) => (
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'flex-end' }}>
+          <button onClick={() => { setEditing({ ...listing, price_amount: String(listing.price_amount) }); setShowForm(true); }} style={iconBtnStyle}><Pencil size={14} /></button>
+          <ConfirmButton icon={Trash2} confirmLabel="Delete this listing?" onConfirm={() => handleDelete(listing.id)} onDone={loadData} />
+        </div>
+      ),
+    },
+  ];
+
+  const orderColumns = [
+    {
+      key: 'item', header: 'Order',
+      render: (item) => (
+        <div>
+          <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text)' }}>{item.title_snapshot} × {item.quantity}</div>
+          <div style={{ fontSize: 11.5, color: 'var(--text4)', marginTop: 2 }}>buyer: {item.buyer_name || 'unknown'}</div>
+        </div>
+      ),
+    },
+    {
+      key: 'status', header: 'Status',
+      render: (item) => (
+        <div>
+          <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 6, textTransform: 'capitalize' }}>{item.order_status.replace('_', ' ')}</div>
+          <OrderTracker status={item.order_status} compact />
+        </div>
+      ),
+    },
+    {
+      key: 'tracking', header: 'Tracking',
+      render: (item) => {
+        if (!['shipped', 'delivered', 'released'].includes(item.order_status)) return <span style={{ color: 'var(--text4)' }}>—</span>;
+        if (item.tracking_number) {
+          return <strong style={{ fontSize: 12.5, color: 'var(--text)' }}>{item.tracking_number}</strong>;
+        }
+        return (
+          <div>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <input
+                placeholder="Tracking #"
+                value={trackingDrafts[item.order_id] || ''}
+                onChange={e => setTrackingDrafts(d => ({ ...d, [item.order_id]: e.target.value }))}
+                style={{ ...inputStyle, width: 130, padding: '6px 10px', fontSize: 12 }}
+              />
+              <button
+                onClick={() => handleSaveTracking(item.order_id)}
+                disabled={trackingSavingId === item.order_id || !(trackingDrafts[item.order_id] || '').trim()}
+                style={{
+                  background: 'var(--surface2)', border: '1px solid var(--border)', color: 'var(--text)',
+                  padding: '6px 12px', borderRadius: 100, fontSize: 12, fontWeight: 500,
+                  opacity: trackingSavingId === item.order_id ? 0.6 : 1, cursor: trackingSavingId === item.order_id ? 'default' : 'pointer',
+                }}
+              >{trackingSavingId === item.order_id ? '…' : 'Save'}</button>
+            </div>
+            {trackingError.id === item.order_id && (
+              <div style={{ fontSize: 11.5, color: 'var(--red)', marginTop: 4 }}>{trackingError.message}</div>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      key: 'actions', header: '',
+      render: (item) => (
+        <div style={{ textAlign: 'right' }}>
+          {item.order_status === 'paid' && (
+            <button onClick={() => handleShip(item.order_id)} disabled={shippingId === item.order_id} style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6, background: 'var(--surface2)', border: '1px solid var(--border)',
+              color: 'var(--text)', padding: '8px 14px', borderRadius: 100, fontSize: 12.5, fontWeight: 500,
+              opacity: shippingId === item.order_id ? 0.6 : 1, cursor: shippingId === item.order_id ? 'default' : 'pointer',
+            }}><Truck size={13} /> {shippingId === item.order_id ? 'Marking…' : 'Mark shipped'}</button>
+          )}
+          {shipError.id === item.order_id && (
+            <div style={{ fontSize: 11.5, color: 'var(--red)', marginTop: 6 }}>{shipError.message}</div>
+          )}
+        </div>
+      ),
+    },
   ];
 
   return (
     <>
       <PageHeader eyebrow="Your account" title="Seller" titleItalic="dashboard" />
       <section className="section-sm" style={{ background: 'var(--bg)' }}>
-        <div className="container" style={{ maxWidth: 900 }}>
+        <div className="container" style={{ maxWidth: 1100 }}>
           {!sellerProfile && <ApplyForm onApplied={refreshSellerProfile} />}
 
           {sellerProfile?.kyb_status === 'pending' && (
@@ -628,161 +724,101 @@ export default function SellerDashboard() {
           )}
 
           {isApproved && (
-            <>
-              <div style={{ display: 'flex', gap: 8, marginBottom: 28 }}>
+            <div className="seller-dashboard-layout" style={{ display: 'flex', gap: 32, alignItems: 'flex-start' }}>
+              <nav className="seller-dashboard-nav" style={{
+                width: 200, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 4, position: 'sticky', top: 100,
+              }}>
                 {TABS.map(t => (
                   <button key={t.id} onClick={() => setTab(t.id)} style={{
-                    padding: '9px 18px', borderRadius: 100, fontSize: 13.5, fontWeight: 500,
-                    border: '1px solid ' + (tab === t.id ? 'var(--violet)' : 'var(--border)'),
+                    display: 'flex', alignItems: 'center', gap: 10, textAlign: 'left',
+                    padding: '10px 14px', borderRadius: 10, fontSize: 13.5, fontWeight: 500, border: 'none',
                     background: tab === t.id ? 'var(--surface3)' : 'transparent',
                     color: tab === t.id ? 'var(--text)' : 'var(--text3)',
-                  }}>{t.label}</button>
+                  }}>
+                    <t.icon size={15} /> {t.label}
+                  </button>
                 ))}
-              </div>
+              </nav>
 
-              {tab === 'overview' && <OverviewTab />}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                {tab === 'overview' && <OverviewTab />}
 
-              {tab === 'listings' && (
-                <>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-                    <h3 style={{ fontSize: 17, fontWeight: 600, color: 'var(--text)' }}>Your listings</h3>
-                    {!showForm && !showBulk && (
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <button onClick={() => setShowBulk(true)} className="aw-btn" style={{
-                          display: 'flex', alignItems: 'center', gap: 8, background: 'transparent', color: 'var(--text)',
-                          border: '1px solid var(--border)', padding: '10px 18px', borderRadius: 100, fontSize: 13.5, fontWeight: 600,
-                        }}><Upload size={15} /> Bulk upload</button>
-                        <button onClick={() => { setEditing(null); setShowForm(true); }} className="aw-btn" style={{
-                          display: 'flex', alignItems: 'center', gap: 8, background: 'var(--inverse-bg)', color: 'var(--inverse-text)',
-                          border: 'none', padding: '10px 18px', borderRadius: 100, fontSize: 13.5, fontWeight: 600,
-                        }}><Plus size={15} /> New listing</button>
-                      </div>
+                {tab === 'listings' && (
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+                      <h3 style={{ fontSize: 17, fontWeight: 600, color: 'var(--text)' }}>Your listings</h3>
+                      {!showForm && !showBulk && (
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button onClick={() => setShowBulk(true)} className="aw-btn" style={{
+                            display: 'flex', alignItems: 'center', gap: 8, background: 'transparent', color: 'var(--text)',
+                            border: '1px solid var(--border)', padding: '10px 18px', borderRadius: 100, fontSize: 13.5, fontWeight: 600,
+                          }}><Upload size={15} /> Bulk upload</button>
+                          <button onClick={() => { setEditing(null); setShowForm(true); }} className="aw-btn" style={{
+                            display: 'flex', alignItems: 'center', gap: 8, background: 'var(--inverse-bg)', color: 'var(--inverse-text)',
+                            border: 'none', padding: '10px 18px', borderRadius: 100, fontSize: 13.5, fontWeight: 600,
+                          }}><Plus size={15} /> New listing</button>
+                        </div>
+                      )}
+                    </div>
+
+                    {showBulk && (
+                      <BulkImportPanel
+                        onCancel={() => setShowBulk(false)}
+                        onImported={() => { setShowBulk(false); loadData(); }}
+                      />
                     )}
-                  </div>
 
-                  {showBulk && (
-                    <BulkImportPanel
-                      onCancel={() => setShowBulk(false)}
-                      onImported={() => { setShowBulk(false); loadData(); }}
-                    />
-                  )}
+                    {showForm && (
+                      <ListingForm
+                        categories={categories}
+                        initial={editing}
+                        onCancel={() => setShowForm(false)}
+                        onSaved={() => { setShowForm(false); loadData(); }}
+                      />
+                    )}
 
-                  {showForm && (
-                    <ListingForm
-                      categories={categories}
-                      initial={editing}
-                      onCancel={() => setShowForm(false)}
-                      onSaved={() => { setShowForm(false); loadData(); }}
-                    />
-                  )}
-
-                  {loading ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 40 }}>
-                      {Array.from({ length: 3 }).map((_, i) => (
-                        <div key={i} style={{
-                          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
-                          background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 14, padding: 16,
-                        }}>
-                          <div style={{ flex: 1 }}>
-                            <Skeleton width="45%" height={14} style={{ marginBottom: 8 }} />
-                            <Skeleton width="30%" height={12} />
-                          </div>
-                          <Skeleton width={64} height={32} radius={8} />
-                        </div>
-                      ))}
-                    </div>
-                  ) : listings.length === 0 ? (
-                    <div style={{ color: 'var(--text3)', fontSize: 14, padding: '20px 0' }}>You haven't listed any equipment yet.</div>
-                  ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                      {listings.map(listing => (
-                        <div key={listing.id} className="aw-surface" style={{
-                          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
-                          borderRadius: 14, padding: 16,
-                        }}>
-                          <div>
-                            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{listing.title}</div>
-                            <div style={{ fontSize: 12, color: 'var(--text3)' }}>{listing.status} · ${listing.price_amount.toLocaleString()} · qty {listing.quantity}</div>
-                          </div>
-                          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                            <button onClick={() => { setEditing({ ...listing, price_amount: String(listing.price_amount) }); setShowForm(true); }} style={iconBtnStyle}><Pencil size={14} /></button>
-                            <ConfirmButton icon={Trash2} confirmLabel="Delete this listing?" onConfirm={() => handleDelete(listing.id)} onDone={loadData} />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </>
-              )}
-
-              {tab === 'orders' && (
-                <>
-                  <h3 style={{ fontSize: 17, fontWeight: 600, color: 'var(--text)', marginBottom: 20 }}>Orders on your items</h3>
-                  {orders.length === 0 ? (
-                    <div style={{ color: 'var(--text3)', fontSize: 14 }}>No orders yet.</div>
-                  ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                      {orders.map(item => (
-                        <div key={item.order_item_id}>
-                        <div className="aw-surface" style={{
-                          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
-                          borderRadius: 14, padding: 16,
-                        }}>
-                          <div>
-                            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{item.title_snapshot} × {item.quantity}</div>
-                            <div style={{ fontSize: 12, color: 'var(--text3)' }}>
-                              {item.order_status.replace('_', ' ')} · buyer: {item.buyer_name || 'unknown'}
+                    {loading ? (
+                      <div className="aw-surface" style={{ borderRadius: 16, padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
+                        {Array.from({ length: 3 }).map((_, i) => (
+                          <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+                            <div style={{ flex: 1 }}>
+                              <Skeleton width="45%" height={14} style={{ marginBottom: 8 }} />
+                              <Skeleton width="30%" height={12} />
                             </div>
+                            <Skeleton width={64} height={32} radius={8} />
                           </div>
-                          {item.order_status === 'paid' && (
-                            <button onClick={() => handleShip(item.order_id)} disabled={shippingId === item.order_id} style={{
-                              display: 'flex', alignItems: 'center', gap: 6, background: 'var(--surface2)', border: '1px solid var(--border)',
-                              color: 'var(--text)', padding: '8px 14px', borderRadius: 100, fontSize: 12.5, fontWeight: 500,
-                              opacity: shippingId === item.order_id ? 0.6 : 1, cursor: shippingId === item.order_id ? 'default' : 'pointer',
-                            }}><Truck size={13} /> {shippingId === item.order_id ? 'Marking…' : 'Mark shipped'}</button>
-                          )}
-                        </div>
-                        {shipError.id === item.order_id && (
-                          <div style={{ fontSize: 12, color: 'var(--red)', marginTop: 6, paddingLeft: 4 }}>{shipError.message}</div>
-                        )}
-                        {['shipped', 'delivered', 'released'].includes(item.order_status) && (
-                          item.tracking_number ? (
-                            <div style={{ fontSize: 12, color: 'var(--text3)', marginTop: 6, paddingLeft: 4 }}>
-                              Tracking number: <strong style={{ color: 'var(--text)' }}>{item.tracking_number}</strong>
-                            </div>
-                          ) : (
-                            <div style={{ display: 'flex', gap: 8, marginTop: 8, paddingLeft: 4, alignItems: 'center' }}>
-                              <input
-                                placeholder="Tracking number"
-                                value={trackingDrafts[item.order_id] || ''}
-                                onChange={e => setTrackingDrafts(d => ({ ...d, [item.order_id]: e.target.value }))}
-                                style={{ ...inputStyle, maxWidth: 220, padding: '7px 12px', fontSize: 12.5 }}
-                              />
-                              <button
-                                onClick={() => handleSaveTracking(item.order_id)}
-                                disabled={trackingSavingId === item.order_id || !(trackingDrafts[item.order_id] || '').trim()}
-                                style={{
-                                  background: 'var(--surface2)', border: '1px solid var(--border)', color: 'var(--text)',
-                                  padding: '7px 14px', borderRadius: 100, fontSize: 12.5, fontWeight: 500,
-                                  opacity: trackingSavingId === item.order_id ? 0.6 : 1, cursor: trackingSavingId === item.order_id ? 'default' : 'pointer',
-                                }}
-                              >{trackingSavingId === item.order_id ? 'Saving…' : 'Save tracking'}</button>
-                            </div>
-                          )
-                        )}
-                        {trackingError.id === item.order_id && (
-                          <div style={{ fontSize: 12, color: 'var(--red)', marginTop: 6, paddingLeft: 4 }}>{trackingError.message}</div>
-                        )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </>
-              )}
-            </>
+                        ))}
+                      </div>
+                    ) : (
+                      <Table columns={listingColumns} rows={listings} emptyMessage="You haven't listed any equipment yet." />
+                    )}
+                  </>
+                )}
+
+                {tab === 'orders' && (
+                  <>
+                    <h3 style={{ fontSize: 17, fontWeight: 600, color: 'var(--text)', marginBottom: 20 }}>Orders on your items</h3>
+                    <Table columns={orderColumns} rows={orders} rowKey="order_item_id" emptyMessage="No orders yet." />
+                  </>
+                )}
+              </div>
+            </div>
           )}
         </div>
       </section>
+
+      <style>{`
+        .seller-overview-charts { grid-template-columns: 1fr 1.4fr 1fr; }
+        @media (max-width: 900px) {
+          .seller-overview-charts { grid-template-columns: 1fr; }
+          .seller-overview-charts > div { border-right: none !important; border-bottom: 1px solid var(--border); }
+          .seller-overview-charts > div:last-child { border-bottom: none; }
+        }
+        @media (max-width: 768px) {
+          .seller-dashboard-layout { flex-direction: column; }
+          .seller-dashboard-nav { width: 100%; flex-direction: row; overflow-x: auto; position: static; top: auto; }
+        }
+      `}</style>
     </>
   );
 }

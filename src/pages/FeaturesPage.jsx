@@ -53,7 +53,7 @@ export default function FeaturesPage() {
               const Icon = d.icon;
               const reverse = i % 2 === 1;
               return (
-                <div key={i} style={{
+                <div key={i} className="feature-deep-dive-row" style={{
                   display: 'grid', gridTemplateColumns: reverse ? '1fr 1.4fr' : '1.4fr 1fr',
                   gap: 48, padding: '48px 44px', background: 'var(--bg2)', alignItems: 'center',
                 }}>
@@ -85,6 +85,13 @@ export default function FeaturesPage() {
       </section>
 
       <CtaBanner />
+
+      <style>{`
+        @media (max-width: 900px) {
+          .feature-deep-dive-row { grid-template-columns: 1fr !important; }
+          .feature-deep-dive-row > div { order: unset !important; }
+        }
+      `}</style>
     </>
   );
 }

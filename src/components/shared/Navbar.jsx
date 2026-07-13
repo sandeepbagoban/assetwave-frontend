@@ -4,6 +4,7 @@ import { Menu, X, ArrowUpRight, Sun, Moon, ShoppingCart, LogOut, Store } from 'l
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
+import NotificationBell from './NotificationBell';
 
 const NAV_LINKS = [
   { label: 'About', to: '/about' },
@@ -130,6 +131,7 @@ export default function Navbar() {
         {/* Actions */}
         <div className="nav-desktop-actions" style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, marginLeft: 24 }}>
           <ThemeToggle />
+          {user && <NotificationBell />}
           {user && <CartLink />}
           {user ? (
             <>
@@ -175,6 +177,7 @@ export default function Navbar() {
         {/* Mobile toggle */}
         <div className="nav-mobile-actions" style={{ display: 'none', alignItems: 'center', gap: 8 }}>
           <ThemeToggle />
+          {user && <NotificationBell />}
           {user && <CartLink />}
           <button className="nav-mobile-toggle" onClick={() => setMobileOpen(v => !v)} style={{
             background: 'var(--surface)', border: '1px solid var(--border)',

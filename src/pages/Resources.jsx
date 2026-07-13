@@ -29,7 +29,7 @@ export default function Resources() {
 
       <section className="section-sm" style={{ background: 'var(--bg)' }}>
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, marginBottom: 24 }}>
+          <div className="aw-grid-3" style={{ display: 'grid', gap: 20, marginBottom: 24 }}>
             {SUPPORT_LINKS.map((s, i) => {
               const Icon = s.icon;
               return (
@@ -58,7 +58,7 @@ export default function Resources() {
           <h2 className="serif" style={{ fontSize: 'clamp(28px,3.2vw,40px)', color: 'var(--text)', marginBottom: 48, letterSpacing: '-0.01em' }}>
             Practical, not generic
           </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+          <div className="aw-grid-3" style={{ display: 'grid', gap: 20 }}>
             {GUIDES.map((g, i) => (
               <a key={i} href="#" className="aw-card" style={{
                 display: 'block', borderRadius: 16, padding: 24,

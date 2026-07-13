@@ -4,6 +4,7 @@ import { CheckCircle2, PackageCheck, Truck, ShieldCheck, Clock } from 'lucide-re
 import PageHeader from '../components/shared/PageHeader';
 import { getOrder, confirmDelivery } from '../lib/api/orders';
 import Skeleton from '../components/shared/ui/Skeleton';
+import OrderTracker from '../components/shared/ui/OrderTracker';
 
 const STATUS_LABEL = {
   pending_payment: 'Payment pending', paid: 'Paid — in escrow', shipped: 'Shipped',
@@ -96,6 +97,12 @@ export default function OrderDetail() {
             )}
           </div>
 
+          {order.status !== 'pending_payment' && !['disputed', 'refunded', 'cancelled'].includes(order.status) && (
+            <div className="aw-surface" style={{ borderRadius: 18, padding: '24px 32px', marginBottom: 24 }}>
+              <OrderTracker status={order.status} />
+            </div>
+          )}
+
           {error && <div style={{ color: 'var(--red)', fontSize: 13, marginBottom: 16 }}>{error}</div>}
 
           <div className="aw-surface" style={{ borderRadius: 18, padding: 24, marginBottom: 24 }}>
@@ -108,9 +115,21 @@ export default function OrderDetail() {
                 </div>
               ))}
             </div>
-            <div style={{ borderTop: '1px solid var(--border)', paddingTop: 14, display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>Total</span>
-              <span className="serif" style={{ fontSize: 20, color: 'var(--text)' }}>${order.total_amount.toLocaleString()}</span>
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+                <span style={{ color: 'var(--text3)' }}>Subtotal</span>
+                <span style={{ color: 'var(--text2)' }}>${order.subtotal_amount.toLocaleString()}</span>
+              </div>
+              {order.shipping_amount > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+                  <span style={{ color: 'var(--text3)' }}>Shipping</span>
+                  <span style={{ color: 'var(--text2)' }}>${order.shipping_amount.toLocaleString()}</span>
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>Total</span>
+                <span className="serif" style={{ fontSize: 20, color: 'var(--text)' }}>${order.total_amount.toLocaleString()}</span>
+              </div>
             </div>
           </div>
 

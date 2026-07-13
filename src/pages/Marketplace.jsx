@@ -244,7 +244,7 @@ export default function Marketplace() {
 
           {/* Results */}
           {loading && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
+            <div className="aw-grid-4" style={{ display: 'grid', gap: 20 }}>
               {Array.from({ length: 8 }).map((_, i) => <ListingCardSkeleton key={i} />)}
             </div>
           )}
@@ -254,7 +254,7 @@ export default function Marketplace() {
           )}
           {!loading && !error && listings.length > 0 && (
             <>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
+              <div className="aw-grid-4" style={{ display: 'grid', gap: 20 }}>
                 {listings.map(l => <ListingCard key={l.id} listing={l} />)}
               </div>
 

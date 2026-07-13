@@ -83,31 +83,33 @@ export default function Cart() {
                 {items.map(item => (
                   <div key={item.id}>
                     <div className="aw-surface" style={{
-                      display: 'flex', alignItems: 'center', gap: 16, borderRadius: 16, padding: 18,
+                      display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', borderRadius: 16, padding: 18,
                       opacity: busyId === item.id ? 0.6 : 1,
                     }}>
                       <div style={{
                         width: 64, height: 64, borderRadius: 12, flexShrink: 0,
                         background: 'linear-gradient(160deg, #1A1430, #0F0F1A)',
                       }} />
-                      <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ flex: '1 1 180px', minWidth: 0 }}>
                         <div style={{ fontSize: 14.5, fontWeight: 600, color: 'var(--text)', marginBottom: 4 }}>{item.listing.title}</div>
                         <div style={{ fontSize: 12.5, color: 'var(--text3)' }}>
                           {countryFlag(item.listing.seller?.country)} {item.listing.seller?.name}
                           {item.listing.weight_kg && <> &middot; {item.listing.weight_kg} kg</>}
                         </div>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <button onClick={() => changeQty(item, -1)} disabled={busyId === item.id} style={qtyBtnStyle}><Minus size={13} /></button>
-                        <span style={{ fontSize: 14, color: 'var(--text)', minWidth: 20, textAlign: 'center' }}>{item.quantity}</span>
-                        <button onClick={() => changeQty(item, 1)} disabled={busyId === item.id} style={qtyBtnStyle}><Plus size={13} /></button>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginLeft: 'auto' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <button onClick={() => changeQty(item, -1)} disabled={busyId === item.id} style={qtyBtnStyle}><Minus size={13} /></button>
+                          <span style={{ fontSize: 14, color: 'var(--text)', minWidth: 20, textAlign: 'center' }}>{item.quantity}</span>
+                          <button onClick={() => changeQty(item, 1)} disabled={busyId === item.id} style={qtyBtnStyle}><Plus size={13} /></button>
+                        </div>
+                        <div className="serif" style={{ fontSize: 18, color: 'var(--text)', minWidth: 90, textAlign: 'right' }}>
+                          ${(item.listing.price_amount * item.quantity).toLocaleString()}
+                        </div>
+                        <button onClick={() => remove(item)} disabled={busyId === item.id} style={{
+                          background: 'none', border: 'none', color: 'var(--text4)', cursor: 'pointer', padding: 6,
+                        }}><Trash2 size={16} /></button>
                       </div>
-                      <div className="serif" style={{ fontSize: 18, color: 'var(--text)', minWidth: 90, textAlign: 'right' }}>
-                        ${(item.listing.price_amount * item.quantity).toLocaleString()}
-                      </div>
-                      <button onClick={() => remove(item)} disabled={busyId === item.id} style={{
-                        background: 'none', border: 'none', color: 'var(--text4)', cursor: 'pointer', padding: 6,
-                      }}><Trash2 size={16} /></button>
                     </div>
                     {rowError.id === item.id && (
                       <div style={{ fontSize: 12.5, color: 'var(--red)', marginTop: 6, paddingLeft: 4 }}>{rowError.message}</div>
@@ -117,7 +119,7 @@ export default function Cart() {
               </div>
 
               <div className="aw-surface" style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16,
                 borderRadius: 16, padding: 22,
               }}>
                 <div>

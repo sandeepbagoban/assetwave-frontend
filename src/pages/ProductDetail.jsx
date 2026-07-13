@@ -31,7 +31,7 @@ export default function ProductDetail() {
       <section className="section-sm" style={{ background: 'var(--bg)', paddingTop: 140 }}>
         <div className="container">
           <Skeleton width={160} height={13} style={{ marginBottom: 28 }} />
-          <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: 48 }}>
+          <div className="aw-split-hero" style={{ display: 'grid', gap: 48 }}>
             <div>
               <Skeleton height={380} radius={20} />
               <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
@@ -169,7 +169,7 @@ export default function ProductDetail() {
               </div>
             )}
 
-            <div style={{ marginTop: 28, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+            <div className="aw-grid-2" style={{ marginTop: 28, display: 'grid', gap: 12 }}>
               {[
                 ['Brand', listing.brand], ['Model', listing.model],
                 ['Year', listing.year_manufactured], ['Origin', listing.origin_country],

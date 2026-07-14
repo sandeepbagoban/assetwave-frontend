@@ -245,12 +245,13 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
   text-transform: uppercase; color: var(--violet3);
 }
 
-.section { padding: 120px 0; }
-.section-sm { padding: 80px 0; }
+.section { padding: 88px 0; }
+.section-sm { padding: 64px 0; }
 
 @media (max-width: 1024px) {
   .container { padding: 0 24px; }
-  .section { padding: 72px 0; }
+  .section { padding: 64px 0; }
+  .section-sm { padding: 48px 0; }
 }
 
 /* Responsive grid utilities — column count only; callers keep their own

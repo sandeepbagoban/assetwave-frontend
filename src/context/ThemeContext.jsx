@@ -7,9 +7,10 @@ function getInitialTheme() {
   if (typeof window === 'undefined') return 'dark';
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === 'light' || stored === 'dark') return stored;
-  // No saved preference yet — respect the system setting on first visit.
-  const prefersLight = window.matchMedia?.('(prefers-color-scheme: light)').matches;
-  return prefersLight ? 'light' : 'dark';
+  // No saved preference yet — default to light (matches the brand's
+  // reference design) unless the OS explicitly asks for dark.
+  const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+  return prefersDark ? 'dark' : 'light';
 }
 
 export function ThemeProvider({ children }) {

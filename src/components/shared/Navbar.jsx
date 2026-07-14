@@ -12,6 +12,7 @@ const NAV_LINKS = [
   { label: 'Impact', to: '/impact' },
   { label: 'Marketplace', to: '/marketplace' },
   { label: 'Resources', to: '/resources' },
+  { label: 'Ambassador', to: '/ambassador' },
   { label: 'Contact', to: '/contact' },
 ];
 

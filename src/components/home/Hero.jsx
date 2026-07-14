@@ -1,20 +1,84 @@
-import { Star, TrendingUp, ArrowRight, Sparkles, DollarSign, Package, Globe2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Star, TrendingUp, ArrowRight, Sparkles, DollarSign, Package, Globe2, ShieldCheck, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SignalSculpture from '../visuals/SignalSculpture';
 
-const STATS = [
+const SLIDES = [
   { icon: DollarSign, value: '$2.4B+', label: 'Dormant asset value identified' },
   { icon: Package, value: '25,000+', label: 'Equipment models tracked' },
+  { icon: ShieldCheck, value: '100%', label: 'Escrow-protected transactions' },
   { icon: Globe2, value: '40+', label: 'Countries with verified buyers & sellers' },
   { icon: TrendingUp, value: '35%', label: 'Average value recovery' },
 ];
+
+const SLIDE_INTERVAL_MS = 4200;
+
+function HeroSlider() {
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused) return;
+    const id = setInterval(() => setIndex(i => (i + 1) % SLIDES.length), SLIDE_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [paused]);
+
+  const slide = SLIDES[index];
+  const Icon = slide.icon;
+
+  return (
+    <div
+      className="aw-surface"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      style={{
+        position: 'relative', zIndex: 1, borderRadius: 24, padding: '40px 36px',
+        width: '100%', maxWidth: 360, minHeight: 240,
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        overflow: 'hidden',
+      }}
+    >
+      <div style={{
+        position: 'absolute', top: -60, right: -60, width: 180, height: 180, borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(139,124,246,0.25) 0%, transparent 70%)',
+      }} />
+
+      <div key={index} className="aw-fade-up" style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
+        <div style={{
+          width: 60, height: 60, borderRadius: 16, margin: '0 auto 20px',
+          background: 'var(--surface2)', border: '1px solid var(--border2)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <Icon size={26} color="var(--violet3)" strokeWidth={1.5} />
+        </div>
+        <div className="serif" style={{ fontSize: 40, color: 'var(--text)', marginBottom: 8, lineHeight: 1 }}>{slide.value}</div>
+        <div style={{ fontSize: 13.5, color: 'var(--text3)', lineHeight: 1.5, maxWidth: 220, margin: '0 auto' }}>{slide.label}</div>
+      </div>
+
+      <div style={{ display: 'flex', gap: 6, justifyContent: 'center', marginTop: 28, position: 'relative', zIndex: 1 }}>
+        {SLIDES.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setIndex(i)}
+            aria-label={`Show slide ${i + 1}`}
+            style={{
+              width: i === index ? 22 : 6, height: 6, borderRadius: 3, border: 'none', padding: 0,
+              background: i === index ? 'var(--violet3)' : 'var(--border2)',
+              transition: 'all .35s var(--ease)', cursor: 'pointer',
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function Hero() {
   return (
     <section style={{
       position: 'relative', minHeight: '100vh',
       display: 'flex', alignItems: 'center',
-      background: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(139,124,246,0.14), transparent), var(--bg)',
+      background: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(139,124,246,0.18), transparent), var(--bg)',
       overflow: 'hidden', paddingTop: 76,
     }}>
       <div style={{
@@ -40,7 +104,7 @@ export default function Hero() {
           </div>
 
           <h1 className="serif" style={{
-            fontSize: 'clamp(38px, 4.6vw, 60px)', lineHeight: 1.08,
+            fontSize: 'clamp(38px, 4.6vw, 62px)', lineHeight: 1.06,
             color: 'var(--text)', letterSpacing: '-0.01em', marginBottom: 20,
           }}>
             Turning dormant assets<br />
@@ -59,6 +123,7 @@ export default function Hero() {
               display: 'flex', alignItems: 'center', gap: 8,
               background: 'var(--inverse-bg)', color: 'var(--inverse-text)', border: 'none',
               padding: '15px 28px', borderRadius: 100, fontSize: 15, fontWeight: 600,
+              boxShadow: '0 12px 32px rgba(0,0,0,0.16)',
             }}>
               Start Selling <ArrowRight size={16} />
             </Link>
@@ -79,39 +144,39 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Right: signal sculpture accent + stat panel */}
-        <div style={{ position: 'relative', minHeight: 420, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ position: 'absolute', inset: 0, opacity: 0.55, pointerEvents: 'none' }}>
+        {/* Right: signal sculpture ambiance + rotating stat slider */}
+        <div style={{ position: 'relative', minHeight: 440, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ position: 'absolute', inset: 0, opacity: 0.6, pointerEvents: 'none' }}>
             <SignalSculpture />
           </div>
 
-          <div className="aw-surface" style={{ position: 'relative', zIndex: 1, borderRadius: 20, padding: 28, width: '100%', maxWidth: 340 }}>
-            <div style={{ fontSize: 11.5, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 18, fontWeight: 600 }}>
-              By the numbers
-            </div>
-            {STATS.map((s, i) => (
-              <div key={s.label} style={{
-                display: 'flex', alignItems: 'center', gap: 14,
-                paddingBottom: i < STATS.length - 1 ? 16 : 0,
-                marginBottom: i < STATS.length - 1 ? 16 : 0,
-                borderBottom: i < STATS.length - 1 ? '1px solid var(--border)' : 'none',
-              }}>
-                <div style={{
-                  width: 40, height: 40, borderRadius: 10, flexShrink: 0,
-                  background: 'var(--surface2)', border: '1px solid var(--border2)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <s.icon size={17} color="var(--violet3)" strokeWidth={1.6} />
-                </div>
-                <div>
-                  <div className="serif" style={{ fontSize: 21, color: 'var(--text)', lineHeight: 1 }}>{s.value}</div>
-                  <div style={{ fontSize: 11.5, color: 'var(--text3)', marginTop: 3 }}>{s.label}</div>
-                </div>
-              </div>
-            ))}
+          {/* Floating glass badges for depth/motion, kept light so the slider stays the focal point */}
+          <div className="glass-pill" style={{ position: 'absolute', top: '6%', left: '2%', animationDelay: '.2s' }}>
+            <Zap size={13} color="var(--ice)" /> Fast payouts
           </div>
+          <div className="glass-pill" style={{ position: 'absolute', bottom: '10%', right: '0%', animationDelay: '.6s' }}>
+            <ShieldCheck size={13} color="var(--violet3)" /> Verified sellers
+          </div>
+
+          <HeroSlider />
         </div>
       </div>
+
+      <style>{`
+        .glass-pill {
+          display: flex; align-items: center; gap: 7px;
+          background: var(--glass);
+          backdrop-filter: blur(16px);
+          border: 1px solid var(--border2);
+          border-radius: 100px; padding: 9px 16px;
+          font-size: 12px; color: var(--text2); font-weight: 500;
+          white-space: nowrap;
+          animation: float 5.5s ease-in-out infinite;
+        }
+        @media (max-width: 900px) {
+          .glass-pill { display: none !important; }
+        }
+      `}</style>
     </section>
   );
 }

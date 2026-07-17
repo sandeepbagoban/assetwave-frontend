@@ -130,7 +130,7 @@ export default function Navbar() {
         </div>
 
         {/* Actions */}
-        <div className="nav-desktop-actions" style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, marginLeft: 24 }}>
+        {/* <div className="nav-desktop-actions" style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, marginLeft: 24 }}>
           <ThemeToggle />
           {user && <NotificationBell />}
           {user && <CartLink />}
@@ -173,13 +173,13 @@ export default function Navbar() {
               </Link>
             </>
           )}
-        </div>
+        </div> */}
 
         {/* Mobile toggle */}
         <div className="nav-mobile-actions" style={{ display: 'none', alignItems: 'center', gap: 8 }}>
           <ThemeToggle />
-          {user && <NotificationBell />}
-          {user && <CartLink />}
+          {/* {user && <NotificationBell />} */}
+          {/* {user && <CartLink />} */}
           <button className="nav-mobile-toggle" onClick={() => setMobileOpen(v => !v)} style={{
             background: 'var(--surface)', border: '1px solid var(--border)',
             width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text)',
@@ -202,7 +202,7 @@ export default function Navbar() {
               {link.label}
             </NavLink>
           ))}
-          {user ? (
+          {/* {user ? (
             <>
               <div style={{ padding: '12px 8px', fontSize: 13, color: 'var(--text3)' }}>Signed in as {user.full_name || user.email}</div>
               <Link to="/account/orders" onClick={() => setMobileOpen(false)} style={{ padding: '12px 8px', fontSize: 15, color: 'var(--text2)', borderBottom: '1px solid var(--border)' }}>Orders</Link>
@@ -220,7 +220,7 @@ export default function Navbar() {
                 padding: '12px', borderRadius: 100, fontSize: 14, fontWeight: 600, textAlign: 'center',
               }}>Get Started</Link>
             </>
-          )}
+          )} */}
         </div>
       )}
 

@@ -31,8 +31,8 @@ export default function App() {
         <Route path="/about" element={<About />} />
         <Route path="/features" element={<FeaturesPage />} />
         <Route path="/impact" element={<Impact />} />
-        <Route path="/marketplace" element={<Marketplace />} />
-        <Route path="/marketplace/:id" element={<ProductDetail />} />
+        {/* <Route path="/marketplace" element={<Marketplace />} /> */}
+        {/* <Route path="/marketplace/:id" element={<ProductDetail />} /> */}
         <Route path="/resources" element={<Resources />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/ambassador" element={<Ambassador />} />

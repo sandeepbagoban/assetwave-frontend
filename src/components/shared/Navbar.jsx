@@ -89,11 +89,22 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // The homepage hero is a full-bleed photo slider that alternates dark and
+  // light slides — matching text color to whichever slide happens to be
+  // showing would need cross-component state, so instead we keep the nav
+  // text always light here and add a dark scrim behind it for contrast,
+  // regardless of which slide is underneath.
+  const isHeroOverlay = location.pathname === '/' && !scrolled;
+  const logoColor = isHeroOverlay ? '#fff' : 'var(--text)';
+  const linkColor = isHeroOverlay ? 'rgba(255,255,255,0.9)' : 'var(--text2)';
+  const linkColorActive = isHeroOverlay ? '#fff' : 'var(--text)';
+  const linkBgActive = isHeroOverlay ? 'rgba(255,255,255,0.16)' : 'var(--surface2)';
+
   return (
     <nav style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
       transition: 'all .35s cubic-bezier(.2,.8,.2,1)',
-      background: scrolled ? 'var(--glass)' : 'transparent',
+      background: scrolled ? 'var(--glass)' : (isHeroOverlay ? 'linear-gradient(180deg, rgba(5,8,20,0.55) 0%, rgba(5,8,20,0.15) 80%, transparent 100%)' : 'transparent'),
       backdropFilter: scrolled ? 'blur(20px) saturate(160%)' : 'none',
       borderBottom: scrolled ? '1px solid var(--border)' : '1px solid transparent',
     }}>
@@ -109,7 +120,7 @@ export default function Navbar() {
               </linearGradient>
             </defs>
           </svg>
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 400, color: 'var(--text)', letterSpacing: '-0.01em' }}>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 400, color: logoColor, letterSpacing: '-0.01em', transition: 'color .3s' }}>
             AssetWave
           </span>
         </Link>
@@ -119,9 +130,9 @@ export default function Navbar() {
           {NAV_LINKS.map(link => (
             <NavLink key={link.to} to={link.to} style={({ isActive }) => ({
               padding: '8px 16px', fontSize: 14, fontWeight: 450,
-              color: isActive ? 'var(--text)' : 'var(--text2)',
+              color: isActive ? linkColorActive : linkColor,
               borderRadius: 100,
-              background: isActive ? 'var(--surface2)' : 'transparent',
+              background: isActive ? linkBgActive : 'transparent',
               transition: 'all .2s',
             })}>
               {link.label}

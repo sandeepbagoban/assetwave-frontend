@@ -1,181 +1,253 @@
-import { useState, useEffect } from 'react';
-import { Star, TrendingUp, ArrowRight, Sparkles, DollarSign, Package, Globe2, ShieldCheck, Zap } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import SignalSculpture from '../visuals/SignalSculpture';
 
 const SLIDES = [
-  { icon: DollarSign, value: '$2.4B+', label: 'Dormant asset value identified' },
-  { icon: Package, value: '25,000+', label: 'Equipment models tracked' },
-  { icon: ShieldCheck, value: '100%', label: 'Escrow-protected transactions' },
-  { icon: Globe2, value: '40+', label: 'Countries with verified buyers & sellers' },
-  { icon: TrendingUp, value: '35%', label: 'Average value recovery' },
+  {
+    theme: 'dark',
+    image: '/hero/slide-camera.png',
+    alt: 'Professional cinema camera on a modern display',
+    kicker: 'ASSET RECOVERY & MONETIZATION',
+    heading: <>Turning dormant assets<br /><em>into working capital.</em></>,
+    body: 'Identify, value, and sell underused broadcast equipment through one secure, escrow-protected marketplace.',
+    align: 'left',
+    actions: [
+      { to: '/register', state: { intent: 'seller' }, label: 'Start Selling', variant: 'primary' },
+      { to: '/marketplace', label: 'Start Buying', variant: 'ghost' },
+    ],
+  },
+  {
+    theme: 'light',
+    image: '/hero/slide-lens.png',
+    alt: 'Premium professional cinema lens',
+    kicker: 'VERIFIED PROFESSIONAL EQUIPMENT',
+    heading: <>Sell smarter.<br /><em>Buy better.</em></>,
+    body: 'Connect verified broadcasters and media companies across a marketplace built specifically for equipment lifecycle management.',
+    align: 'right',
+    actions: [
+      { to: '/marketplace', label: 'Browse equipment', variant: 'dark' },
+      { to: '/features', label: 'How it works', variant: 'link' },
+    ],
+  },
+  {
+    theme: 'dark',
+    image: '/hero/slide-switcher.png',
+    alt: 'Professional broadcast video switcher with illuminated controls',
+    kicker: 'UNLOCK HIDDEN VALUE',
+    heading: <>From dormant<br /><em>to in demand.</em></>,
+    body: "Give equipment a second life while turning yesterday's infrastructure into tomorrow's opportunity.",
+    align: 'left',
+    actions: [
+      { to: '/register', state: { intent: 'seller' }, label: 'List your equipment', variant: 'primary' },
+      { to: '/about', label: 'Learn more', variant: 'ghost' },
+    ],
+  },
 ];
 
-const SLIDE_INTERVAL_MS = 4200;
+const DELAY_MS = 6000;
+const ARROW_BY_VARIANT = { primary: '↗', dark: '↗', ghost: null, link: '→' };
+const CLASS_BY_VARIANT = {
+  primary: 'aw-button aw-button--primary',
+  dark: 'aw-button aw-button--dark',
+  ghost: 'aw-button aw-button--ghost',
+  link: 'aw-link',
+};
 
-function HeroSlider() {
-  const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
-
-  useEffect(() => {
-    if (paused) return;
-    const id = setInterval(() => setIndex(i => (i + 1) % SLIDES.length), SLIDE_INTERVAL_MS);
-    return () => clearInterval(id);
-  }, [paused]);
-
-  const slide = SLIDES[index];
-  const Icon = slide.icon;
-
+function SlideAction({ action }) {
+  const arrow = ARROW_BY_VARIANT[action.variant];
   return (
-    <div
-      className="aw-surface"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      style={{
-        position: 'relative', zIndex: 1, borderRadius: 24, padding: '40px 36px',
-        width: '100%', maxWidth: 360, minHeight: 240,
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        overflow: 'hidden',
-      }}
-    >
-      <div style={{
-        position: 'absolute', top: -60, right: -60, width: 180, height: 180, borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(139,124,246,0.25) 0%, transparent 70%)',
-      }} />
-
-      <div key={index} className="aw-fade-up" style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
-        <div style={{
-          width: 60, height: 60, borderRadius: 16, margin: '0 auto 20px',
-          background: 'var(--surface2)', border: '1px solid var(--border2)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <Icon size={26} color="var(--violet3)" strokeWidth={1.5} />
-        </div>
-        <div className="serif" style={{ fontSize: 40, color: 'var(--text)', marginBottom: 8, lineHeight: 1 }}>{slide.value}</div>
-        <div style={{ fontSize: 13.5, color: 'var(--text3)', lineHeight: 1.5, maxWidth: 220, margin: '0 auto' }}>{slide.label}</div>
-      </div>
-
-      <div style={{ display: 'flex', gap: 6, justifyContent: 'center', marginTop: 28, position: 'relative', zIndex: 1 }}>
-        {SLIDES.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setIndex(i)}
-            aria-label={`Show slide ${i + 1}`}
-            style={{
-              width: i === index ? 22 : 6, height: 6, borderRadius: 3, border: 'none', padding: 0,
-              background: i === index ? 'var(--violet3)' : 'var(--border2)',
-              transition: 'all .35s var(--ease)', cursor: 'pointer',
-            }}
-          />
-        ))}
-      </div>
-    </div>
+    <Link to={action.to} state={action.state} className={CLASS_BY_VARIANT[action.variant]}>
+      {action.label} {arrow && <span>{arrow}</span>}
+    </Link>
   );
 }
 
 export default function Hero() {
+  const [current, setCurrent] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [hovering, setHovering] = useState(false);
+  const touchStartRef = useRef(0);
+  const effectivePause = paused || hovering;
+
+  const goTo = useCallback((index) => {
+    setCurrent(((index % SLIDES.length) + SLIDES.length) % SLIDES.length);
+  }, []);
+
+  useEffect(() => {
+    if (effectivePause) return undefined;
+    const id = setInterval(() => setCurrent(c => (c + 1) % SLIDES.length), DELAY_MS);
+    return () => clearInterval(id);
+  }, [effectivePause, current]);
+
+  function handleKeyDown(e) {
+    if (e.key === 'ArrowLeft') goTo(current - 1);
+    if (e.key === 'ArrowRight') goTo(current + 1);
+    if (e.key === ' ') { e.preventDefault(); setPaused(p => !p); }
+  }
+
+  function handleTouchStart(e) {
+    touchStartRef.current = e.changedTouches[0].clientX;
+  }
+
+  function handleTouchEnd(e) {
+    const distance = e.changedTouches[0].clientX - touchStartRef.current;
+    if (Math.abs(distance) > 50) goTo(current + (distance < 0 ? 1 : -1));
+  }
+
+  const activeSlide = SLIDES[current];
+
   return (
-    <section style={{
-      position: 'relative', minHeight: '100vh',
-      display: 'flex', alignItems: 'center',
-      background: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(139,124,246,0.18), transparent), var(--bg)',
-      overflow: 'hidden', paddingTop: 76,
-    }}>
-      <div style={{
-        position: 'absolute', inset: 0, opacity: 0.35,
-        backgroundImage: 'linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)',
-        backgroundSize: '64px 64px',
-        maskImage: 'radial-gradient(ellipse 60% 50% at 50% 30%, black, transparent)',
-      }} />
+    <section
+      className={`aw-slider${activeSlide.theme === 'light' ? ' is-light' : ''}${effectivePause ? ' is-paused' : ''}`}
+      aria-roledescription="carousel"
+      aria-label="AssetWave marketplace"
+      tabIndex={0}
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+      onFocus={() => setHovering(true)}
+      onBlur={() => setHovering(false)}
+      onKeyDown={handleKeyDown}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      <div className="aw-slides">
+        {SLIDES.map((slide, i) => {
+          const isActive = i === current;
+          const Heading = i === 0 ? 'h1' : 'h2';
+          return (
+            <article
+              key={i}
+              className={`aw-slide aw-slide--${slide.theme}${isActive ? ' is-active' : ''}`}
+              aria-hidden={!isActive}
+            >
+              <img className="aw-slide__image" src={slide.image} alt={slide.alt} />
+              <div className="aw-slide__shade" />
+              <div className={`aw-slide__content${slide.align === 'right' ? ' aw-slide__content--right' : ''}`}>
+                <span className="aw-kicker"><i />{slide.kicker}</span>
+                <Heading>{slide.heading}</Heading>
+                <p>{slide.body}</p>
+                <div className="aw-actions">
+                  {slide.actions.map((action, ai) => <SlideAction key={ai} action={action} />)}
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
 
-      <div className="container aw-split-hero" style={{
-        position: 'relative', zIndex: 2, display: 'grid', gap: 56, alignItems: 'center',
-        paddingTop: 40, paddingBottom: 40,
-      }}>
-        {/* Left: message + primary CTAs */}
-        <div>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            background: 'var(--surface2)', border: '1px solid var(--border2)',
-            borderRadius: 100, padding: '7px 16px 7px 10px', marginBottom: 24,
-          }}>
-            <Sparkles size={13} color="var(--violet3)" />
-            <span style={{ fontSize: 13, color: 'var(--text2)', fontWeight: 450 }}>AssetWave Intelligence</span>
-          </div>
+      <button className="aw-arrow aw-arrow--prev" type="button" aria-label="Previous slide" onClick={() => goTo(current - 1)}>←</button>
+      <button className="aw-arrow aw-arrow--next" type="button" aria-label="Next slide" onClick={() => goTo(current + 1)}>→</button>
 
-          <h1 className="serif" style={{
-            fontSize: 'clamp(38px, 4.6vw, 62px)', lineHeight: 1.06,
-            color: 'var(--text)', letterSpacing: '-0.01em', marginBottom: 20,
-          }}>
-            Turning dormant assets<br />
-            into <span className="serif-italic gradient-text">working capital</span>
-          </h1>
-
-          <p style={{
-            fontSize: 16.5, color: 'var(--text2)', maxWidth: 460,
-            marginBottom: 32, lineHeight: 1.65, fontWeight: 350,
-          }}>
-            Engineering broadcasters and media companies to make smarter equipment decisions through real-time market data — buy and sell with escrow protection built in.
-          </p>
-
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 28 }}>
-            <Link to="/register" state={{ intent: 'seller' }} className="aw-btn" style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              background: 'var(--inverse-bg)', color: 'var(--inverse-text)', border: 'none',
-              padding: '15px 28px', borderRadius: 100, fontSize: 15, fontWeight: 600,
-              boxShadow: '0 12px 32px rgba(0,0,0,0.16)',
-            }}>
-              Start Selling <ArrowRight size={16} />
-            </Link>
-            <Link to="/marketplace" className="aw-btn" style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              background: 'transparent', color: 'var(--text)', border: '1px solid var(--border2)',
-              padding: '15px 28px', borderRadius: 100, fontSize: 15, fontWeight: 500,
-            }}>
-              Start Buying
-            </Link>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span className="serif" style={{ fontSize: 22, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 4 }}>
-              4.9 <Star size={13} fill="#FBBF24" color="#FBBF24" style={{ marginTop: -8 }} />
-            </span>
-            <span style={{ fontSize: 12.5, color: 'var(--text3)' }}>Trusted by top broadcasters</span>
-          </div>
+      <div className="aw-footer">
+        <div className="aw-count"><strong>{String(current + 1).padStart(2, '0')}</strong><span>/ {String(SLIDES.length).padStart(2, '0')}</span></div>
+        <div className="aw-dots" role="tablist" aria-label="Select slide">
+          {SLIDES.map((_, i) => (
+            <button
+              key={i}
+              className={`aw-dot${i === current ? ' is-active' : ''}`}
+              type="button"
+              role="tab"
+              aria-label={`Slide ${i + 1}`}
+              aria-selected={i === current}
+              onClick={() => goTo(i)}
+            >
+              <i key={i === current ? `bar-${current}` : `bar-static-${i}`} />
+            </button>
+          ))}
         </div>
-
-        {/* Right: signal sculpture ambiance + rotating stat slider */}
-        <div style={{ position: 'relative', minHeight: 440, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ position: 'absolute', inset: 0, opacity: 0.6, pointerEvents: 'none' }}>
-            <SignalSculpture />
-          </div>
-
-          {/* Floating glass badges for depth/motion, kept light so the slider stays the focal point */}
-          <div className="glass-pill" style={{ position: 'absolute', top: '6%', left: '2%', animationDelay: '.2s' }}>
-            <Zap size={13} color="var(--ice)" /> Fast payouts
-          </div>
-          <div className="glass-pill" style={{ position: 'absolute', bottom: '10%', right: '0%', animationDelay: '.6s' }}>
-            <ShieldCheck size={13} color="var(--violet3)" /> Verified sellers
-          </div>
-
-          <HeroSlider />
-        </div>
+        <button
+          className="aw-pause"
+          type="button"
+          aria-label={paused ? 'Play automatic slider' : 'Pause automatic slider'}
+          onClick={() => setPaused(p => !p)}
+        >
+          {paused ? '▶' : 'Ⅱ'}
+        </button>
       </div>
 
       <style>{`
-        .glass-pill {
-          display: flex; align-items: center; gap: 7px;
-          background: var(--glass);
-          backdrop-filter: blur(16px);
-          border: 1px solid var(--border2);
-          border-radius: 100px; padding: 9px 16px;
-          font-size: 12px; color: var(--text2); font-weight: 500;
-          white-space: nowrap;
-          animation: float 5.5s ease-in-out infinite;
+        .aw-slider { position: relative; width: 100%; height: clamp(620px, 74vw, 790px); min-height: 620px; overflow: hidden; isolation: isolate; background: #070b1c; --violet: #9d8cff; --cyan: #70ddeb; }
+        .aw-slides, .aw-slide { position: absolute; inset: 0; }
+        .aw-slide { visibility: hidden; opacity: 0; overflow: hidden; transition: opacity 1s cubic-bezier(.22,1,.36,1), visibility 1s; }
+        .aw-slide.is-active { visibility: visible; opacity: 1; z-index: 2; }
+        .aw-slide__image { position: absolute; inset: -3%; width: 106%; height: 106%; object-fit: cover; transform: scale(1.06) translateX(1.5%); transition: transform 8s cubic-bezier(.2,.7,.25,1); }
+        .aw-slide.is-active .aw-slide__image { transform: scale(1) translateX(0); }
+        .aw-slide__shade { position: absolute; inset: 0; background: linear-gradient(90deg, #05091be8 0%, #05091bb5 31%, #05091b24 55%, transparent 72%); }
+        .aw-slide--light .aw-slide__shade { background: linear-gradient(90deg, transparent 40%, #faf7f1aa 56%, #faf7f1f3 75%, #faf7f1 100%); }
+        .aw-slide__content { position: absolute; z-index: 3; top: 50%; left: clamp(36px, 7vw, 130px); width: min(660px, 49vw); transform: translateY(calc(-50% + 34px)); opacity: 0; transition: transform .9s .22s cubic-bezier(.22,1,.36,1), opacity .8s .22s; }
+        .aw-slide.is-active .aw-slide__content { transform: translateY(-50%); opacity: 1; }
+        .aw-slide__content--right { right: clamp(36px, 7vw, 130px); left: auto; width: min(600px, 42vw); color: #10111a; }
+        .aw-kicker { display: flex; align-items: center; gap: 11px; margin-bottom: 23px; color: var(--violet); font-size: 11px; font-weight: 700; letter-spacing: .17em; }
+        .aw-slide--light .aw-kicker { color: #6f55d9; }
+        .aw-kicker i { width: 26px; height: 2px; background: var(--cyan); }
+        .aw-slide h1, .aw-slide h2 { margin: 0 0 25px; color: #fff; font-size: clamp(48px, 5.3vw, 82px); font-weight: 750; line-height: .98; letter-spacing: -.064em; font-family: var(--font-display), serif; }
+        .aw-slide--light h2 { color: #11131a; }
+        .aw-slide h1 em, .aw-slide h2 em { color: var(--violet); font-style: normal; }
+        .aw-slide__content > p { max-width: 570px; margin: 0 0 34px; color: #b9bfd2; font-size: clamp(15px, 1.2vw, 18px); line-height: 1.72; }
+        .aw-slide--light .aw-slide__content > p { color: #5c5d69; }
+        .aw-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; }
+        .aw-button { display: inline-flex; align-items: center; gap: 10px; padding: 15px 22px; border-radius: 999px; font-size: 13px; font-weight: 650; text-decoration: none; transition: transform .22s ease, background .22s ease, box-shadow .22s ease; }
+        .aw-button:hover { transform: translateY(-3px); }
+        .aw-button--primary { color: #080b18; background: #fff; box-shadow: 0 12px 35px #0003; }
+        .aw-button--primary:hover { box-shadow: 0 15px 40px #0005; }
+        .aw-button--ghost { color: #fff; border: 1px solid #ffffff35; background: #ffffff0b; backdrop-filter: blur(12px); }
+        .aw-button--dark { color: #fff; background: #11131a; box-shadow: 0 12px 30px #11131a2c; }
+        .aw-link { display: inline-flex; gap: 8px; color: #22232b; font-size: 13px; font-weight: 650; text-decoration: none; }
+        .aw-arrow { position: absolute; z-index: 8; top: 50%; display: grid; place-items: center; width: 48px; height: 48px; padding: 0; border: 1px solid #ffffff25; border-radius: 50%; color: #fff; background: #070b1c42; cursor: pointer; backdrop-filter: blur(14px); transform: translateY(-50%); transition: background .2s ease, transform .2s ease, color .2s ease; }
+        .aw-arrow:hover { background: #ffffff1b; transform: translateY(-50%) scale(1.06); }
+        .aw-arrow--prev { left: 24px; }
+        .aw-arrow--next { right: 24px; }
+        .aw-slider.is-light .aw-arrow { color: #181922; border-color: #11131a1f; background: #fff8; }
+        .aw-footer { position: absolute; z-index: 9; right: clamp(36px, 7vw, 130px); bottom: 34px; left: clamp(36px, 7vw, 130px); display: flex; align-items: center; gap: 26px; color: #fff; }
+        .aw-count { display: flex; align-items: baseline; gap: 7px; min-width: 54px; }
+        .aw-count strong { font-size: 15px; }
+        .aw-count span { color: #ffffff6b; font-size: 11px; }
+        .aw-dots { display: flex; flex: 1; max-width: 340px; gap: 8px; }
+        .aw-dot { position: relative; width: 62px; height: 20px; padding: 9px 0; border: 0; background: transparent; cursor: pointer; }
+        .aw-dot::before { content: ""; position: absolute; inset: 9px 0; border-radius: 2px; background: #ffffff31; }
+        .aw-dot i { position: absolute; top: 9px; bottom: 9px; left: 0; width: 0; border-radius: 2px; background: #fff; }
+        .aw-dot.is-active i { animation: awProgress 6s linear forwards; }
+        .aw-slider.is-paused .aw-dot.is-active i { animation-play-state: paused; }
+        .aw-pause { width: 38px; height: 38px; border: 1px solid #ffffff26; border-radius: 50%; color: #fff; background: #ffffff0a; cursor: pointer; }
+        .aw-slider.is-light .aw-footer { color: #161720; }
+        .aw-slider.is-light .aw-count span { color: #16172070; }
+        .aw-slider.is-light .aw-dot::before { background: #11131a25; }
+        .aw-slider.is-light .aw-dot i { background: #11131a; }
+        .aw-slider.is-light .aw-pause { color: #161720; border-color: #11131a25; background: #fff7; }
+        @keyframes awProgress { from { width: 0; } to { width: 100%; } }
+        @media (max-width: 880px) {
+          .aw-slider { height: 760px; }
+          .aw-slide__image { inset: 0; width: 100%; height: 100%; object-position: 62% center; }
+          .aw-slide--light .aw-slide__image { object-position: 30% center; }
+          .aw-slide__shade, .aw-slide--light .aw-slide__shade { background: linear-gradient(180deg, #070b1ca8 0%, #070b1ce8 57%, #070b1c 100%); }
+          .aw-slide__content, .aw-slide__content--right { top: auto; right: 30px; bottom: 105px; left: 30px; width: auto; color: #fff; transform: translateY(30px); }
+          .aw-slide.is-active .aw-slide__content { transform: translateY(0); }
+          .aw-slide--light h2 { color: #fff; }
+          .aw-slide--light .aw-kicker { color: #b5aaff; }
+          .aw-slide--light .aw-slide__content > p { color: #c4c9d8; }
+          .aw-slide--light .aw-button--dark { color: #10111a; background: #fff; }
+          .aw-slide--light .aw-link { color: #fff; }
+          .aw-arrow { top: 38px; transform: none; }
+          .aw-arrow:hover { transform: scale(1.06); }
+          .aw-arrow--prev { right: 82px; left: auto; }
+          .aw-arrow--next { right: 26px; }
+          .aw-footer { right: 30px; bottom: 28px; left: 30px; }
+          .aw-slider.is-light .aw-arrow, .aw-slider.is-light .aw-footer, .aw-slider.is-light .aw-pause { color: #fff; }
+          .aw-slider.is-light .aw-dot::before { background: #ffffff31; }
+          .aw-slider.is-light .aw-dot i { background: #fff; }
         }
-        @media (max-width: 900px) {
-          .glass-pill { display: none !important; }
+        @media (max-width: 560px) {
+          .aw-slider { height: 720px; min-height: 720px; }
+          .aw-slide h1, .aw-slide h2 { font-size: 44px; }
+          .aw-slide__content, .aw-slide__content--right { right: 22px; bottom: 108px; left: 22px; }
+          .aw-slide__content > p { margin-bottom: 25px; font-size: 14px; line-height: 1.6; }
+          .aw-kicker { font-size: 9px; }
+          .aw-actions { gap: 10px; }
+          .aw-button { padding: 13px 17px; font-size: 12px; }
+          .aw-footer { right: 22px; left: 22px; gap: 14px; }
+          .aw-dot { width: 36px; }
+          .aw-pause { display: none; }
         }
+        @media (prefers-reduced-motion: reduce) { .aw-slide, .aw-slide__content, .aw-slide__image { transition-duration: .01ms; } .aw-dot.is-active i { animation: none; width: 100%; } }
       `}</style>
     </section>
   );

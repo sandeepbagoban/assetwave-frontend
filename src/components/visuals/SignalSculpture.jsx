@@ -1,4 +1,4 @@
-// A glowing "signal sculpture" — AssetWave's equivalent of the reference's
+// A glowing "signal sculpture" — AWXchange's equivalent of the reference's
 // crystal bonsai centerpiece. Built as layered SVG with CSS animation
 // rather than a 3D library, to keep the bundle light while still reading
 // as a premium, crafted hero visual.

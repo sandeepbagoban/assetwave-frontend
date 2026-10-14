@@ -38,7 +38,7 @@ export default function Login() {
 
   return (
     <>
-      <PageHeader eyebrow="Welcome back" title="Log in to" titleItalic="AssetWave" desc={contextMessage} />
+      <PageHeader eyebrow="Welcome back" title="Log in to" titleItalic="AWXchange" desc={contextMessage} />
       <section className="section-sm" style={{ background: 'var(--bg)' }}>
         <div className="container" style={{ maxWidth: 420 }}>
           <form onSubmit={handleSubmit} className="aw-surface" style={{

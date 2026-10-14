@@ -7,8 +7,8 @@ const SLIDES = [
     image: '/hero/slide-camera.png',
     alt: 'Professional cinema camera on a modern display',
     kicker: 'ASSET RECOVERY & MONETIZATION',
-    heading: <>Turning dormant assets<br /><em>into working capital.</em></>,
-    body: 'Identify, value, and sell underused broadcast equipment through one secure, escrow-protected marketplace.',
+    heading: <>Your surplus is<br /><em>someone's network.</em></>,
+    body: 'Identify, value, and sell underused telecom and broadcast equipment. Every deal is managed by the AWXchange team.',
     align: 'left',
     actions: [
       { to: '/register', state: { intent: 'seller' }, label: 'Start Selling', variant: 'primary' },
@@ -99,7 +99,7 @@ export default function Hero() {
     <section
       className={`aw-slider${activeSlide.theme === 'light' ? ' is-light' : ''}${effectivePause ? ' is-paused' : ''}`}
       aria-roledescription="carousel"
-      aria-label="AssetWave marketplace"
+      aria-label="AWXchange marketplace"
       tabIndex={0}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}

@@ -1,4 +1,4 @@
-// Central API client for AssetWave frontend.
+// Central API client for AWXchange frontend.
 //
 // All backend communication should go through this client so that:
 //   1. The base URL is configured once (via VITE_API_BASE_URL env var)

@@ -21,7 +21,7 @@ export default function Ambassador() {
       <section className="section-sm" style={{ background: 'var(--bg)' }}>
         <div className="container" style={{ maxWidth: 760 }}>
           <p style={{ fontSize: 16, color: 'var(--text2)', lineHeight: 1.8, fontWeight: 350 }}>
-            The ambassador program is built for people already embedded in broadcast and media procurement — engineers, consultants, resellers, and former operators — who hear about equipment moving before we do. You make the introduction; we handle verification, escrow, and logistics.
+            The ambassador program is built for people already embedded in telecom and broadcast procurement — engineers, consultants, resellers, and former operators — who hear about equipment moving before we do. You make the introduction; we handle verification, escrow, and logistics.
           </p>
         </div>
       </section>

@@ -110,8 +110,8 @@ export default function Navbar() {
     }}>
       <div className="container" style={{ display: 'flex', alignItems: 'center', height: 76, gap: 8 }}>
         {/* Logo */}
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, marginRight: 'auto' }}>
-          <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, marginRight: 'auto' }}>
+          <svg width="36" height="36" viewBox="0 0 26 26" fill="none">
             <path d="M13 2L23 8V18L13 24L3 18V8L13 2Z" stroke="url(#navlogo)" strokeWidth="1.4" strokeLinejoin="round"/>
             <path d="M13 2V24M3 8L23 18M23 8L3 18" stroke="url(#navlogo)" strokeWidth="0.6" opacity="0.5"/>
             <defs>
@@ -120,8 +120,8 @@ export default function Navbar() {
               </linearGradient>
             </defs>
           </svg>
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 400, color: logoColor, letterSpacing: '-0.01em', transition: 'color .3s' }}>
-            AssetWave
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 400, color: logoColor, letterSpacing: '-0.01em', transition: 'color .3s' }}>
+            AWXchange
           </span>
         </Link>
 
@@ -217,7 +217,7 @@ export default function Navbar() {
             <>
               <div style={{ padding: '12px 8px', fontSize: 13, color: 'var(--text3)' }}>Signed in as {user.full_name || user.email}</div>
               <Link to="/account/orders" onClick={() => setMobileOpen(false)} style={{ padding: '12px 8px', fontSize: 15, color: 'var(--text2)', borderBottom: '1px solid var(--border)' }}>Orders</Link>
-              <Link to="/account/seller" onClick={() => setMobileOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '12px 8px', fontSize: 15, color: 'var(--text2)', borderBottom: '1px solid var(--border)' }}><Store size={14} /> Sell on AssetWave</Link>
+              <Link to="/account/seller" onClick={() => setMobileOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '12px 8px', fontSize: 15, color: 'var(--text2)', borderBottom: '1px solid var(--border)' }}><Store size={14} /> Sell on AWXchange</Link>
               <button onClick={() => { setMobileOpen(false); handleLogout(); }} style={{
                 marginTop: 16, background: 'var(--surface2)', color: 'var(--text)', border: '1px solid var(--border)',
                 padding: '12px', borderRadius: 100, fontSize: 14, fontWeight: 600,

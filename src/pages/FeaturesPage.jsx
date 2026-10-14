@@ -29,7 +29,7 @@ const DEEP_DIVES = [
     icon: Truck,
     tag: 'Logistics',
     title: 'Seller-managed shipping, platform-tracked',
-    desc: 'Sellers handle their own freight relationships — they know their equipment’s packaging and customs requirements best. AssetWave tracks shipment status and proof of delivery against every order.',
+    desc: 'Sellers handle their own freight relationships — they know their equipment’s packaging and customs requirements best. AWXchange tracks shipment status and proof of delivery against every order.',
     points: ['Sellers choose their own freight partners', 'Tracking number and carrier logged per order', 'Proof of delivery stored against the order record'],
   },
 ];
@@ -41,7 +41,7 @@ export default function FeaturesPage() {
         eyebrow="Platform Features"
         title="Every step of the trade,"
         titleItalic="protected"
-        desc="From verification to payout, AssetWave is built around one question: what would make a stranger on another continent trust this transaction?"
+        desc="From verification to payout, AWXchange is built around one question: what would make a stranger on another continent trust this transaction?"
       />
 
       <Features />

@@ -13,6 +13,7 @@ export default function Register() {
   const [intent, setIntent] = useState(location.state?.intent === 'seller' ? 'seller' : 'buyer');
   const [form, setForm] = useState({ full_name: '', email: '', phone: '', password: '' });
   const [sellerForm, setSellerForm] = useState({ org_name: '', nickname: '', country: '', account_type: 'organization', registration_no: '' });
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -26,6 +27,10 @@ export default function Register() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
+    if (!acceptedTerms) {
+      setError('You must accept the Terms of Use and Privacy Policy to continue.');
+      return;
+    }
     setSubmitting(true);
     try {
       await register(form);
@@ -53,7 +58,7 @@ export default function Register() {
 
   return (
     <>
-      <PageHeader eyebrow="Join AssetWave" title="Create your" titleItalic="account" />
+      <PageHeader eyebrow="Join AWXchange" title="Create your" titleItalic="account" />
       <section className="section-sm" style={{ background: 'var(--bg)' }}>
         <div className="container" style={{ maxWidth: 460 }}>
           <div style={{ display: 'flex', gap: 8, marginBottom: 20, justifyContent: 'center' }}>
@@ -125,6 +130,20 @@ export default function Register() {
                 </div>
               </>
             )}
+
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 12.5, color: 'var(--text3)', lineHeight: 1.6 }}>
+              <input
+                type="checkbox"
+                required
+                checked={acceptedTerms}
+                onChange={e => setAcceptedTerms(e.target.checked)}
+                style={{ marginTop: 2, flexShrink: 0 }}
+              />
+              <span>
+                I accept the <Link to="/terms" target="_blank" style={{ color: 'var(--violet3)' }}>Terms of Use</Link> and{' '}
+                <Link to="/privacy" target="_blank" style={{ color: 'var(--violet3)' }}>Privacy Policy</Link>.
+              </span>
+            </label>
 
             {error && <div style={{ color: 'var(--red)', fontSize: 13 }}>{error}</div>}
 

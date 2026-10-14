@@ -1,13 +1,9 @@
-import { ShoppingBag, Search, CircleDollarSign, FileBadge, RefreshCw, LineChart, ArrowUpRight } from 'lucide-react';
+import { ShoppingBag, CircleDollarSign, ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const FEATURES = [
-  { num: '01', icon: ShoppingBag, title: 'Asset Marketplace', desc: 'Buy and sell quality used broadcast equipment globally with escrow-protected payments and verified counterparties.' },
-  { num: '02', icon: Search, title: 'Surplus Identification', desc: 'Identify dormant, duplicate, and underutilized assets across your entire broadcast infrastructure.' },
-  { num: '03', icon: CircleDollarSign, title: 'Equipment Valuation', desc: 'Real-time market valuations backed by transaction data and pricing intelligence from 25,000+ models.' },
-  { num: '04', icon: FileBadge, title: 'Equipment Passport', desc: 'A digital identity for every asset — full history, technical specs, and compliance documentation.' },
-  { num: '05', icon: RefreshCw, title: 'Resale Workflow', desc: 'A streamlined workflow from listing approval to sale confirmation, escrow payment, and logistics.' },
-  { num: '06', icon: LineChart, title: 'Lifecycle Intelligence', desc: 'Predict end-of-life, optimize replacement timing, and retire assets with confidence.' },
+  { num: '01', icon: ShoppingBag, title: 'Asset Marketplace', desc: 'Buy and sell quality used telecom and broadcast equipment globally. Every deal is managed by the AWXchange team.' },
+  { num: '02', icon: CircleDollarSign, title: 'Equipment Valuation', desc: 'Real-time market valuations backed by transaction data and pricing intelligence.' },
 ];
 
 export default function Features() {
@@ -15,13 +11,16 @@ export default function Features() {
     <section className="section" style={{ background: 'var(--bg)' }}>
       <div className="container">
         <div style={{ textAlign: 'center', marginBottom: 64 }}>
-          <div className="eyebrow" style={{ justifyContent: 'center', display: 'flex', marginBottom: 16 }}>End to End</div>
+          <div className="eyebrow" style={{ justifyContent: 'center', display: 'flex', marginBottom: 16 }}>How it works</div>
           <h2 className="serif" style={{ fontSize: 'clamp(30px,3.4vw,46px)', color: 'var(--text)', letterSpacing: '-0.01em' }}>
             One Platform. <span className="serif-italic gradient-text">Complete</span> Asset Monetization.
           </h2>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, background: 'var(--border)', borderRadius: 24, overflow: 'hidden' }}>
+        <div style={{
+          display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1, background: 'var(--border)',
+          borderRadius: 24, overflow: 'hidden', maxWidth: 780, margin: '0 auto',
+        }}>
           {FEATURES.map((f, i) => {
             const Icon = f.icon;
             return (

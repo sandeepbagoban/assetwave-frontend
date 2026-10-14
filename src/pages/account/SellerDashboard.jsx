@@ -709,7 +709,7 @@ export default function SellerDashboard() {
               <Clock size={20} color="var(--amber)" style={{ marginBottom: 12 }} />
               <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>Application under review</h3>
               <p style={{ fontSize: 13.5, color: 'var(--text3)', lineHeight: 1.6 }}>
-                Thanks for applying to sell on AssetWave. Our team is reviewing <strong>{sellerProfile.org_name}</strong>. You'll be able to list equipment once approved.
+                Thanks for applying to sell on AWXchange. Our team is reviewing <strong>{sellerProfile.org_name}</strong>. You'll be able to list equipment once approved.
               </p>
             </div>
           )}

@@ -32,10 +32,10 @@ export default function Footer() {
                 <path d="M13 2L23 8V18L13 24L3 18V8L13 2Z" stroke="url(#flogo)" strokeWidth="1.4" strokeLinejoin="round"/>
                 <defs><linearGradient id="flogo" x1="3" y1="2" x2="23" y2="24"><stop stopColor="#B4A9FB"/><stop offset="1" stopColor="#7DD3E8"/></linearGradient></defs>
               </svg>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--text)' }}>AssetWave</span>
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--text)' }}>AWXchange</span>
             </Link>
             <p style={{ fontSize: 13.5, color: 'var(--text3)', lineHeight: 1.7, maxWidth: 260, marginBottom: 22 }}>
-              Building the world's leading asset intelligence network for broadcast and media equipment lifecycle management and monetization.
+              Building the world's leading asset intelligence network for telecom and broadcast equipment lifecycle management and monetization.
             </p>
           </div>
 
@@ -55,8 +55,14 @@ export default function Footer() {
 
         <div style={{
           borderTop: '1px solid var(--border)', padding: '24px 0',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
         }}>
-          <span style={{ fontSize: 12.5, color: 'var(--text4)' }}>© 2026 AssetWave. All rights reserved.</span>
+          <span style={{ fontSize: 12.5, color: 'var(--text4)' }}>© 2026 AWXchange. All rights reserved.</span>
+          <div style={{ display: 'flex', gap: 22 }}>
+            <Link to="/terms" style={{ fontSize: 12.5, color: 'var(--text4)' }}>Terms of Use</Link>
+            <Link to="/privacy" style={{ fontSize: 12.5, color: 'var(--text4)' }}>Privacy Policy</Link>
+            <Link to="/privacy#cookies" style={{ fontSize: 12.5, color: 'var(--text4)' }}>Cookie Policy</Link>
+          </div>
         </div>
       </div>
 

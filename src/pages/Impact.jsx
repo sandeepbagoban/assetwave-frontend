@@ -1,6 +1,4 @@
 import PageHeader from '../components/shared/PageHeader';
-import ImpactTimeline from '../components/home/ImpactTimeline';
-import CaseStudies from '../components/home/CaseStudies';
 import CtaBanner from '../components/home/CtaBanner';
 
 const STATS = [
@@ -17,7 +15,7 @@ export default function Impact() {
         eyebrow="Impact"
         title="Equipment that finds"
         titleItalic="its next decade"
-        desc="Every transaction on AssetWave is equipment that didn't end up in a landfill or a forgotten storage room — and a broadcaster who got access to professional gear they couldn't otherwise afford."
+        desc="Every transaction on AWXchange is equipment that didn't end up in a landfill or a forgotten storage room — and a buyer who got access to professional gear they couldn't otherwise afford."
       />
 
       <section className="section-sm" style={{ background: 'var(--bg)' }}>
@@ -33,8 +31,6 @@ export default function Impact() {
         </div>
       </section>
 
-      <ImpactTimeline />
-
       <section className="section" style={{ background: 'var(--bg2)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
         <div className="container" style={{ maxWidth: 720 }}>
           <div className="eyebrow" style={{ marginBottom: 16 }}>The market</div>
@@ -42,15 +38,14 @@ export default function Impact() {
             Why this matters beyond one transaction
           </h2>
           <p style={{ fontSize: 15.5, color: 'var(--text2)', lineHeight: 1.85, marginBottom: 20 }}>
-            The global broadcast equipment market is valued at roughly $7.9 billion and growing &mdash; but that's new equipment. The used market, where AssetWave operates, captures the depreciation gap: equipment too valuable to scrap, too specialized for general resale markets, and too expensive in shipping and verification risk for most broadcasters to trade directly.
+            The global telecom and broadcast equipment market is valued at roughly $7.9 billion and growing &mdash; but that's new equipment. The used market, where AWXchange operates, captures the depreciation gap: equipment too valuable to scrap, too specialized for general resale markets, and too expensive in shipping and verification risk for most operators to trade directly.
           </p>
           <p style={{ fontSize: 15.5, color: 'var(--text2)', lineHeight: 1.85 }}>
-            Meanwhile, infrastructure investment across emerging media markets continues to grow, with broadcasters needing professional-grade equipment at a fraction of new-equipment cost. AssetWave exists in that gap &mdash; not as charity, but as a functioning, escrow-protected market that benefits sellers liquidating dormant capital and buyers accessing equipment that would otherwise be out of reach.
+            Meanwhile, infrastructure investment across emerging markets continues to grow, with operators needing professional-grade equipment at a fraction of new-equipment cost. AWXchange exists in that gap &mdash; not as charity, but as a functioning, escrow-protected market that benefits sellers liquidating dormant capital and buyers accessing equipment that would otherwise be out of reach.
           </p>
         </div>
       </section>
 
-      <CaseStudies />
       <CtaBanner />
     </>
   );

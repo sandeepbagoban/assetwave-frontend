@@ -3,6 +3,7 @@ import Navbar from './components/shared/Navbar';
 import Footer from './components/shared/Footer';
 import ScrollToTop from './components/shared/ScrollToTop';
 import ProtectedRoute from './components/shared/ProtectedRoute';
+import CookieBanner from './components/shared/CookieBanner';
 
 import Home from './pages/Home';
 import About from './pages/About';
@@ -20,6 +21,8 @@ import Checkout from './pages/Checkout';
 import OrderDetail from './pages/OrderDetail';
 import OrderHistory from './pages/account/OrderHistory';
 import SellerDashboard from './pages/account/SellerDashboard';
+import TermsOfUse from './pages/legal/TermsOfUse';
+import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 
 export default function App() {
   return (
@@ -43,8 +46,11 @@ export default function App() {
         <Route path="/orders/:id" element={<ProtectedRoute><OrderDetail /></ProtectedRoute>} />
         <Route path="/account/orders" element={<ProtectedRoute><OrderHistory /></ProtectedRoute>} />
         <Route path="/account/seller" element={<ProtectedRoute><SellerDashboard /></ProtectedRoute>} />
+        <Route path="/terms" element={<TermsOfUse />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
       </Routes>
       <Footer />
+      <CookieBanner />
     </>
   );
 }

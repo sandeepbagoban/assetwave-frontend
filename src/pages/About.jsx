@@ -31,7 +31,7 @@ export default function About() {
             Our vision
           </h2>
           <p style={{ fontSize: 17, color: 'var(--text2)', lineHeight: 1.9, fontWeight: 350, marginBottom: 20 }}>
-            AWXchange helps telecom and broadcast operators identify, value, manage, exchange, and sell equipment throughout its lifecycle &mdash; transforming dormant assets into working capital while reducing industry waste.
+            AWXchange helps broadcast and media operators identify, value, manage, exchange, and sell equipment throughout its lifecycle &mdash; transforming dormant assets into working capital while reducing industry waste.
           </p>
           <p style={{ fontSize: 15.5, color: 'var(--text3)', lineHeight: 1.85 }}>
             Broadcast equipment is expensive, durable, and depreciates in book value far faster than it depreciates in usefulness. Most of it ends up in storage, not because it's worthless, but because the channels to resell it safely &mdash; across borders, across currencies, between strangers &mdash; haven't existed. We built the verification, escrow, and logistics coordination to make that exchange trustworthy on both sides.

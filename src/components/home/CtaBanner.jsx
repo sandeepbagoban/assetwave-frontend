@@ -32,7 +32,7 @@ export default function CtaBanner() {
                 Have equipment to sell?
               </h3>
               <p style={{ fontSize: 14, color: 'var(--text2)', lineHeight: 1.6, maxWidth: 460 }}>
-                Apply to become a seller and list your surplus telecom and broadcast equipment on AWXchange.
+                Apply to become a seller and list your surplus broadcast and media equipment on AWXchange.
               </p>
             </div>
           </div>

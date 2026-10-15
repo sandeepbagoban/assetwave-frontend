@@ -38,10 +38,10 @@ export default function Impact() {
             Why this matters beyond one transaction
           </h2>
           <p style={{ fontSize: 15.5, color: 'var(--text2)', lineHeight: 1.85, marginBottom: 20 }}>
-            The global telecom and broadcast equipment market is valued at roughly $7.9 billion and growing &mdash; but that's new equipment. The used market, where AWXchange operates, captures the depreciation gap: equipment too valuable to scrap, too specialized for general resale markets, and too expensive in shipping and verification risk for most operators to trade directly.
+            The global broadcast and media equipment market is valued at roughly $7.9 billion and growing &mdash; but that's new equipment. The used market, where AWXchange operates, captures the depreciation gap: equipment too valuable to scrap, too specialized for general resale markets, and too expensive in shipping and verification risk for most operators to trade directly.
           </p>
           <p style={{ fontSize: 15.5, color: 'var(--text2)', lineHeight: 1.85 }}>
-            Meanwhile, infrastructure investment across emerging markets continues to grow, with operators needing professional-grade equipment at a fraction of new-equipment cost. AWXchange exists in that gap &mdash; not as charity, but as a functioning, escrow-protected market that benefits sellers liquidating dormant capital and buyers accessing equipment that would otherwise be out of reach.
+            Meanwhile, infrastructure investment across emerging markets continues to grow, with operators needing professional-grade equipment at a fraction of new-equipment cost. AWXchange exists in that gap &mdash; not as charity, but as a functioning, Every deal is managed by the AWXchange team. market that benefits sellers liquidating dormant capital and buyers accessing equipment that would otherwise be out of reach.
           </p>
         </div>
       </section>

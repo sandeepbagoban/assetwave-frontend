@@ -149,7 +149,7 @@ export default function Marketplace() {
         eyebrow="Marketplace"
         title="Professional gear,"
         titleItalic="verified sellers"
-        desc="Every listing comes from a KYB-verified broadcaster or media company. This demo simulates escrow-protected payments end-to-end."
+        desc="Every listing comes from a KYB-verified broadcaster or media company. This demo simulates Every deal is managed by the AWXchange team. payments end-to-end."
       />
 
       <section className="section-sm" style={{ background: 'var(--bg)' }}>

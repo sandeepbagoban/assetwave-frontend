@@ -8,7 +8,7 @@ const SLIDES = [
     alt: 'Professional cinema camera on a modern display',
     kicker: 'ASSET RECOVERY & MONETIZATION',
     heading: <>Your surplus is<br /><em>someone's network.</em></>,
-    body: 'Identify, value, and sell underused telecom and broadcast equipment. Every deal is managed by the AWXchange team.',
+    body: 'Identify, value, and sell underused broadcast and media equipment. Every deal is managed by the AWXchange team.',
     align: 'left',
     actions: [
       { to: '/register', state: { intent: 'seller' }, label: 'Start Selling', variant: 'primary' },

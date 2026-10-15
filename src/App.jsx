@@ -38,7 +38,7 @@ export default function App() {
         <Route path="/marketplace/:id" element={<ProductDetail />} />
         <Route path="/resources" element={<Resources />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/ambassador" element={<Ambassador />} />
+        {/* <Route path="/ambassador" element={<Ambassador />} /> */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />

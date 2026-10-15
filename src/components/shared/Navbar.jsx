@@ -9,10 +9,10 @@ import NotificationBell from './NotificationBell';
 const NAV_LINKS = [
   { label: 'About', to: '/about' },
   { label: 'Features', to: '/features' },
-  { label: 'Impact', to: '/impact' },
+  // { label: 'Impact', to: '/impact' },
   // { label: 'Marketplace', to: '/marketplace' },
   { label: 'Resources', to: '/resources' },
-  { label: 'Ambassador', to: '/ambassador' },
+  // { label: 'Ambassador', to: '/ambassador' },
   { label: 'Contact', to: '/contact' },
 ];
 

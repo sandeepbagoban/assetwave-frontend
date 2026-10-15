@@ -2,7 +2,7 @@ import { ShoppingBag, CircleDollarSign, ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const FEATURES = [
-  { num: '01', icon: ShoppingBag, title: 'Asset Marketplace', desc: 'Buy and sell quality used telecom and broadcast equipment globally. Every deal is managed by the AWXchange team.' },
+  { num: '01', icon: ShoppingBag, title: 'Asset Marketplace', desc: 'Buy and sell quality used broadcast and media equipment globally. Every deal is managed by the AWXchange team.' },
   { num: '02', icon: CircleDollarSign, title: 'Equipment Valuation', desc: 'Real-time market valuations backed by transaction data and pricing intelligence.' },
 ];
 

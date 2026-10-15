@@ -35,7 +35,7 @@ export default function Footer() {
               <span style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--text)' }}>AWXchange</span>
             </Link>
             <p style={{ fontSize: 13.5, color: 'var(--text3)', lineHeight: 1.7, maxWidth: 260, marginBottom: 22 }}>
-              Building the world's leading asset intelligence network for telecom and broadcast equipment lifecycle management and monetization.
+              Building the world's leading asset intelligence network for broadcast and media equipment lifecycle management and monetization.
             </p>
           </div>
 

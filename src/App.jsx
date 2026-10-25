@@ -44,7 +44,8 @@ export default function App() {
         <Route path="/checkout" element={<ProtectedRoute pilot><Checkout /></ProtectedRoute>} />
         <Route path="/orders/:id" element={<ProtectedRoute><OrderDetail /></ProtectedRoute>} />
         <Route path="/account/orders" element={<ProtectedRoute><OrderHistory /></ProtectedRoute>} />
-        <Route path="/account/seller" element={<ProtectedRoute><SellerDashboard /></ProtectedRoute>} />
+        <Route path="/account/seller" element={<ProtectedRoute seller><SellerDashboard /></ProtectedRoute>} />
+        <Route path="/account/seller/apply" element={<ProtectedRoute><SellerDashboard /></ProtectedRoute>} />
         <Route path="/terms" element={<TermsOfUse />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
       </Routes>

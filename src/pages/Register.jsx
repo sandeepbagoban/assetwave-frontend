@@ -50,9 +50,9 @@ export default function Register() {
         await applyAsSeller(sellerForm);
       } catch { /* handled by the dashboard's retry form */ }
       await refreshSellerProfile();
-      navigate('/account/seller', { replace: true });
+      navigate('/account/seller/apply', { replace: true });
     } else {
-      navigate(location.state?.from || '/', { replace: true });
+      navigate('/account/orders', { replace: true });
     }
   }
 

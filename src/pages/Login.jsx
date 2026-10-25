@@ -4,6 +4,7 @@ import { LogIn, Eye, EyeOff } from 'lucide-react';
 import AuthLayout from '../components/shared/AuthLayout';
 import { useAuth } from '../context/AuthContext';
 import { inputStyle, labelStyle } from '../components/shared/ui/styles';
+import { loginDestination } from '../lib/accountNavigation';
 
 const REASON_MESSAGES = {
   cart: 'Log in to view your cart.',
@@ -23,7 +24,6 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
-  const redirectTo = location.state?.from || '/';
   const contextMessage = REASON_MESSAGES[location.state?.reason];
 
   async function handleSubmit(e) {
@@ -31,7 +31,7 @@ export default function Login() {
     setError('');
     try {
       const account = await login(email, password);
-      navigate(location.state?.from || (account.role === 'seller' ? '/account/seller' : redirectTo), { replace: true });
+      navigate(loginDestination(account, location.state?.from), { replace: true });
     } catch (err) {
       setError(err.message || 'Login failed.');
     }

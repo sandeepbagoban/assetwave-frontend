@@ -20,6 +20,7 @@ function readStoredUser() {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(readStoredUser);
   const [sellerProfile, setSellerProfile] = useState(null);
+  const [sellerProfileLoading, setSellerProfileLoading] = useState(() => Boolean(readStoredUser()));
   const [loading, setLoading] = useState(false);
 
   const persistSession = useCallback(({ accessToken, refreshToken, user: nextUser }) => {
@@ -30,11 +31,14 @@ export function AuthProvider({ children }) {
   }, []);
 
   const refreshSellerProfile = useCallback(async () => {
-    if (!localStorage.getItem(TOKEN_KEY)) { setSellerProfile(null); return; }
+    if (!localStorage.getItem(TOKEN_KEY)) { setSellerProfile(null); setSellerProfileLoading(false); return; }
+    setSellerProfileLoading(true);
     try {
       setSellerProfile(await sellerApi.getMySellerProfile());
     } catch {
       setSellerProfile(null);
+    } finally {
+      setSellerProfileLoading(false);
     }
   }, []);
 
@@ -47,12 +51,15 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       const result = await authApi.login({ email, password });
+      setSellerProfile(null);
+      setSellerProfileLoading(true);
       persistSession(result);
+      await refreshSellerProfile();
       return result.user;
     } finally {
       setLoading(false);
     }
-  }, [persistSession]);
+  }, [persistSession, refreshSellerProfile]);
 
   const register = useCallback(async (payload) => {
     setLoading(true);
@@ -73,10 +80,11 @@ export function AuthProvider({ children }) {
     localStorage.removeItem(USER_KEY);
     setUser(null);
     setSellerProfile(null);
+    setSellerProfileLoading(false);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, sellerProfile, loading, login, register, logout, refreshSellerProfile }}>
+    <AuthContext.Provider value={{ user, sellerProfile, sellerProfileLoading, loading, login, register, logout, refreshSellerProfile }}>
       {children}
     </AuthContext.Provider>
   );

@@ -3,11 +3,11 @@
 // Pages may still spread overrides: style={{...inputStyle, padding:'11px 14px'}}
 
 export const inputStyle = {
-  width: '100%', background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 10,
-  padding: '12px 16px', color: 'var(--text)', fontSize: 14, outline: 'none',
+  width: '100%', background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 7,
+  padding: '12px 16px', color: 'var(--text)', fontSize: 14, minHeight: 46, outline: 'none',
 };
 
-export const labelStyle = { display: 'block', fontSize: 13, color: 'var(--text3)', marginBottom: 8, fontWeight: 500 };
+export const labelStyle = { display: 'block', fontSize: 13, color: 'var(--text2)', marginBottom: 8, fontWeight: 550 };
 
 export const cardStyle = {
   background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 18, padding: 24,

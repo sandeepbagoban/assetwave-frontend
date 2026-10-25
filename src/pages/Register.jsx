@@ -1,8 +1,8 @@
 import CountrySelect from '../components/shared/CountrySelect';
 import { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { UserPlus, ShoppingBag, Store } from 'lucide-react';
-import PageHeader from '../components/shared/PageHeader';
+import { UserPlus, ShoppingBag, Store, Eye, EyeOff } from 'lucide-react';
+import AuthLayout from '../components/shared/AuthLayout';
 import { useAuth } from '../context/AuthContext';
 import { applyAsSeller } from '../lib/api/sellers';
 import { inputStyle, labelStyle } from '../components/shared/ui/styles';
@@ -15,6 +15,7 @@ export default function Register() {
   const [form, setForm] = useState({ full_name: '', email: '', phone: '', password: '' });
   const [sellerForm, setSellerForm] = useState({ org_name: '', nickname: '', country: '', account_type: 'organization', registration_no: '' });
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -58,10 +59,7 @@ export default function Register() {
   const busy = loading || submitting;
 
   return (
-    <>
-      <PageHeader eyebrow="Join AWXchange" title="Create your" titleItalic="account" />
-      <section className="section-sm" style={{ background: 'var(--bg)' }}>
-        <div className="container" style={{ maxWidth: 460 }}>
+    <AuthLayout title="Create your AWXchange account." description="Create your account to enquire about equipment or apply to sell surplus telecom and broadcast inventory.">
           <div style={{ display: 'flex', gap: 8, marginBottom: 20, justifyContent: 'center' }}>
             {[
               { id: 'buyer', label: 'Buy equipment', icon: ShoppingBag },
@@ -82,20 +80,20 @@ export default function Register() {
             display: 'flex', flexDirection: 'column', gap: 18,
           }}>
             <div>
-              <label style={labelStyle}>Full name</label>
-              <input style={inputStyle} required value={form.full_name} onChange={update('full_name')} placeholder="Jane Doe" />
+              <label htmlFor="field-full-name" style={labelStyle}>Full name</label>
+              <input id="field-full-name" style={inputStyle} required value={form.full_name} onChange={update('full_name')} placeholder="Jane Doe" />
             </div>
             <div>
-              <label style={labelStyle}>Email</label>
-              <input style={inputStyle} type="email" required value={form.email} onChange={update('email')} placeholder="you@company.com" />
+              <label htmlFor="field-email" style={labelStyle}>Email</label>
+              <input id="field-email" style={inputStyle} type="email" autoComplete="email" required value={form.email} onChange={update('email')} placeholder="you@company.com" />
             </div>
             <div>
-              <label style={labelStyle}>Phone (optional)</label>
-              <input style={inputStyle} value={form.phone} onChange={update('phone')} placeholder="+1 555 000 0000" />
+              <label htmlFor="field-phone-optional" style={labelStyle}>Phone (optional)</label>
+              <input id="field-phone-optional" style={inputStyle} value={form.phone} onChange={update('phone')} placeholder="+1 555 000 0000" />
             </div>
             <div>
-              <label style={labelStyle}>Password</label>
-              <input style={inputStyle} type="password" required minLength={8} value={form.password} onChange={update('password')} placeholder="At least 8 characters" />
+              <label htmlFor="field-password" style={labelStyle}>Password</label>
+              <div className="password-field"><input id="field-password" style={inputStyle} type={showPassword ? 'text' : 'password'} autoComplete="new-password" required minLength={8} value={form.password} onChange={update('password')} placeholder="At least 8 characters" /><button type="button" aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword(v => !v)}>{showPassword ? <EyeOff size={17}/> : <Eye size={17}/>}</button></div>
             </div>
 
             {intent === 'seller' && (
@@ -104,13 +102,13 @@ export default function Register() {
                   Seller details
                 </div>
                 <div>
-                  <label style={labelStyle}>Organization / business name</label>
-                  <input style={inputStyle} required value={sellerForm.org_name} onChange={updateSeller('org_name')} />
+                  <label htmlFor="field-organization-business-name" style={labelStyle}>Organization / business name</label>
+                  <input id="field-organization-business-name" style={inputStyle} required value={sellerForm.org_name} onChange={updateSeller('org_name')} />
                   <div style={{ fontSize: 11.5, color: 'var(--text4)', marginTop: 6 }}>Kept private — never shown to buyers.</div>
                 </div>
                 <div>
-                  <label style={labelStyle}>Public nickname</label>
-                  <input style={inputStyle} required value={sellerForm.nickname} onChange={updateSeller('nickname')} placeholder="Shown to buyers instead of your company name" />
+                  <label htmlFor="field-public-nickname" style={labelStyle}>Public nickname</label>
+                  <input id="field-public-nickname" style={inputStyle} required value={sellerForm.nickname} onChange={updateSeller('nickname')} placeholder="Shown to buyers instead of your company name" />
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                   <div>
@@ -126,8 +124,8 @@ export default function Register() {
                   </div>
                 </div>
                 <div>
-                  <label style={labelStyle}>Registration number (optional)</label>
-                  <input style={inputStyle} value={sellerForm.registration_no} onChange={updateSeller('registration_no')} />
+                  <label htmlFor="field-registration-number-optional" style={labelStyle}>Registration number (optional)</label>
+                  <input id="field-registration-number-optional" style={inputStyle} value={sellerForm.registration_no} onChange={updateSeller('registration_no')} />
                 </div>
               </>
             )}
@@ -146,7 +144,7 @@ export default function Register() {
               </span>
             </label>
 
-            {error && <div style={{ color: 'var(--red)', fontSize: 13 }}>{error}</div>}
+            {error && <div role="alert" style={{ color: 'var(--red)', fontSize: 13 }}>{error}</div>}
 
             <button type="submit" disabled={busy} className="aw-btn" style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -160,8 +158,6 @@ export default function Register() {
               Already have an account? <Link to="/login" state={location.state} style={{ color: 'var(--violet3)', fontWeight: 500 }}>Log in</Link>
             </div>
           </form>
-        </div>
-      </section>
-    </>
+    </AuthLayout>
   );
 }

@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/shared/Navbar';
 import Footer from './components/shared/Footer';
 import ScrollToTop from './components/shared/ScrollToTop';
@@ -23,10 +23,11 @@ import TermsOfUse from './pages/legal/TermsOfUse';
 import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 
 export default function App() {
+  const workspace = useLocation().pathname.startsWith('/account/seller');
   return (
     <>
       <ScrollToTop />
-      <Navbar />
+      {!workspace && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
@@ -47,7 +48,7 @@ export default function App() {
         <Route path="/terms" element={<TermsOfUse />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
       </Routes>
-      <Footer />
+      {!workspace && <Footer />}
       <CookieBanner />
     </>
   );

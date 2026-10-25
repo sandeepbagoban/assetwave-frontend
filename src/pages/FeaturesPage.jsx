@@ -82,15 +82,9 @@ const SECTIONS = [
   }
 ];
 export default function FeaturesPage() {
- return <><PageHeader eyebrow="Platform Features" title="Simple, managed deals" titleItalic="from basket to delivery" desc="AWXchange is in its pilot phase. Every deal is handled personally by our team, from approving sellers to delivering your equipment, so you always know who is looking after your order." />
- <section className="section"><div className="container" style={{ maxWidth: 900 }}>{SECTIONS.map(s => {
-  const List = s.ordered ? 'ol' : 'ul';
-  return <article key={s.id} id={s.id} style={{ padding: '32px 0', borderBottom: '1px solid var(--border)', scrollMarginTop: 110 }}>
-   <div className="eyebrow" style={{ marginBottom: 14 }}>{s.label}</div>
-   <h2 className="serif" style={{ fontSize: 30, marginBottom: 16 }}>{s.heading || s.label}</h2>
-   {s.body && <p style={{ color: 'var(--text2)', lineHeight: 1.8 }}>{s.body}</p>}
-   {s.extra && <p style={{ color: 'var(--text2)', lineHeight: 1.8, marginTop: 16 }}>{s.extra}</p>}
-   {s.points && <List style={{ paddingLeft: 24, marginTop: 20, color: 'var(--text2)', lineHeight: 1.8 }}>{s.points.map(point => <li key={point} style={{ marginBottom: 12 }}>{point}</li>)}</List>}
-  </article>;
- })}</div></section></>;
+ return <><PageHeader eyebrow="How it works" title="Simple, managed deals" titleItalic="from basket to delivery." desc="AWXchange is in its pilot phase. Every deal is handled personally by our team, from approving sellers to delivering your equipment, so you always know who is looking after your order." />
+ <section className="section"><div className="container features-layout"><aside className="features-toc" aria-label="On this page"><p>On this page</p>{SECTIONS.map(s=><a key={s.id} href={`#${s.id}`}>{s.label}</a>)}</aside><div>{SECTIONS.map((s,i)=>{
+ const List=s.ordered?'ol':'ul';
+ return <article key={s.id} id={s.id} className="feature-section"><span className="eyebrow">{String(i+1).padStart(2,'0')} / {s.label}</span><h2>{s.heading||s.label}</h2>{s.body&&<p>{s.body}</p>}{s.extra&&<p>{s.extra}</p>}{s.points&&<List>{s.points.map(point=><li key={point}>{point}</li>)}</List>}</article>;
+ })}</div></div></section></>;
 }

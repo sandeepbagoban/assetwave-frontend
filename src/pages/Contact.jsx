@@ -17,7 +17,7 @@ export default function Contact() {
         eyebrow="Contact"
         title="Talk to"
         titleItalic="AWXchange"
-        desc="Reach out directly — we read every message ourselves at this stage."
+        desc="Contact the AWXchange team about buying equipment, listing inventory or managing your account."
       />
 
       <section className="section-sm" style={{ background: 'var(--bg)' }}>
@@ -34,8 +34,8 @@ export default function Contact() {
                     background: 'var(--surface2)', border: '1px solid var(--border2)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}><Icon size={18} color="var(--violet3)" strokeWidth={1.6} /></div>
-                  <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>{c.title}</h3>
-                  <p style={{ fontSize: 13, color: 'var(--text3)', lineHeight: 1.6, marginBottom: 14 }}>{c.desc}</p>
+                  <h3 style={{ fontSize: 20, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>{c.title}</h3>
+                  <p style={{ fontSize: 14, color: 'var(--text2)', lineHeight: 1.8, marginBottom: 14 }}>{c.desc}</p>
                   <span style={{ fontSize: 13, color: 'var(--violet3)', fontWeight: 500 }}>{c.email}</span>
                 </a>
               );

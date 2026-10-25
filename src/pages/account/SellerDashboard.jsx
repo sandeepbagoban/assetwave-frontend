@@ -1,8 +1,9 @@
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Brand } from '../../components/shared/Navbar';
 import { formatPrice } from '../../lib/format';
 import CountrySelect from '../../components/shared/CountrySelect';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Store, Plus, Trash2, Pencil, Truck, Clock, X, Upload, Calendar, LayoutDashboard, Package, ClipboardList } from 'lucide-react';
-import PageHeader from '../../components/shared/PageHeader';
+import { Search, ArrowUpRight, LogOut, ExternalLink, Store, Plus, Trash2, Pencil, Truck, Clock, X, Upload, Calendar, LayoutDashboard, Package, ClipboardList } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { applyAsSeller, getMyListings, getMySellerOrders, getMyStats } from '../../lib/api/sellers';
 import { createListing, updateListing, deleteListing, addListingImages } from '../../lib/api/listings';
@@ -12,8 +13,7 @@ import { getCategories } from '../../lib/api/categories';
 import ImagePicker from '../../components/shared/ui/ImagePicker';
 import ConfirmButton from '../../components/shared/ui/ConfirmButton';
 import Skeleton from '../../components/shared/ui/Skeleton';
-import { Sparkline, DonutChart } from '../../components/shared/ui/charts';
-import OrderTracker from '../../components/shared/ui/OrderTracker';
+import { Sparkline } from '../../components/shared/ui/charts';
 import Table from '../../components/shared/ui/Table';
 import { iconBtnStyle, inputStyle as baseInputStyle, labelStyle as baseLabelStyle } from '../../components/shared/ui/styles';
 
@@ -26,11 +26,6 @@ const EMPTY_FORM = {
   weight_kg: '', length_cm: '', width_cm: '', height_cm: '',
 };
 
-const STATUS_CHART_COLORS = {
-  pending_payment: '#FBBF24', paid: '#7DD3E8', shipped: '#B4A9FB',
-  delivered: '#4ADE80', released: '#4ADE80', refunded: '#F87171',
-  disputed: '#F87171', cancelled: '#64748B',
-};
 
 function ApplyForm({ onApplied }) {
   const [form, setForm] = useState({ org_name: '', nickname: '', country: '', account_type: 'organization', registration_no: '' });
@@ -59,13 +54,13 @@ function ApplyForm({ onApplied }) {
       </div>
       <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div>
-          <label style={labelStyle}>Organization / business name</label>
-          <input style={inputStyle} required value={form.org_name} onChange={e => setForm(f => ({ ...f, org_name: e.target.value }))} />
+          <label htmlFor="field-organization-business-name" style={labelStyle}>Organization / business name</label>
+          <input id="field-organization-business-name" style={inputStyle} required value={form.org_name} onChange={e => setForm(f => ({ ...f, org_name: e.target.value }))} />
           <div style={{ fontSize: 11, color: 'var(--text4)', marginTop: 6 }}>Kept private — never shown to buyers.</div>
         </div>
         <div>
-          <label style={labelStyle}>Public nickname</label>
-          <input style={inputStyle} required value={form.nickname} onChange={e => setForm(f => ({ ...f, nickname: e.target.value }))} placeholder="Shown to buyers instead of your company name" />
+          <label htmlFor="field-public-nickname" style={labelStyle}>Public nickname</label>
+          <input id="field-public-nickname" style={inputStyle} required value={form.nickname} onChange={e => setForm(f => ({ ...f, nickname: e.target.value }))} placeholder="Shown to buyers instead of your company name" />
         </div>
         <div className="aw-grid-2" style={{ display: 'grid', gap: 12 }}>
           <div>
@@ -81,8 +76,8 @@ function ApplyForm({ onApplied }) {
           </div>
         </div>
         <div>
-          <label style={labelStyle}>Registration number (optional)</label>
-          <input style={inputStyle} value={form.registration_no} onChange={e => setForm(f => ({ ...f, registration_no: e.target.value }))} />
+          <label htmlFor="field-registration-number-optional" style={labelStyle}>Registration number (optional)</label>
+          <input id="field-registration-number-optional" style={inputStyle} value={form.registration_no} onChange={e => setForm(f => ({ ...f, registration_no: e.target.value }))} />
         </div>
         {error && <div style={{ color: 'var(--red)', fontSize: 13 }}>{error}</div>}
         <button type="submit" disabled={busy} className="aw-btn" style={{
@@ -156,8 +151,8 @@ function ListingForm({ categories, initial, onSaved, onCancel }) {
       </div>
       <form onSubmit={submit} className="aw-grid-2" style={{ display: 'grid', gap: 14 }}>
         <div style={{ gridColumn: '1 / -1' }}>
-          <label style={labelStyle}>Title</label>
-          <input style={inputStyle} required value={form.title} onChange={update('title')} />
+          <label htmlFor="field-title" style={labelStyle}>Title</label>
+          <input id="field-title" style={inputStyle} required value={form.title} onChange={update('title')} />
         </div>
         <div>
           <label style={labelStyle}>Category</label>
@@ -175,52 +170,52 @@ function ListingForm({ categories, initial, onSaved, onCancel }) {
           </select>
         </div>
         <div>
-          <label style={labelStyle}>Brand</label>
-          <input style={inputStyle} value={form.brand} onChange={update('brand')} />
+          <label htmlFor="field-brand" style={labelStyle}>Brand</label>
+          <input id="field-brand" style={inputStyle} value={form.brand} onChange={update('brand')} />
         </div>
         <div>
-          <label style={labelStyle}>Model</label>
-          <input style={inputStyle} value={form.model} onChange={update('model')} />
+          <label htmlFor="field-model" style={labelStyle}>Model</label>
+          <input id="field-model" style={inputStyle} value={form.model} onChange={update('model')} />
         </div>
         <div>
-          <label style={labelStyle}>Year manufactured</label>
-          <input style={inputStyle} type="number" value={form.year_manufactured} onChange={update('year_manufactured')} />
+          <label htmlFor="field-year-manufactured" style={labelStyle}>Year manufactured</label>
+          <input id="field-year-manufactured" style={inputStyle} type="number" value={form.year_manufactured} onChange={update('year_manufactured')} />
         </div>
         <div>
-          <label style={labelStyle}>Origin country (2-letter)</label>
-          <input style={inputStyle} maxLength={2} value={form.origin_country} onChange={e => setForm(f => ({ ...f, origin_country: e.target.value.toUpperCase() }))} />
+          <label htmlFor="field-origin-country-2-letter" style={labelStyle}>Origin country</label>
+          <CountrySelect aria-label="Origin country" style={inputStyle} value={form.origin_country || ''} onChange={update('origin_country')} />
         </div>
         <div>
           <label style={labelStyle}>Currency</label>
           <select style={inputStyle} value={form.currency} onChange={update('currency')}>{['USD','EUR','GBP','MUR','ZAR','AED','INR','AUD','CAD','CHF','SGD','JPY'].map(c => <option key={c} value={c}>{c}</option>)}</select>
-        </div><div><label style={labelStyle}>Equipment location</label><CountrySelect style={inputStyle} value={form.equipment_location || ''} onChange={update('equipment_location')} /></div><div>
-          <label style={labelStyle}>Price (optional; leave blank for price on request)</label>
-          <input style={inputStyle} type="number" min="0.01" step="0.01" value={form.price_amount ?? ''} onChange={update('price_amount')} />
+        </div><div><label style={labelStyle}>Equipment location</label><CountrySelect aria-label="Equipment location" style={inputStyle} value={form.equipment_location || ''} onChange={update('equipment_location')} /></div><div>
+          <label htmlFor="field-price-optional-leave-blank-for-price-on-request" style={labelStyle}>Price (optional; leave blank for price on request)</label>
+          <input id="field-price-optional-leave-blank-for-price-on-request" style={inputStyle} type="number" min="0.01" step="0.01" value={form.price_amount ?? ''} onChange={update('price_amount')} />
         </div>
         <div>
-          <label style={labelStyle}>New price estimate (optional)</label>
-          <input style={inputStyle} type="number" min="0" step="0.01" value={form.new_price_estimate} onChange={update('new_price_estimate')} />
+          <label htmlFor="field-new-price-estimate-optional" style={labelStyle}>New price estimate (optional)</label>
+          <input id="field-new-price-estimate-optional" style={inputStyle} type="number" min="0" step="0.01" value={form.new_price_estimate} onChange={update('new_price_estimate')} />
         </div>
         <div>
-          <label style={labelStyle}>Quantity</label>
-          <input style={inputStyle} type="number" min="1" value={form.quantity} onChange={update('quantity')} />
+          <label htmlFor="field-quantity" style={labelStyle}>Quantity</label>
+          <input id="field-quantity" style={inputStyle} type="number" min="1" value={form.quantity} onChange={update('quantity')} />
         </div>
         <div>
-          <label style={labelStyle}>Weight (kg, optional)</label>
-          <input style={inputStyle} type="number" min="0" step="0.01" value={form.weight_kg} onChange={update('weight_kg')} />
+          <label htmlFor="field-weight-kg-optional" style={labelStyle}>Weight (kg, optional)</label>
+          <input id="field-weight-kg-optional" style={inputStyle} type="number" min="0" step="0.01" value={form.weight_kg} onChange={update('weight_kg')} />
         </div>
         <div className="aw-grid-3" style={{ display: 'grid', gap: 8 }}>
           <div>
-            <label style={labelStyle}>Length (cm)</label>
-            <input style={inputStyle} type="number" min="0" step="0.1" value={form.length_cm} onChange={update('length_cm')} />
+            <label htmlFor="field-length-cm" style={labelStyle}>Length (cm)</label>
+            <input id="field-length-cm" style={inputStyle} type="number" min="0" step="0.1" value={form.length_cm} onChange={update('length_cm')} />
           </div>
           <div>
-            <label style={labelStyle}>Width (cm)</label>
-            <input style={inputStyle} type="number" min="0" step="0.1" value={form.width_cm} onChange={update('width_cm')} />
+            <label htmlFor="field-width-cm" style={labelStyle}>Width (cm)</label>
+            <input id="field-width-cm" style={inputStyle} type="number" min="0" step="0.1" value={form.width_cm} onChange={update('width_cm')} />
           </div>
           <div>
-            <label style={labelStyle}>Height (cm)</label>
-            <input style={inputStyle} type="number" min="0" step="0.1" value={form.height_cm} onChange={update('height_cm')} />
+            <label htmlFor="field-height-cm" style={labelStyle}>Height (cm)</label>
+            <input id="field-height-cm" style={inputStyle} type="number" min="0" step="0.1" value={form.height_cm} onChange={update('height_cm')} />
           </div>
         </div>
         <div style={{ gridColumn: '1 / -1' }}>
@@ -403,427 +398,55 @@ function BulkImportPanel({ onCancel, onImported }) {
   );
 }
 
-const PANEL_LABEL_STYLE = { fontSize: 11, fontWeight: 600, color: 'var(--text3)', marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.06em' };
-
-function OverviewTab() {
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    let cancelled = false;
-    getMyStats()
-      .then(data => { if (!cancelled) setStats(data); })
-      .catch(err => { if (!cancelled) setError(err.message || 'Could not load stats.'); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="aw-surface" style={{ borderRadius: 20, overflow: 'hidden' }}>
-        <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', background: 'var(--bg3)' }}>
-          <Skeleton width={140} height={13} />
-        </div>
-        <div className="aw-grid-5" style={{ display: 'grid', borderBottom: '1px solid var(--border)' }}>
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} style={{ padding: 14, borderRight: i < 4 ? '1px solid var(--border)' : 'none' }}>
-              <Skeleton width="70%" height={10} style={{ marginBottom: 8 }} />
-              <Skeleton width="50%" height={17} />
-            </div>
-          ))}
-        </div>
-        <div style={{ padding: 18 }}>
-          <Skeleton width="100%" height={100} />
-        </div>
-      </div>
-    );
-  }
-
-  if (error) return <div style={{ color: 'var(--red)', fontSize: 13.5, padding: '20px 0' }}>{error}</div>;
-  if (!stats) return null;
-
-  const donutData = Object.entries(stats.orders_by_status).map(([status, count]) => ({
-    label: status.replace('_', ' '), count, pct: 0, color: STATUS_CHART_COLORS[status] || '#64748B',
-  }));
-  const totalOrders = donutData.reduce((sum, d) => sum + d.count, 0);
-  donutData.forEach(d => { d.pct = totalOrders ? (d.count / totalOrders) * 100 : 0; });
-
-  const sparkValues = stats.sales_last_30_days.map(d => d.revenue_usd);
-
-  const KPIS = [
-    { label: 'Total Products', value: stats.total_listings.toLocaleString() },
-    { label: 'USD-priced inventory', value: `$${stats.inventory_value_usd.toLocaleString()}` },
-    { label: 'Active Listings', value: stats.active_listings.toLocaleString() },
-    { label: 'Sold Listings', value: stats.sold_listings.toLocaleString() },
-    { label: 'Pending Orders', value: stats.pending_orders.toLocaleString() },
-  ];
-
-  return (
-    <div className="aw-surface" style={{ borderRadius: 20, overflow: 'hidden' }}>
-      {/* Header bar */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '14px 20px', borderBottom: '1px solid var(--border)', background: 'var(--bg3)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--violet)' }} />
-          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>Seller Overview</span>
-        </div>
-        <div style={{
-          fontSize: 11, color: 'var(--text3)', background: 'var(--surface)', padding: '4px 10px',
-          borderRadius: 6, display: 'flex', alignItems: 'center', gap: 6,
-        }}>
-          <Calendar size={12} /> Last 30 days
-        </div>
-      </div>
-
-      {/* KPI row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', borderBottom: '1px solid var(--border)' }}>
-        {KPIS.map((k, i) => (
-          <div key={k.label} style={{ padding: 14, borderRight: i < KPIS.length - 1 ? '1px solid var(--border)' : 'none' }}>
-            <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4, fontWeight: 500 }}>{k.label}</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 17, fontWeight: 400, color: 'var(--text)', lineHeight: 1 }}>{k.value}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Charts row */}
-      <div className="seller-overview-charts" style={{ display: 'grid' }}>
-        <div style={{ padding: 18, borderRight: '1px solid var(--border)' }}>
-          <div style={PANEL_LABEL_STYLE}>Orders by Status</div>
-          {totalOrders === 0 ? (
-            <div style={{ fontSize: 12, color: 'var(--text3)' }}>No orders yet.</div>
-          ) : (
-            <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-              <DonutChart data={donutData} centerValue={totalOrders} centerLabel="Orders" />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {donutData.map(d => (
-                  <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <div style={{ width: 8, height: 8, borderRadius: 2, background: d.color, flexShrink: 0 }} />
-                    <div>
-                      <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'capitalize' }}>{d.label}</div>
-                      <div style={{ fontSize: 10, color: 'var(--text)', fontWeight: 600 }}>{d.count}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div style={{ padding: 18, borderRight: '1px solid var(--border)' }}>
-          <div style={PANEL_LABEL_STYLE}>Sales Over Time</div>
-          <div style={{ fontSize: 9, color: 'var(--text3)', marginBottom: 6 }}>Revenue (USD) — last 30 days</div>
-          <Sparkline data={sparkValues.length ? sparkValues : [0, 0]} color="#8B7CF6" width={220} height={60} />
-        </div>
-
-        <div style={{ padding: 18 }}>
-          <div style={PANEL_LABEL_STYLE}>Top Listings by Revenue</div>
-          {stats.top_listings.length === 0 ? (
-            <div style={{ fontSize: 12, color: 'var(--text3)' }}>No sales yet.</div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {stats.top_listings.map(l => (
-                <div key={l.listing_id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 11, color: 'var(--text2)' }}>{l.title}</span>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--green)' }}>${l.revenue_usd.toLocaleString()}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+function OverviewTab({ listings, onNavigate }) {
+ const [stats,setStats]=useState(null);const [error,setError]=useState('');
+ useEffect(()=>{let active=true;getMyStats().then(data=>{if(active)setStats(data);}).catch(e=>{if(active)setError(e.message);});return()=>{active=false;};},[]);
+ const kpis=[['Active listings',stats?.active_listings,'Available to buyers'],['USD-priced inventory',stats?formatPrice(stats.inventory_value_usd,'USD'):null,'Excludes unpriced and other currencies'],['Pending orders',stats?.pending_orders,'Orders in progress'],['Completed sales',stats?.sold_listings,'Equipment sold']];
+ const days=stats?.sales_last_30_days||[];const hasSales=days.some(d=>d.revenue_usd>0);
+ return <div className="workspace-overview">
+ {error&&<div className="workspace-error" role="alert">Could not load overview: {error}</div>}
+ <div className="metric-grid">{kpis.map(([label,value,note],i)=><article className="metric-card" key={label}><div className="metric-card__label">{label}<span className="metric-card__icon">{i===0?<Package size={17}/>:i===2?<Clock size={17}/>:<Store size={17}/>}</span></div><strong>{value??'—'}</strong><p>{note}</p></article>)}</div>
+ <div className="workspace-two-col"><section className="workspace-panel"><div className="workspace-panel__heading"><div><h2>Sales performance</h2><p>Revenue from your orders in USD</p></div><span className="period-label"><Calendar size={14}/> Last 30 days</span></div>
+ {hasSales?<><div className="sales-total">{formatPrice(days.reduce((sum,d)=>sum+Number(d.revenue_usd||0),0),'USD')}<span> Revenue over the last 30 days</span></div><div className="workspace-chart"><Sparkline data={days.map(d=>d.revenue_usd)} color="#16846c" width={600} height={160}/></div><div className="chart-axis"><span>{days[0]?.date}</span><span>{days.at(-1)?.date}</span></div></>:<div className="chart-empty"><div className="chart-empty-icon"><LayoutDashboard size={28}/></div><strong>{stats?'Your sales story starts here':'Loading sales performance'}</strong><p>{stats?'Completed order activity will appear here.':'Your account figures are being retrieved.'}</p></div>}
+ </section><section className="workspace-panel"><div className="workspace-panel__heading"><div><h2>Your next steps</h2><p>Keep your inventory ready for buyers</p></div></div><button className="workspace-task" onClick={()=>onNavigate('listings')}><span className="task-icon"><Package size={18}/></span><span><strong>Manage your listings</strong><small>Check pricing, condition and availability</small></span><ArrowUpRight size={17}/></button><button className="workspace-task" onClick={()=>onNavigate('uploads')}><span className="task-icon"><Upload size={18}/></span><span><strong>Upload your inventory</strong><small>Add multiple items with the Excel template</small></span><ArrowUpRight size={17}/></button><button className="workspace-task" onClick={()=>onNavigate('orders')}><span className="task-icon"><Truck size={18}/></span><span><strong>Review your orders</strong><small>Coordinate delivery with AWXchange</small></span><ArrowUpRight size={17}/></button><div className="workspace-help"><strong>Need a hand?</strong><p>Our team can help you prepare your inventory or manage a deal.</p><Link to="/contact">Contact seller support →</Link></div></section></div>
+ <section className="workspace-panel"><div className="workspace-panel__heading"><div><h2>Recent inventory</h2><p>Your latest equipment listings</p></div><button className="text-link" onClick={()=>onNavigate('listings')}>View inventory <ArrowUpRight size={15}/></button></div>{listings.length?<div className="recent-list">{listings.slice(0,4).map(l=><div className="recent-list__row" key={l.id}><span className="equipment-icon"><Package size={19}/></span><div><strong>{l.title}</strong><small>{l.brand} {l.model}</small></div><span className={`status-tag status-tag--${l.status}`}>{l.status}</span><strong>{formatPrice(l.price_amount,l.currency)}</strong></div>)}</div>:<div className="workspace-empty"><Package size={30}/><h3>Your inventory starts here</h3><p>Add your first item or upload an Excel inventory to start selling.</p><button className="button" onClick={()=>onNavigate('listings')}>Manage inventory</button></div>}</section>
+ </div>;
 }
 
 export default function SellerDashboard() {
-  const { sellerProfile, refreshSellerProfile } = useAuth();
-  const [tab, setTab] = useState('overview');
-  const [categories, setCategories] = useState([]);
-  const [listings, setListings] = useState([]);
-  const [orders, setOrders] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [showBulk, setShowBulk] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [shippingId, setShippingId] = useState(null);
-  const [shipError, setShipError] = useState({ id: null, message: '' });
-  const [trackingDrafts, setTrackingDrafts] = useState({});
-  const [trackingSavingId, setTrackingSavingId] = useState(null);
-  const [trackingError, setTrackingError] = useState({ id: null, message: '' });
-
-  const isApproved = sellerProfile?.kyb_status === 'approved';
-
-  const loadData = useCallback(async () => {
-    if (!isApproved) { setLoading(false); return; }
-    setLoading(true);
-    const [cats, listingsRes, ordersRes] = await Promise.all([
-      getCategories(), getMyListings(), getMySellerOrders(),
-    ]);
-    setCategories(cats);
-    setListings(listingsRes.data);
-    setOrders(ordersRes.data);
-    setLoading(false);
-  }, [isApproved]);
-
-  useEffect(() => { loadData(); }, [loadData]);
-
-  async function handleDelete(id) {
-    await deleteListing(id);
-  }
-
-  async function handleShip(orderId) {
-    setShippingId(orderId);
-    setShipError({ id: null, message: '' });
-    try {
-      await markShipped(orderId);
-      await loadData();
-    } catch (err) {
-      setShipError({ id: orderId, message: err.message || 'Could not mark as shipped.' });
-    } finally {
-      setShippingId(null);
-    }
-  }
-
-  async function handleSaveTracking(orderId) {
-    const value = (trackingDrafts[orderId] || '').trim();
-    if (!value) return;
-    setTrackingSavingId(orderId);
-    setTrackingError({ id: null, message: '' });
-    try {
-      await recordTracking(orderId, value);
-      await loadData();
-    } catch (err) {
-      setTrackingError({ id: orderId, message: err.message || 'Could not save tracking number.' });
-    } finally {
-      setTrackingSavingId(null);
-    }
-  }
-
-  const TABS = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'listings', label: 'Listings', icon: Package },
-    { id: 'orders', label: 'Orders', icon: ClipboardList },
-  ];
-
-  const listingColumns = [
-    {
-      key: 'title', header: 'Listing',
-      render: (listing) => (
-        <div>
-          <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text)' }}>{listing.title}</div>
-          <div style={{ fontSize: 11.5, color: 'var(--text4)', marginTop: 2 }}>{listing.status}</div>
-        </div>
-      ),
-    },
-    { key: 'price', header: 'Price', render: (listing) => formatPrice(listing.price_amount, listing.currency) },
-    { key: 'quantity', header: 'Qty' },
-    {
-      key: 'actions', header: '',
-      render: (listing) => (
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'flex-end' }}>
-          <button onClick={() => { setEditing({ ...listing, price_amount: listing.price_amount == null ? '' : String(listing.price_amount) }); setShowForm(true); }} style={iconBtnStyle}><Pencil size={14} /></button>
-          <ConfirmButton icon={Trash2} confirmLabel="Delete this listing?" onConfirm={() => handleDelete(listing.id)} onDone={loadData} />
-        </div>
-      ),
-    },
-  ];
-
-  const orderColumns = [
-    {
-      key: 'item', header: 'Order',
-      render: (item) => (
-        <div>
-          <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text)' }}>{item.title_snapshot} × {item.quantity}</div>
-          <div style={{ fontSize: 11.5, color: 'var(--text4)', marginTop: 2 }}>buyer: {item.buyer_name || 'unknown'}</div>
-        </div>
-      ),
-    },
-    {
-      key: 'status', header: 'Status',
-      render: (item) => (
-        <div>
-          <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 6, textTransform: 'capitalize' }}>{item.order_status.replace('_', ' ')}</div>
-          <OrderTracker status={item.order_status} compact />
-        </div>
-      ),
-    },
-    {
-      key: 'tracking', header: 'Tracking',
-      render: (item) => {
-        if (!['shipped', 'delivered', 'released'].includes(item.order_status)) return <span style={{ color: 'var(--text4)' }}>—</span>;
-        if (item.tracking_number) {
-          return <strong style={{ fontSize: 12.5, color: 'var(--text)' }}>{item.tracking_number}</strong>;
-        }
-        return (
-          <div>
-            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-              <input
-                placeholder="Tracking #"
-                value={trackingDrafts[item.order_id] || ''}
-                onChange={e => setTrackingDrafts(d => ({ ...d, [item.order_id]: e.target.value }))}
-                style={{ ...inputStyle, width: 130, padding: '6px 10px', fontSize: 12 }}
-              />
-              <button
-                onClick={() => handleSaveTracking(item.order_id)}
-                disabled={trackingSavingId === item.order_id || !(trackingDrafts[item.order_id] || '').trim()}
-                style={{
-                  background: 'var(--surface2)', border: '1px solid var(--border)', color: 'var(--text)',
-                  padding: '6px 12px', borderRadius: 100, fontSize: 12, fontWeight: 500,
-                  opacity: trackingSavingId === item.order_id ? 0.6 : 1, cursor: trackingSavingId === item.order_id ? 'default' : 'pointer',
-                }}
-              >{trackingSavingId === item.order_id ? '…' : 'Save'}</button>
-            </div>
-            {trackingError.id === item.order_id && (
-              <div style={{ fontSize: 11.5, color: 'var(--red)', marginTop: 4 }}>{trackingError.message}</div>
-            )}
-          </div>
-        );
-      },
-    },
-    {
-      key: 'actions', header: '',
-      render: (item) => (
-        <div style={{ textAlign: 'right' }}>
-          {item.order_status === 'paid' && (
-            <button onClick={() => handleShip(item.order_id)} disabled={shippingId === item.order_id} style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6, background: 'var(--surface2)', border: '1px solid var(--border)',
-              color: 'var(--text)', padding: '8px 14px', borderRadius: 100, fontSize: 12.5, fontWeight: 500,
-              opacity: shippingId === item.order_id ? 0.6 : 1, cursor: shippingId === item.order_id ? 'default' : 'pointer',
-            }}><Truck size={13} /> {shippingId === item.order_id ? 'Marking…' : 'Mark shipped'}</button>
-          )}
-          {shipError.id === item.order_id && (
-            <div style={{ fontSize: 11.5, color: 'var(--red)', marginTop: 6 }}>{shipError.message}</div>
-          )}
-        </div>
-      ),
-    },
-  ];
-
-  return (
-    <>
-      <PageHeader eyebrow="Your account" title="Seller" titleItalic="dashboard" />
-      <section className="section-sm" style={{ background: 'var(--bg)' }}>
-        <div className="container" style={{ maxWidth: 1100 }}>
-          {!sellerProfile && <ApplyForm onApplied={refreshSellerProfile} />}
-
-          {sellerProfile?.kyb_status === 'pending' && (
-            <div className="aw-surface" style={{ borderRadius: 18, padding: 28, maxWidth: 480 }}>
-              <Clock size={20} color="var(--amber)" style={{ marginBottom: 12 }} />
-              <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>Application under review</h3>
-              <p style={{ fontSize: 13.5, color: 'var(--text3)', lineHeight: 1.6 }}>
-                Thanks for applying to sell on AWXchange. Our team is reviewing <strong>{sellerProfile.org_name}</strong>. You'll be able to list equipment once approved.
-              </p>
-            </div>
-          )}
-
-          {(sellerProfile?.kyb_status === 'rejected' || sellerProfile?.kyb_status === 'suspended') && (
-            <div className="aw-surface" style={{ borderRadius: 18, padding: 28, maxWidth: 480 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--red)', marginBottom: 6 }}>
-                {sellerProfile.kyb_status === 'rejected' ? 'Application not approved' : 'Seller account suspended'}
-              </h3>
-              {sellerProfile.kyb_notes && <p style={{ fontSize: 13.5, color: 'var(--text3)' }}>{sellerProfile.kyb_notes}</p>}
-            </div>
-          )}
-
-          {isApproved && (
-            <div className="seller-dashboard-layout" style={{ display: 'flex', gap: 32, alignItems: 'flex-start' }}>
-              <nav className="seller-dashboard-nav" style={{
-                width: 200, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 4, position: 'sticky', top: 100,
-              }}>
-                {TABS.map(t => (
-                  <button key={t.id} onClick={() => setTab(t.id)} style={{
-                    display: 'flex', alignItems: 'center', gap: 10, textAlign: 'left',
-                    padding: '10px 14px', borderRadius: 10, fontSize: 13.5, fontWeight: 500, border: 'none',
-                    background: tab === t.id ? 'var(--surface3)' : 'transparent',
-                    color: tab === t.id ? 'var(--text)' : 'var(--text3)',
-                  }}>
-                    <t.icon size={15} /> {t.label}
-                  </button>
-                ))}
-              </nav>
-
-              <div style={{ flex: 1, minWidth: 0 }}>
-                {tab === 'overview' && <OverviewTab />}
-
-                {tab === 'listings' && (
-                  <>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-                      <h3 style={{ fontSize: 17, fontWeight: 600, color: 'var(--text)' }}>Your listings</h3>
-                      {!showForm && !showBulk && (
-                        <div style={{ display: 'flex', gap: 8 }}>
-                          <button onClick={() => setShowBulk(true)} className="aw-btn" style={{
-                            display: 'flex', alignItems: 'center', gap: 8, background: 'transparent', color: 'var(--text)',
-                            border: '1px solid var(--border)', padding: '10px 18px', borderRadius: 100, fontSize: 13.5, fontWeight: 600,
-                          }}><Upload size={15} /> Bulk upload</button>
-                          <button onClick={() => { setEditing(null); setShowForm(true); }} className="aw-btn" style={{
-                            display: 'flex', alignItems: 'center', gap: 8, background: 'var(--inverse-bg)', color: 'var(--inverse-text)',
-                            border: 'none', padding: '10px 18px', borderRadius: 100, fontSize: 13.5, fontWeight: 600,
-                          }}><Plus size={15} /> New listing</button>
-                        </div>
-                      )}
-                    </div>
-
-                    {showBulk && (
-                      <BulkImportPanel
-                        onCancel={() => setShowBulk(false)}
-                        onImported={() => { setShowBulk(false); loadData(); }}
-                      />
-                    )}
-
-                    {showForm && (
-                      <ListingForm
-                        categories={categories}
-                        initial={editing}
-                        onCancel={() => setShowForm(false)}
-                        onSaved={() => { setShowForm(false); loadData(); }}
-                      />
-                    )}
-
-                    {loading ? (
-                      <div className="aw-surface" style={{ borderRadius: 16, padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
-                        {Array.from({ length: 3 }).map((_, i) => (
-                          <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
-                            <div style={{ flex: 1 }}>
-                              <Skeleton width="45%" height={14} style={{ marginBottom: 8 }} />
-                              <Skeleton width="30%" height={12} />
-                            </div>
-                            <Skeleton width={64} height={32} radius={8} />
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <Table columns={listingColumns} rows={listings} emptyMessage="You haven't listed any equipment yet." />
-                    )}
-                  </>
-                )}
-
-                {tab === 'orders' && (
-                  <>
-                    <h3 style={{ fontSize: 17, fontWeight: 600, color: 'var(--text)', marginBottom: 20 }}>Orders on your items</h3>
-                    <Table columns={orderColumns} rows={orders} rowKey="order_item_id" emptyMessage="No orders yet." />
-                  </>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
-
-      <style>{`
-        .seller-overview-charts { grid-template-columns: 1fr 1.4fr 1fr; }
-        @media (max-width: 900px) {
-          .seller-overview-charts { grid-template-columns: 1fr; }
-          .seller-overview-charts > div { border-right: none !important; border-bottom: 1px solid var(--border); }
-          .seller-overview-charts > div:last-child { border-bottom: none; }
-        }
-        @media (max-width: 768px) {
-          .seller-dashboard-layout { flex-direction: column; }
-          .seller-dashboard-nav { width: 100%; flex-direction: row; overflow-x: auto; position: static; top: auto; }
-        }
-      `}</style>
-    </>
-  );
+ const {user,sellerProfile,refreshSellerProfile,logout}=useAuth();const navigate=useNavigate();const [params,setParams]=useSearchParams();
+ const tab=['overview','listings','uploads','orders'].includes(params.get('view'))?params.get('view'):'overview';
+ const [categories,setCategories]=useState([]);const [listings,setListings]=useState([]);const [orders,setOrders]=useState([]);const [loading,setLoading]=useState(false);const [loadError,setLoadError]=useState('');
+ const [showForm,setShowForm]=useState(false);const [editing,setEditing]=useState(null);const [search,setSearch]=useState('');const [status,setStatus]=useState('');const [actionError,setActionError]=useState('');
+ const [listingPage,setListingPage]=useState(1);const [listingMeta,setListingMeta]=useState(null);const [debouncedSearch,setDebouncedSearch]=useState('');
+ useEffect(()=>{const timer=setTimeout(()=>{setDebouncedSearch(search);setListingPage(1);},250);return()=>clearTimeout(timer);},[search]);
+ const [shippingId,setShippingId]=useState(null);const [tracking,setTracking]=useState({});
+ const isApproved=sellerProfile?.kyb_status==='approved';
+ const go=next=>{setParams({view:next});setShowForm(false);setActionError('');setSearch('');setStatus('');setListingPage(1);};
+ const dataVersion=useRef(0);
+ const loadData=useCallback(async()=>{
+  if(!isApproved)return;const version=++dataVersion.current;setLoading(true);setLoadError('');
+  try{const [cats,inventory,sales]=await Promise.all([getCategories(),getMyListings({limit:20,page:listingPage,...(debouncedSearch?{q:debouncedSearch}:{}),...(status?{status}: {})}),getMySellerOrders({limit:100})]);if(version!==dataVersion.current)return;setCategories(cats);setListings(inventory.data);setListingMeta(inventory.meta);setOrders(sales.data);}catch(e){if(version===dataVersion.current)setLoadError(e.message||'Could not retrieve seller data.');}finally{if(version===dataVersion.current)setLoading(false);}
+ },[isApproved,listingPage,debouncedSearch,status]);useEffect(()=>{loadData();},[loadData]);
+ const tabs=[{id:'overview',label:'Overview',icon:LayoutDashboard},{id:'listings',label:'Listings',icon:Package},{id:'uploads',label:'Inventory uploads',icon:Upload},{id:'orders',label:'Orders',icon:ClipboardList}];
+ const active=tabs.find(t=>t.id===tab);const filtered=listings;
+ async function ship(id){setShippingId(id);setActionError('');try{await markShipped(id);await loadData();}catch(e){setActionError(e.message);}finally{setShippingId(null);}}
+ async function saveTracking(id){setShippingId(id);setActionError('');try{await recordTracking(id,tracking[id]);await loadData();}catch(e){setActionError(e.message);}finally{setShippingId(null);}}
+ const listingColumns=[{key:'title',header:'Equipment',render:l=><div className="inventory-title"><span className="equipment-icon"><Package size={18}/></span><div><strong>{l.title}</strong><small>{[l.brand,l.model].filter(Boolean).join(' · ')||'Equipment listing'}</small></div></div>},{key:'status',header:'Status',render:l=><span className={`status-tag status-tag--${l.status}`}>{l.status}</span>},{key:'condition',header:'Condition',render:l=><span style={{textTransform:'capitalize'}}>{l.condition}</span>},{key:'price',header:'Asking price',render:l=>formatPrice(l.price_amount,l.currency)},{key:'quantity',header:'Qty'},{key:'actions',header:'Actions',render:l=><div className="row-actions"><button title={`Edit ${l.title}`} aria-label={`Edit ${l.title}`} style={iconBtnStyle} onClick={()=>{setEditing({...l,price_amount:l.price_amount==null?'':String(l.price_amount)});setShowForm(true);}}><Pencil size={15}/></button><ConfirmButton icon={Trash2} confirmLabel="Delete this listing?" onConfirm={()=>deleteListing(l.id)} onDone={loadData}/></div>}];
+ const orderColumns=[{key:'item',header:'Equipment / order',render:item=><div><strong>{item.title_snapshot}</strong><small className="table-secondary">{item.quantity} units · {item.order_id?.slice(0,8)}</small></div>},{key:'status',header:'Status',render:item=><span className="status-tag">{item.order_status.replaceAll('_',' ')}</span>},{key:'tracking',header:'Delivery tracking',render:item=>item.tracking_number||(['shipped','delivered'].includes(item.order_status)?<div className="tracking-control"><input aria-label="Tracking number" placeholder="Tracking number" value={tracking[item.order_id]||''} onChange={e=>setTracking({...tracking,[item.order_id]:e.target.value})}/><button className="button button--secondary" disabled={!tracking[item.order_id]?.trim()||shippingId===item.order_id} onClick={()=>saveTracking(item.order_id)}>Save</button></div>:'Coordinated by AWXchange')},{key:'actions',header:'Actions',render:item=>item.order_status==='paid'?<button className="button button--secondary" disabled={shippingId===item.order_id} onClick={()=>ship(item.order_id)}>Mark shipped</button>:<Link className="text-link" to={`/orders/${item.order_id}`}>View order</Link>}];
+ async function signOut(){await logout();navigate('/login');}
+ return <div className="seller-workspace" data-theme="light"><aside className="workspace-sidebar"><Brand subtitle="Seller workspace"/><div className="workspace-sidebar__label">Workspace</div><nav aria-label="Seller navigation">{tabs.map(t=><button key={t.id} className={tab===t.id?'is-active':''} onClick={()=>go(t.id)} aria-current={tab===t.id?'page':undefined}><t.icon size={18}/>{t.label}</button>)}</nav><div className="workspace-sidebar__bottom"><Link to="/marketplace"><ExternalLink size={17}/> Open marketplace</Link><Link to="/contact"><Store size={17}/> Seller support</Link><button onClick={signOut}><LogOut size={17}/> Sign out</button><div className="workspace-account"><span className="account-avatar">{(user?.full_name||'S').slice(0,1)}</span><div><strong>{sellerProfile?.nickname||user?.full_name||'Your account'}</strong><small>{sellerProfile?.kyb_status==='approved'?'Approved seller':'Seller account'}</small></div></div></div></aside>
+ <div className="workspace-main"><header className="workspace-topbar"><span>Seller workspace <span className="breadcrumb-divider">/</span> <strong>{active.label}</strong></span><div><span className="workspace-pilot">Pilot programme</span><button className="workspace-mobile-signout" onClick={signOut} aria-label="Sign out"><LogOut size={16}/></button><span className="account-avatar">{(user?.full_name||'S').slice(0,1)}</span></div></header>
+ <main className="workspace-content"><div className="workspace-page-heading"><div><p className="workspace-breadcrumb">AWXchange / {active.label}</p><h1>{tab==='overview'?'Overview':tab==='listings'?'Equipment inventory':tab==='uploads'?'Inventory uploads':'Manage your orders'}</h1><p>{tab==='overview'?'Monitor inventory, orders and sales activity.':tab==='listings'?'Keep your listings accurate, up to date and ready for buyers.':tab==='uploads'?'Bring your inventory into AWXchange with a single Excel upload.':'Track order progress and coordinate the next steps with our team.'}</p></div>{isApproved&&<div className="workspace-heading-actions"><button className="button button--secondary" onClick={()=>go('uploads')}><Upload size={16}/> Bulk upload</button><button className="button" onClick={()=>{go('listings');setEditing(null);setShowForm(true);}}><Plus size={17}/> New listing</button></div>}</div>
+ {loadError&&<div className="workspace-error" role="alert">{loadError}<button onClick={loadData}>Try again</button></div>}{actionError&&<div className="workspace-error" role="alert">{actionError}</div>}
+ {!sellerProfile&&<section className="workspace-panel onboarding-panel"><h2>Set up your seller account</h2><p>Tell us about your business. Our team will review your application before you publish equipment.</p><ApplyForm onApplied={refreshSellerProfile}/></section>}
+ {sellerProfile&&!isApproved&&<section className="workspace-panel workspace-empty"><Clock size={34}/><h2>{sellerProfile.kyb_status==='pending'?'Your application is under review':'Your account needs attention'}</h2><p>{sellerProfile.kyb_status==='pending'?`Our team is reviewing ${sellerProfile.org_name}. You can upload inventory once your application is approved.`:sellerProfile.kyb_notes||'Contact AWXchange for help with your seller application.'}</p><Link className="button button--secondary" to="/contact">Contact seller support</Link></section>}
+ {isApproved&&<>
+ {tab==='overview'&&<OverviewTab listings={listings} onNavigate={go}/>}
+ {tab==='uploads'&&<BulkImportPanel onCancel={()=>go('listings')} onImported={()=>{loadData();go('listings');}}/>}
+ {tab==='listings'&&<>{showForm&&<ListingForm categories={categories} initial={editing} onCancel={()=>setShowForm(false)} onSaved={()=>{setShowForm(false);loadData();}}/>}<section className="workspace-panel inventory-panel"><div className="inventory-toolbar"><div><h2>All equipment <span className="count-chip">{listingMeta?.total??listings.length}</span></h2><p>Published and unpublished listings</p></div><div className="inventory-filters"><div className="workspace-search"><Search size={16}/><input aria-label="Search inventory" placeholder="Search equipment…" value={search} onChange={e=>setSearch(e.target.value)}/></div><select aria-label="Listing status" value={status} onChange={e=>{setStatus(e.target.value);setListingPage(1);}}><option value="">All statuses</option><option value="active">Active</option><option value="draft">Draft</option><option value="sold">Sold</option><option value="archived">Archived</option></select></div></div>{loading?<div style={{padding:24}}><Skeleton height={160}/></div>:<Table columns={listingColumns} rows={filtered} emptyMessage={search||status?'No equipment matches these filters.':'No listings yet. Add your first piece of equipment above.'}/>}<div className="inventory-pagination"><span>{listingMeta?.total??listings.length} listings · Page {listingPage}</span><div><button className="button button--secondary" disabled={listingPage===1||loading} onClick={()=>setListingPage(p=>p-1)}>Previous</button><button className="button button--secondary" disabled={loading||listingPage*20>=(listingMeta?.total??listings.length)} onClick={()=>setListingPage(p=>p+1)}>Next</button></div></div></section></>}
+ {tab==='orders'&&<section className="workspace-panel inventory-panel"><div className="inventory-toolbar"><div><h2>Your orders <span className="count-chip">{orders.length}</span></h2><p>Orders containing your equipment</p></div></div><Table columns={orderColumns} rows={orders} rowKey="order_item_id" emptyMessage="New orders will appear here when buyers choose your equipment."/></section>}
+ </>}
+ <footer className="workspace-footer"><span>© 2026 AWXchange</span><div><Link to="/terms">Terms of Use</Link><Link to="/privacy">Privacy Policy</Link><Link to="/contact">Get help</Link></div></footer>
+ </main></div></div>;
 }

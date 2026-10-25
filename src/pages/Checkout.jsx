@@ -71,35 +71,35 @@ export default function Checkout() {
           }}>
             <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 4 }}>Shipping address</h3>
             <div>
-              <label style={labelStyle}>Full name</label>
-              <input style={inputStyle} required value={address.name} onChange={update('name')} />
+              <label htmlFor="field-full-name" style={labelStyle}>Full name</label>
+              <input id="field-full-name" style={inputStyle} required value={address.name} onChange={update('name')} />
             </div>
             <div>
-              <label style={labelStyle}>Address line 1</label>
-              <input style={inputStyle} required value={address.line1} onChange={update('line1')} />
+              <label htmlFor="field-address-line-1" style={labelStyle}>Address line 1</label>
+              <input id="field-address-line-1" style={inputStyle} required value={address.line1} onChange={update('line1')} />
             </div>
             <div>
-              <label style={labelStyle}>Address line 2 (optional)</label>
-              <input style={inputStyle} value={address.line2} onChange={update('line2')} />
+              <label htmlFor="field-address-line-2-optional" style={labelStyle}>Address line 2 (optional)</label>
+              <input id="field-address-line-2-optional" style={inputStyle} value={address.line2} onChange={update('line2')} />
             </div>
             <div className="aw-grid-2" style={{ display: 'grid', gap: 14 }}>
               <div>
-                <label style={labelStyle}>City</label>
-                <input style={inputStyle} required value={address.city} onChange={update('city')} />
+                <label htmlFor="field-city" style={labelStyle}>City</label>
+                <input id="field-city" style={inputStyle} required value={address.city} onChange={update('city')} />
               </div>
               <div>
-                <label style={labelStyle}>Postal code</label>
-                <input style={inputStyle} required value={address.postal_code} onChange={update('postal_code')} />
+                <label htmlFor="field-postal-code" style={labelStyle}>Postal code</label>
+                <input id="field-postal-code" style={inputStyle} required value={address.postal_code} onChange={update('postal_code')} />
               </div>
             </div>
             <div className="aw-grid-2" style={{ display: 'grid', gap: 14 }}>
               <div>
-                <label style={labelStyle}>Country (2-letter code)</label>
-                <input style={inputStyle} required maxLength={2} placeholder="US" value={address.country} onChange={e => setAddress(a => ({ ...a, country: e.target.value.toUpperCase() }))} />
+                <label htmlFor="field-country-2-letter-code" style={labelStyle}>Country (2-letter code)</label>
+                <input id="field-country-2-letter-code" style={inputStyle} required maxLength={2} placeholder="US" value={address.country} onChange={e => setAddress(a => ({ ...a, country: e.target.value.toUpperCase() }))} />
               </div>
               <div>
-                <label style={labelStyle}>Phone (optional)</label>
-                <input style={inputStyle} value={address.phone} onChange={update('phone')} />
+                <label htmlFor="field-phone-optional" style={labelStyle}>Phone (optional)</label>
+                <input id="field-phone-optional" style={inputStyle} value={address.phone} onChange={update('phone')} />
               </div>
             </div>
 

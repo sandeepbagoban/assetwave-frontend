@@ -1,0 +1,2 @@
+import { ShieldCheck } from 'lucide-react';
+export default function AuthLayout({title,description,children}){return <main className="auth-page"><div className="container"><div className="auth-layout"><div className="auth-intro"><span className="eyebrow">AWXchange accounts</span><h1>{title}</h1><p>{description}</p><div className="auth-intro__note"><ShieldCheck size={28}/><span>Personal support from our team.<br/>Every seller application is reviewed before equipment is published.</span></div></div><div className="auth-panel">{children}</div></div></div></main>;}

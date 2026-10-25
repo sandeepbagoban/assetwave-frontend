@@ -1,9 +1,5 @@
 import { Link } from 'react-router-dom';
+import { ArrowUpRight, BookOpen, MessageSquare, FileText, Shield } from 'lucide-react';
 import PageHeader from '../components/shared/PageHeader';
-export default function Resources() {
-  return <><PageHeader eyebrow="Resources" title="Support for the" titleItalic="AWXchange pilot" desc="Our team can help with listing equipment and enquiries about a purchase." />
-    <section className="section"><div className="container" style={{ display: 'grid', gap: 24 }}>
-      <Link to="/features">How the pilot works →</Link><Link to="/contact">Contact the AWXchange team →</Link>
-      <Link to="/terms">Terms of Use →</Link><Link to="/privacy">Privacy Policy and cookies →</Link>
-    </div></section></>;
-}
+const resources=[{icon:BookOpen,to:'/features',title:'How AWXchange works',desc:'Understand the steps from listing and enquiry to payment and delivery.',label:'Buying & selling'},{icon:MessageSquare,to:'/contact',title:'Speak to our team',desc:'Get help preparing your inventory, enquiring about equipment or managing an order.',label:'Personal support'},{icon:FileText,to:'/terms',title:'Terms of Use',desc:'Read the terms that apply to your account and use of the AWXchange pilot.',label:'Legal'},{icon:Shield,to:'/privacy',title:'Privacy and cookies',desc:'Find out how AWXchange handles personal information and essential site storage.',label:'Privacy'}];
+export default function Resources(){return <><PageHeader eyebrow="Resources & support" title="Resources and" titleItalic="seller support." desc="Everything you need to understand the AWXchange pilot and get help from our team."/><section className="section"><div className="container resource-grid">{resources.map(r=><Link key={r.to} to={r.to} className="resource-card"><r.icon size={25} strokeWidth={1.5}/><span className="eyebrow">{r.label}</span><h2>{r.title}</h2><p>{r.desc}</p><span className="text-link">Learn more <ArrowUpRight size={16}/></span></Link>)}</div></section></>;}

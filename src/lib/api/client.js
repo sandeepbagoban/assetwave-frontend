@@ -5,12 +5,11 @@
 //   2. Auth headers are attached consistently
 //   3. Error handling is consistent across the app
 //
-// Until the backend (see /backend in the project root) is deployed,
-// VITE_API_BASE_URL can be left unset and the app will use mock data
-// from src/lib/api/mocks/ instead — see individual api modules.
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/v1';
-const USE_MOCKS = import.meta.env.DEV && import.meta.env.VITE_USE_MOCKS === 'true'; // No backend URL configured yet -> use mock data
+// Locally served builds use the same-origin Vite proxy, including `vite preview`.
+// Deployed sites retain their configured HTTPS API endpoint.
+const isLocalHost = ['localhost', '127.0.0.1', '[::1]', '::1'].includes(window.location.hostname);
+const BASE_URL = isLocalHost ? '/v1' : (import.meta.env.VITE_API_BASE_URL || '/v1').replace(/\/$/, '');
+const USE_MOCKS = import.meta.env.DEV && import.meta.env.VITE_USE_MOCKS === 'true';
 
 function getAuthToken() {
   return localStorage.getItem('assetwave_access_token');

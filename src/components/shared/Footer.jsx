@@ -6,7 +6,6 @@ const COLUMNS = [
   { title: 'Platform', links: [
     { label: 'Overview', to: '/' },
     { label: 'Features', to: '/features' },
-    { label: 'Impact', to: '/impact' },
   ] },
   { title: 'Marketplace', links: [
     { label: 'Browse Equipment', to: '/marketplace' },
@@ -16,7 +15,6 @@ const COLUMNS = [
   { title: 'Company', links: [
     { label: 'About Us', to: '/about' },
     { label: 'Resources', to: '/resources' },
-    { label: 'Ambassador Program', to: '/ambassador' },
     { label: 'Contact', to: '/contact' },
   ] },
 ];
@@ -32,10 +30,10 @@ export default function Footer() {
                 <path d="M13 2L23 8V18L13 24L3 18V8L13 2Z" stroke="url(#flogo)" strokeWidth="1.4" strokeLinejoin="round"/>
                 <defs><linearGradient id="flogo" x1="3" y1="2" x2="23" y2="24"><stop stopColor="#B4A9FB"/><stop offset="1" stopColor="#7DD3E8"/></linearGradient></defs>
               </svg>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--text)' }}>AWXchange</span>
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: 30, color: 'var(--text)' }}>AWXchange</span>
             </Link>
             <p style={{ fontSize: 13.5, color: 'var(--text3)', lineHeight: 1.7, maxWidth: 260, marginBottom: 22 }}>
-              Building the world's leading asset intelligence network for broadcast and media equipment lifecycle management and monetization.
+              A marketplace for surplus telecom and broadcast equipment. Every deal is managed by the AWXchange team.
             </p>
           </div>
 

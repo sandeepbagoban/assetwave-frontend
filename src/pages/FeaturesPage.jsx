@@ -1,97 +1,96 @@
-import { ShieldCheck, Lock, FileSearch, Truck, ScrollText, ArrowRight } from 'lucide-react';
 import PageHeader from '../components/shared/PageHeader';
-import Features from '../components/home/Features';
-import CtaBanner from '../components/home/CtaBanner';
-
-const DEEP_DIVES = [
+const SECTIONS = [
   {
-    icon: ShieldCheck,
-    tag: 'Identity & Trust',
-    title: 'Two-sided verification, built in',
-    desc: 'Every organization seller completes KYB — business registration, beneficial ownership, banking details. Every buyer completes KYC — government ID and a liveness check. Neither side transacts until verified.',
-    points: ['Business registration & tax ID verification', 'Beneficial ownership disclosure for organizations', 'Government ID + liveness check for individuals', 'Verification status visible on every listing'],
+    "id": "buying",
+    "label": "How buying works",
+    "heading": "",
+    "ordered": true,
+    "points": [
+      "Build your basket. Browse telecom and broadcast equipment, add what you need, and submit your basket. Items marked \"Price on request\" are quoted by our team.",
+      "Receive your invoice. We confirm availability with the seller and send you one invoice covering the equipment, shipping and any applicable fees.",
+      "Pay AWXchange. You pay us directly, by bank transfer to AWXchange. You never pay the seller directly.",
+      "We ship. Once your payment is received, we arrange collection and delivery and share tracking with you.",
+      "Confirm delivery. Check your equipment on arrival and confirm in your account. If something isn't right, tell us within the timeframe agreed for your order."
+    ]
   },
   {
-    icon: Lock,
-    tag: 'Payments',
-    title: 'Escrow on every transaction',
-    desc: 'Buyer funds are captured and held the moment checkout completes. The seller is not paid until the buyer confirms the item matches what was listed — or the inspection window closes without a dispute.',
-    points: ['Funds held until delivery is confirmed', 'A 5-day inspection window after delivery', 'Automatic release if no dispute is raised', 'Commission deducted automatically on release'],
+    "id": "selling",
+    "label": "How selling works",
+    "heading": "",
+    "ordered": true,
+    "points": [
+      "Apply to sell. Register your company. Our team reviews every application before you can list.",
+      "List your inventory. Upload your Excel file or add items one by one, with or without an asking price.",
+      "Accept the order. When a buyer orders, we contact you to confirm availability and agree collection.",
+      "Get paid. We pay you once the buyer confirms delivery, less the AWXchange commission."
+    ]
   },
   {
-    icon: FileSearch,
-    tag: 'Disputes',
-    title: 'A fair process when something goes wrong',
-    desc: 'If equipment arrives damaged or doesn’t match its listing, either party can open a dispute with photo or video evidence. Our team reviews and applies a resolution — full refund, partial refund, or release to seller.',
-    points: ['Evidence-based mediation, not automated rules', 'Resolution applied within the inspection window', 'Full audit trail of every transaction event'],
+    "id": "approved-sellers",
+    "label": "Approved sellers",
+    "heading": "Every seller is reviewed by our team.",
+    "body": "Before a company can list, we check who they are and confirm their contact details. Approved sellers are marked on their listings.",
+    "points": [
+      "Every seller application is reviewed by a person",
+      "Only approved sellers can publish listings",
+      "Company identity stays confidential: buyers see a seller nickname and country, never the company name"
+    ]
   },
   {
-    icon: Truck,
-    tag: 'Logistics',
-    title: 'Seller-managed shipping, platform-tracked',
-    desc: 'Sellers handle their own freight relationships — they know their equipment’s packaging and customs requirements best. AWXchange tracks shipment status and proof of delivery against every order.',
-    points: ['Sellers choose their own freight partners', 'Tracking number and carrier logged per order', 'Proof of delivery stored against the order record'],
+    "id": "payments",
+    "label": "Payments",
+    "heading": "One invoice, one trusted counterparty.",
+    "body": "Buyers pay AWXchange, not the seller. We pass payment on to the seller only after the buyer confirms the equipment has arrived as described.",
+    "points": [
+      "One invoice per order, covering equipment and shipping",
+      "Bank transfer to AWXchange",
+      "Seller paid after delivery is confirmed",
+      "Commission is deducted from the seller payout, so there are no hidden buyer fees"
+    ]
   },
+  {
+    "id": "logistics",
+    "label": "Logistics",
+    "heading": "We coordinate shipping, door to door.",
+    "body": "Once your payment is received, AWXchange takes care of getting the equipment to you. We arrange collection from the seller, book trusted freight partners, and handle the paperwork for cross-border shipments between Europe and Africa. You deal with one team from basket to delivery.",
+    "extra": "For sellers: we tell you when the collection is booked. You just need the equipment packed and ready, with any accessories and documents listed on the order.",
+    "points": [
+      "Collection from the seller's site arranged by AWXchange",
+      "Freight booked with vetted partners for each route",
+      "Export, customs and shipping documents coordinated for you",
+      "Shipping cost and estimated delivery time quoted on your invoice",
+      "Tracking shared as soon as your equipment is on its way",
+      "Proof of delivery recorded on your order"
+    ]
+  },
+  {
+    "id": "issues",
+    "label": "If something goes wrong",
+    "heading": "Talk to a person, not a form.",
+    "body": "If equipment arrives damaged or doesn't match its listing, contact us before confirming delivery. Our team works with both sides to agree a fair outcome, such as a repair, a partial refund, a return or a full refund.",
+    "points": [
+      "Report issues within the timeframe agreed for your order",
+      "Send photos so we can assess quickly",
+      "The seller isn't paid while an issue is open"
+    ]
+  },
+  {
+    "id": "pilot",
+    "label": "A note on our pilot",
+    "heading": "",
+    "body": "AWXchange is currently running with a small group of sellers and buyers. Online payments and automated buyer protection are on our roadmap. Until then, our team manages each transaction personally."
+  }
 ];
-
 export default function FeaturesPage() {
-  return (
-    <>
-      <PageHeader
-        eyebrow="Platform Features"
-        title="Every step of the trade,"
-        titleItalic="protected"
-        desc="From verification to payout, AWXchange is built around one question: what would make a stranger on another continent trust this transaction?"
-      />
-
-      <Features />
-
-      <section className="section" style={{ background: 'var(--bg2)', borderTop: '1px solid var(--border)' }}>
-        <div className="container">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 1, background: 'var(--border)', borderRadius: 24, overflow: 'hidden' }}>
-            {DEEP_DIVES.map((d, i) => {
-              const Icon = d.icon;
-              const reverse = i % 2 === 1;
-              return (
-                <div key={i} className="feature-deep-dive-row" style={{
-                  display: 'grid', gridTemplateColumns: reverse ? '1fr 1.4fr' : '1.4fr 1fr',
-                  gap: 48, padding: '48px 44px', background: 'var(--bg2)', alignItems: 'center',
-                }}>
-                  <div style={{ order: reverse ? 2 : 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
-                      <div style={{
-                        width: 40, height: 40, borderRadius: 12,
-                        background: 'var(--surface2)', border: '1px solid var(--border2)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}><Icon size={18} color="var(--violet3)" strokeWidth={1.6} /></div>
-                      <span style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--violet3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{d.tag}</span>
-                    </div>
-                    <h3 className="serif" style={{ fontSize: 26, color: 'var(--text)', marginBottom: 14 }}>{d.title}</h3>
-                    <p style={{ fontSize: 14.5, color: 'var(--text2)', lineHeight: 1.8 }}>{d.desc}</p>
-                  </div>
-                  <div style={{ order: reverse ? 1 : 2, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    {d.points.map((p, j) => (
-                      <div key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 13.5, color: 'var(--text2)' }}>
-                        <ArrowRight size={14} color="var(--violet3)" style={{ marginTop: 3, flexShrink: 0 }} />
-                        {p}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <CtaBanner />
-
-      <style>{`
-        @media (max-width: 900px) {
-          .feature-deep-dive-row { grid-template-columns: 1fr !important; }
-          .feature-deep-dive-row > div { order: unset !important; }
-        }
-      `}</style>
-    </>
-  );
+ return <><PageHeader eyebrow="Platform Features" title="Simple, managed deals" titleItalic="from basket to delivery" desc="AWXchange is in its pilot phase. Every deal is handled personally by our team, from approving sellers to delivering your equipment, so you always know who is looking after your order." />
+ <section className="section"><div className="container" style={{ maxWidth: 900 }}>{SECTIONS.map(s => {
+  const List = s.ordered ? 'ol' : 'ul';
+  return <article key={s.id} id={s.id} style={{ padding: '32px 0', borderBottom: '1px solid var(--border)', scrollMarginTop: 110 }}>
+   <div className="eyebrow" style={{ marginBottom: 14 }}>{s.label}</div>
+   <h2 className="serif" style={{ fontSize: 30, marginBottom: 16 }}>{s.heading || s.label}</h2>
+   {s.body && <p style={{ color: 'var(--text2)', lineHeight: 1.8 }}>{s.body}</p>}
+   {s.extra && <p style={{ color: 'var(--text2)', lineHeight: 1.8, marginTop: 16 }}>{s.extra}</p>}
+   {s.points && <List style={{ paddingLeft: 24, marginTop: 20, color: 'var(--text2)', lineHeight: 1.8 }}>{s.points.map(point => <li key={point} style={{ marginBottom: 12 }}>{point}</li>)}</List>}
+  </article>;
+ })}</div></section></>;
 }

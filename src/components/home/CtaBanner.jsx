@@ -20,7 +20,7 @@ export default function CtaBanner() {
             background: 'radial-gradient(circle, rgba(139,124,246,0.28) 0%, transparent 70%)',
           }} />
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 22, position: 'relative', zIndex: 1, flex: 1, minWidth: 300 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 22, position: 'relative', zIndex: 1, flex: 1, minWidth: 0 }}>
             <div style={{
               width: 56, height: 56, borderRadius: 16, flexShrink: 0,
               background: 'var(--surface2)',
@@ -29,10 +29,10 @@ export default function CtaBanner() {
             }}><Sparkles size={24} color="var(--violet3)" strokeWidth={1.5} /></div>
             <div>
               <h3 className="serif" style={{ fontSize: 24, color: '#fff', marginBottom: 6 }}>
-                Have equipment to sell?
+                Upload your inventory
               </h3>
-              <p style={{ fontSize: 14, color: 'var(--text2)', lineHeight: 1.6, maxWidth: 460 }}>
-                Apply to become a seller and list your surplus broadcast and media equipment on AWXchange.
+              <p style={{ fontSize: 14, color: '#b9bfd2', lineHeight: 1.6, maxWidth: 460 }}>
+                Apply to become a seller and list your surplus telecom and broadcast equipment on AWXchange.
               </p>
             </div>
           </div>

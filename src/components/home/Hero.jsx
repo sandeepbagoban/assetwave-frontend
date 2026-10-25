@@ -4,11 +4,11 @@ import { Link } from 'react-router-dom';
 const SLIDES = [
   {
     theme: 'dark',
-    image: '/hero/slide-camera.png',
-    alt: 'Professional cinema camera on a modern display',
-    kicker: 'ASSET RECOVERY & MONETIZATION',
+    image: '/hero/slide-broadcast.webp',
+    alt: 'Satellite dishes and a broadcast transmission mast at dusk',
+    kicker: 'TELECOM & BROADCAST NETWORKS',
     heading: <>Your surplus is<br /><em>someone's network.</em></>,
-    body: 'Identify, value, and sell underused broadcast and media equipment. Every deal is managed by the AWXchange team.',
+    body: 'Identify, value, and sell underused telecom and broadcast equipment. Every deal is managed by the AWXchange team.',
     align: 'left',
     actions: [
       { to: '/register', state: { intent: 'seller' }, label: 'Start Selling', variant: 'primary' },
@@ -16,25 +16,25 @@ const SLIDES = [
     ],
   },
   {
-    theme: 'light',
-    image: '/hero/slide-lens.png',
-    alt: 'Premium professional cinema lens',
-    kicker: 'VERIFIED PROFESSIONAL EQUIPMENT',
+    theme: 'dark',
+    image: '/hero/slide-studio.webp',
+    alt: 'Television studio with a news desk and overhead lighting grid',
+    kicker: 'BROADCAST & STUDIO EQUIPMENT',
     heading: <>Sell smarter.<br /><em>Buy better.</em></>,
-    body: 'Connect verified broadcasters and media companies across a marketplace built specifically for equipment lifecycle management.',
-    align: 'right',
+    body: 'Connect telecom and broadcast operators through a team-managed marketplace for surplus equipment.',
+    align: 'left',
     actions: [
-      { to: '/marketplace', label: 'Browse equipment', variant: 'dark' },
-      { to: '/features', label: 'How it works', variant: 'link' },
+      { to: '/marketplace', label: 'Browse equipment', variant: 'primary' },
+      { to: '/features', label: 'How it works', variant: 'ghost' },
     ],
   },
   {
     theme: 'dark',
-    image: '/hero/slide-switcher.png',
-    alt: 'Professional broadcast video switcher with illuminated controls',
-    kicker: 'UNLOCK HIDDEN VALUE',
+    image: '/hero/slide-control-room.webp',
+    alt: 'Broadcast production control room with monitor wall and mixing consoles',
+    kicker: 'PRODUCTION & CONTROL ROOMS',
     heading: <>From dormant<br /><em>to in demand.</em></>,
-    body: "Give equipment a second life while turning yesterday's infrastructure into tomorrow's opportunity.",
+    body: "Give broadcast and studio equipment a second life while turning yesterday's infrastructure into tomorrow's opportunity.",
     align: 'left',
     actions: [
       { to: '/register', state: { intent: 'seller' }, label: 'List your equipment', variant: 'primary' },
@@ -119,7 +119,7 @@ export default function Hero() {
               className={`aw-slide aw-slide--${slide.theme}${isActive ? ' is-active' : ''}`}
               aria-hidden={!isActive}
             >
-              <img className="aw-slide__image" src={slide.image} alt={slide.alt} />
+              <img className="aw-slide__image" src={slide.image} alt={slide.alt} loading={i === 0 ? 'eager' : 'lazy'} fetchPriority={i === 0 ? 'high' : 'auto'} />
               <div className="aw-slide__shade" />
               <div className={`aw-slide__content${slide.align === 'right' ? ' aw-slide__content--right' : ''}`}>
                 <span className="aw-kicker"><i />{slide.kicker}</span>
@@ -171,7 +171,7 @@ export default function Hero() {
         .aw-slide.is-active { visibility: visible; opacity: 1; z-index: 2; }
         .aw-slide__image { position: absolute; inset: -3%; width: 106%; height: 106%; object-fit: cover; transform: scale(1.06) translateX(1.5%); transition: transform 8s cubic-bezier(.2,.7,.25,1); }
         .aw-slide.is-active .aw-slide__image { transform: scale(1) translateX(0); }
-        .aw-slide__shade { position: absolute; inset: 0; background: linear-gradient(90deg, #05091be8 0%, #05091bb5 31%, #05091b24 55%, transparent 72%); }
+        .aw-slide__shade { position: absolute; inset: 0; background: linear-gradient(90deg, #05091bf2 0%, #05091bd4 28%, #05091b80 48%, #05091b18 76%), linear-gradient(0deg, #05091b99, transparent 30%); }
         .aw-slide--light .aw-slide__shade { background: linear-gradient(90deg, transparent 40%, #faf7f1aa 56%, #faf7f1f3 75%, #faf7f1 100%); }
         .aw-slide__content { position: absolute; z-index: 3; top: 50%; left: clamp(36px, 7vw, 130px); width: min(660px, 49vw); transform: translateY(calc(-50% + 34px)); opacity: 0; transition: transform .9s .22s cubic-bezier(.22,1,.36,1), opacity .8s .22s; }
         .aw-slide.is-active .aw-slide__content { transform: translateY(-50%); opacity: 1; }
@@ -216,9 +216,9 @@ export default function Hero() {
         @keyframes awProgress { from { width: 0; } to { width: 100%; } }
         @media (max-width: 880px) {
           .aw-slider { height: 760px; }
-          .aw-slide__image { inset: 0; width: 100%; height: 100%; object-position: 62% center; }
+          .aw-slide__image { inset: 0; width: 100%; height: 100%; object-position: 68% center; }
           .aw-slide--light .aw-slide__image { object-position: 30% center; }
-          .aw-slide__shade, .aw-slide--light .aw-slide__shade { background: linear-gradient(180deg, #070b1ca8 0%, #070b1ce8 57%, #070b1c 100%); }
+          .aw-slide__shade, .aw-slide--light .aw-slide__shade { background: linear-gradient(180deg, #070b1c38 0%, #070b1c75 28%, #070b1ce8 63%, #070b1c 100%); }
           .aw-slide__content, .aw-slide__content--right { top: auto; right: 30px; bottom: 105px; left: 30px; width: auto; color: #fff; transform: translateY(30px); }
           .aw-slide.is-active .aw-slide__content { transform: translateY(0); }
           .aw-slide--light h2 { color: #fff; }
@@ -226,7 +226,7 @@ export default function Hero() {
           .aw-slide--light .aw-slide__content > p { color: #c4c9d8; }
           .aw-slide--light .aw-button--dark { color: #10111a; background: #fff; }
           .aw-slide--light .aw-link { color: #fff; }
-          .aw-arrow { top: 38px; transform: none; }
+          .aw-arrow { top: 105px; transform: none; }
           .aw-arrow:hover { transform: scale(1.06); }
           .aw-arrow--prev { right: 82px; left: auto; }
           .aw-arrow--next { right: 26px; }

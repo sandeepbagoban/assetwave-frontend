@@ -38,8 +38,8 @@ const SECTIONS = [
   },
   {
     id: 'cookies',
-    title: '6. Cookies',
-    body: `We use essential cookies required for the site to function (for example, keeping you logged in and
+    title: '6. Cookies and local storage',
+    body: `We use essential cookies and local storage required for the site to function (for example, keeping you logged in and
     remembering your theme preference). We do not currently use non-essential tracking or advertising cookies.
     If that changes, we will update this policy and ask for your consent via the cookie banner before setting
     any non-essential cookie.`,

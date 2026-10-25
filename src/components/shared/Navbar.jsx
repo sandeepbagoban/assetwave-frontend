@@ -10,7 +10,7 @@ const NAV_LINKS = [
   { label: 'About', to: '/about' },
   { label: 'Features', to: '/features' },
   // { label: 'Impact', to: '/impact' },
-  // { label: 'Marketplace', to: '/marketplace' },
+  { label: 'Marketplace', to: '/marketplace' },
   { label: 'Resources', to: '/resources' },
   // { label: 'Ambassador', to: '/ambassador' },
   { label: 'Contact', to: '/contact' },
@@ -72,11 +72,9 @@ function CartLink() {
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const isDark = theme === 'dark';
 
   async function handleLogout() {
     await logout();
@@ -101,7 +99,7 @@ export default function Navbar() {
   const linkBgActive = isHeroOverlay ? 'rgba(255,255,255,0.16)' : 'var(--surface2)';
 
   return (
-    <nav style={{
+    <nav className={isHeroOverlay ? 'nav-hero-overlay' : undefined} style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
       transition: 'all .35s cubic-bezier(.2,.8,.2,1)',
       background: scrolled ? 'var(--glass)' : (isHeroOverlay ? 'linear-gradient(180deg, rgba(5,8,20,0.55) 0%, rgba(5,8,20,0.15) 80%, transparent 100%)' : 'transparent'),
@@ -111,7 +109,7 @@ export default function Navbar() {
       <div className="container" style={{ display: 'flex', alignItems: 'center', height: 76, gap: 8 }}>
         {/* Logo */}
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, marginRight: 'auto' }}>
-          <svg width="36" height="36" viewBox="0 0 26 26" fill="none">
+          <svg width="42" height="42" viewBox="0 0 26 26" fill="none">
             <path d="M13 2L23 8V18L13 24L3 18V8L13 2Z" stroke="url(#navlogo)" strokeWidth="1.4" strokeLinejoin="round"/>
             <path d="M13 2V24M3 8L23 18M23 8L3 18" stroke="url(#navlogo)" strokeWidth="0.6" opacity="0.5"/>
             <defs>
@@ -120,8 +118,9 @@ export default function Navbar() {
               </linearGradient>
             </defs>
           </svg>
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 400, color: logoColor, letterSpacing: '-0.01em', transition: 'color .3s' }}>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 32, fontWeight: 400, color: logoColor, letterSpacing: '-0.01em', transition: 'color .3s' }}>
             AWXchange
+            <small style={{ display: 'block', fontFamily: 'var(--font-body)', fontSize: 10, letterSpacing: '0.04em', lineHeight: 1.4 }}>Pilot — early access</small>
           </span>
         </Link>
 
@@ -129,7 +128,7 @@ export default function Navbar() {
         <div className="nav-desktop-links" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           {NAV_LINKS.map(link => (
             <NavLink key={link.to} to={link.to} style={({ isActive }) => ({
-              padding: '8px 16px', fontSize: 14, fontWeight: 450,
+              padding: '8px 10px', fontSize: 14, fontWeight: 450,
               color: isActive ? linkColorActive : linkColor,
               borderRadius: 100,
               background: isActive ? linkBgActive : 'transparent',
@@ -141,19 +140,19 @@ export default function Navbar() {
         </div>
 
         {/* Actions */}
-        {/* <div className="nav-desktop-actions" style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, marginLeft: 24 }}>
+        <div className="nav-desktop-actions" style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, marginLeft: 8 }}>
           <ThemeToggle />
           {user && <NotificationBell />}
-          {user && <CartLink />}
+          {(user?.pilot_buyer || user?.role === 'admin') && <CartLink />}
           {user ? (
             <>
               <Link to="/account/orders" style={{
-                background: 'transparent', border: 'none', color: 'var(--text2)', padding: '8px 14px',
+                background: 'transparent', border: 'none', color: linkColor, padding: '8px 14px',
                 fontSize: 14, fontWeight: 450,
               }}>Orders</Link>
               <Link to="/account/seller" style={{
                 display: 'flex', alignItems: 'center', gap: 6,
-                background: 'transparent', border: 'none', color: 'var(--text2)', padding: '8px 14px', fontSize: 14, fontWeight: 450,
+                background: 'transparent', border: 'none', color: linkColor, padding: '8px 14px', fontSize: 14, fontWeight: 450,
               }}><Store size={14} /> Sell</Link>
               <span style={{
                 fontSize: 13, color: 'var(--text2)', maxWidth: 140, overflow: 'hidden',
@@ -168,7 +167,7 @@ export default function Navbar() {
             <>
               <Link to="/login" state={{ from: location.pathname }} style={{
                 background: 'transparent', border: 'none',
-                color: 'var(--text2)', padding: '8px 14px',
+                color: linkColor, padding: '8px 14px',
                 fontSize: 14, fontWeight: 450, transition: 'color .2s',
               }}>
                 Log in
@@ -184,14 +183,14 @@ export default function Navbar() {
               </Link>
             </>
           )}
-        </div> */}
+        </div>
 
         {/* Mobile toggle */}
         <div className="nav-mobile-actions" style={{ display: 'none', alignItems: 'center', gap: 8 }}>
           <ThemeToggle />
           {/* {user && <NotificationBell />} */}
-          {/* {user && <CartLink />} */}
-          <button className="nav-mobile-toggle" onClick={() => setMobileOpen(v => !v)} style={{
+          {/* {(user?.pilot_buyer || user?.role === 'admin') && <CartLink />} */}
+          <button aria-label={mobileOpen ? 'Close menu' : 'Open menu'} aria-expanded={mobileOpen} className="nav-mobile-toggle" onClick={() => setMobileOpen(v => !v)} style={{
             background: 'var(--surface)', border: '1px solid var(--border)',
             width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text)',
           }}>
@@ -213,7 +212,7 @@ export default function Navbar() {
               {link.label}
             </NavLink>
           ))}
-          {/* {user ? (
+          {user ? (
             <>
               <div style={{ padding: '12px 8px', fontSize: 13, color: 'var(--text3)' }}>Signed in as {user.full_name || user.email}</div>
               <Link to="/account/orders" onClick={() => setMobileOpen(false)} style={{ padding: '12px 8px', fontSize: 15, color: 'var(--text2)', borderBottom: '1px solid var(--border)' }}>Orders</Link>
@@ -231,12 +230,18 @@ export default function Navbar() {
                 padding: '12px', borderRadius: 100, fontSize: 14, fontWeight: 600, textAlign: 'center',
               }}>Get Started</Link>
             </>
-          )} */}
+          )}
         </div>
       )}
 
       <style>{`
-        @media (max-width: 980px) {
+        .nav-hero-overlay .nav-mobile-actions button,
+        .nav-hero-overlay .nav-desktop-actions button {
+          color: #fff !important;
+          background: rgba(255,255,255,.08) !important;
+          border-color: rgba(255,255,255,.18) !important;
+        }
+        @media (max-width: 1200px) {
           .nav-desktop-links, .nav-desktop-actions { display: none !important; }
           .nav-mobile-actions { display: flex !important; }
         }

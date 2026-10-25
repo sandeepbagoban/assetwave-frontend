@@ -1,19 +1,22 @@
+import { useSearchParams } from 'react-router-dom';
 import { Mail, MessageCircle, Briefcase } from 'lucide-react';
 import PageHeader from '../components/shared/PageHeader';
 
 const CONTACTS = [
-  { icon: Mail, title: 'General enquiries', desc: 'Questions about AssetWave, partnerships, or anything else.', email: 'ceo@awxchange.com' },
+  { icon: Mail, title: 'General enquiries', desc: 'Questions about AWXchange, partnerships, or anything else.', email: 'ceo@awxchange.com' },
   { icon: MessageCircle, title: 'Buyer & seller support', desc: 'Help with an order, listing, or your account.', email: 'support@awxchange.com' },
-  { icon: Briefcase, title: 'Operator & seller onboarding', desc: 'Bringing your inventory onto AssetWave.', email: 'sellers@awxchange.com' },
+  { icon: Briefcase, title: 'Operator & seller onboarding', desc: 'Bringing your inventory onto AWXchange.', email: 'sellers@awxchange.com' },
 ];
 
 export default function Contact() {
+  const [params] = useSearchParams();
+  const subject = params.get('listing') ? `AWXchange enquiry: ${params.get('title') || 'Equipment'} (${params.get('listing')})` : 'AWXchange enquiry';
   return (
     <>
       <PageHeader
         eyebrow="Contact"
         title="Talk to"
-        titleItalic="AssetWave"
+        titleItalic="AWXchange"
         desc="Reach out directly — we read every message ourselves at this stage."
       />
 
@@ -23,7 +26,7 @@ export default function Contact() {
             {CONTACTS.map((c, i) => {
               const Icon = c.icon;
               return (
-                <a key={i} href={`mailto:${c.email}`} className="aw-card" style={{
+                <a key={i} href={`mailto:${c.email}?subject=${encodeURIComponent(subject)}`} className="aw-card" style={{
                   display: 'block', borderRadius: 18, padding: 26,
                 }}>
                   <div style={{

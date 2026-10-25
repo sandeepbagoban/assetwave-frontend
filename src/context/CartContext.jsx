@@ -11,7 +11,7 @@ export function CartProvider({ children }) {
   const [error, setError] = useState('');
 
   const refresh = useCallback(async () => {
-    if (!user) { setCart(null); setError(''); return; }
+    if (!user || (!user.pilot_buyer && user.role !== 'admin')) { setCart(null); setError(''); return; }
     setLoading(true);
     setError('');
     try {

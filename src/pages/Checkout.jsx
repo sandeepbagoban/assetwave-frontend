@@ -126,7 +126,7 @@ export default function Checkout() {
             }}>
               <Lock size={16} color="var(--violet3)" style={{ marginTop: 1, flexShrink: 0 }} />
               <div style={{ fontSize: 12.5, color: 'var(--text3)', lineHeight: 1.6 }}>
-                This is a simulated payment for demo purposes — no real card is charged. Your payment is captured immediately and held in escrow until you confirm delivery.
+                Submit your basket for review. AWXchange will confirm availability and send one invoice covering equipment, shipping and any applicable fees. Pay AWXchange by bank transfer using the details on your invoice.
               </div>
             </div>
 
@@ -138,7 +138,7 @@ export default function Checkout() {
               padding: '14px 20px', borderRadius: 100, fontSize: 14.5, fontWeight: 600,
               opacity: (placing || noRateForCountry) ? 0.6 : 1, cursor: (placing || noRateForCountry) ? 'default' : 'pointer', marginTop: 4,
             }}>
-              <ShieldCheck size={16} /> {placing ? 'Placing order…' : `Pay $${total.toLocaleString()} & place order`}
+              <ShieldCheck size={16} /> {placing ? 'Placing order…' : 'Submit basket for invoice'}
             </button>
           </form>
 
@@ -164,7 +164,7 @@ export default function Checkout() {
                 </div>
               )}
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
-                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>Total</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>Estimated total (invoice to follow)</span>
                 <span className="serif" style={{ fontSize: 20, color: 'var(--text)' }}>${total.toLocaleString()}</span>
               </div>
             </div>

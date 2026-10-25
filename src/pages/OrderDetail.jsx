@@ -7,8 +7,8 @@ import Skeleton from '../components/shared/ui/Skeleton';
 import OrderTracker from '../components/shared/ui/OrderTracker';
 
 const STATUS_LABEL = {
-  pending_payment: 'Payment pending', paid: 'Paid — in escrow', shipped: 'Shipped',
-  delivered: 'Delivered', released: 'Completed — escrow released', refunded: 'Refunded',
+  pending_payment: 'Payment pending', paid: 'Payment confirmed', shipped: 'Shipped',
+  delivered: 'Delivered', released: 'Completed — seller paid', refunded: 'Refunded',
   disputed: 'Disputed', cancelled: 'Cancelled',
 };
 
@@ -135,7 +135,7 @@ export default function OrderDetail() {
 
           <div className="aw-surface" style={{ borderRadius: 18, padding: 24, marginBottom: 24 }}>
             <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <ShieldCheck size={16} color="var(--violet3)" /> Escrow &amp; shipping timeline
+              <ShieldCheck size={16} color="var(--violet3)" /> Order &amp; shipping timeline
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {order.status_history.map((h, i) => (

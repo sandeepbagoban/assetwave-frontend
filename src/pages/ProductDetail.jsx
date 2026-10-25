@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { resolveAssetUrl } from '../lib/api/client';
 import { clearOtherItems } from '../lib/api/cart';
-import { countryFlag } from '../lib/format';
+import { countryFlag, formatPrice } from '../lib/format';
 import Skeleton from '../components/shared/ui/Skeleton';
 
 const CONDITION_STYLE = {
@@ -20,6 +20,7 @@ export default function ProductDetail() {
   const navigate = useNavigate();
   const { data: listing, loading, error } = useListing(id);
   const { user } = useAuth();
+  const pilotBuyer = user?.pilot_buyer || user?.role === 'admin';
   const { cart, addItem, refresh: refreshCart } = useCart();
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
@@ -61,7 +62,7 @@ export default function ProductDetail() {
   }
 
   const cond = CONDITION_STYLE[listing.condition] || CONDITION_STYLE.good;
-  const savingPct = listing.new_price_estimate
+  const savingPct = listing.new_price_estimate && listing.price_amount != null
     ? Math.round((1 - listing.price_amount / listing.new_price_estimate) * 100)
     : null;
 
@@ -74,6 +75,7 @@ export default function ProductDetail() {
   }
 
   async function handleAddToCart() {
+    if (!pilotBuyer || listing.price_amount == null || listing.currency !== 'USD') return;
     if (!(await requireLogin('add-to-cart'))) return;
     setBusy(true);
     setNotice('');
@@ -88,6 +90,7 @@ export default function ProductDetail() {
   }
 
   async function handleBuyNow() {
+    if (!pilotBuyer || listing.price_amount == null || listing.currency !== 'USD') return;
     if (!(await requireLogin('buy'))) return;
     const others = (cart?.items || []).filter(i => i.listing.id !== listing.id);
     if (others.length > 0) {
@@ -196,10 +199,10 @@ export default function ProductDetail() {
 
             <div className="aw-surface" style={{ borderRadius: 18, padding: 24, marginBottom: 20 }}>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, marginBottom: 6 }}>
-                <span className="serif" style={{ fontSize: 34, color: 'var(--text)' }}>${listing.price_amount.toLocaleString()}</span>
+                <span className="serif" style={{ fontSize: 34, color: 'var(--text)' }}>{formatPrice(listing.price_amount, listing.currency)}</span>
                 {listing.new_price_estimate && (
                   <span style={{ fontSize: 14, color: 'var(--text4)', textDecoration: 'line-through', marginBottom: 4 }}>
-                    ${listing.new_price_estimate.toLocaleString()}
+                    {formatPrice(listing.new_price_estimate, listing.currency)}
                   </span>
                 )}
               </div>
@@ -209,18 +212,19 @@ export default function ProductDetail() {
                 </span>
               )}
 
-              <div title="Simulated for this demo — no real payment is captured" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--violet3)', fontWeight: 500, marginTop: 18, marginBottom: 18, cursor: 'help' }}>
-                <ShieldCheck size={15} /> Escrow protected (demo) — funds released only after you confirm delivery
+              <div title="Every deal is managed by the AWXchange team" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--violet3)', fontWeight: 500, marginTop: 18, marginBottom: 18, cursor: 'help' }}>
+                <ShieldCheck size={15} /> Every deal is managed by the AWXchange team.
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <button onClick={handleBuyNow} disabled={busy} className="aw-btn" style={{
+                {(!pilotBuyer || listing.price_amount == null || listing.currency !== 'USD') && <Link className="aw-button aw-button--primary" to={`/contact?listing=${encodeURIComponent(listing.id)}&title=${encodeURIComponent(listing.title)}`}>Enquire</Link>}
+                {pilotBuyer && listing.price_amount != null && listing.currency === 'USD' && <><button onClick={handleBuyNow} disabled={busy} className="aw-btn" style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                   background: 'var(--inverse-bg)', color: 'var(--inverse-text)', border: 'none',
                   padding: '14px 20px', borderRadius: 100, fontSize: 14.5, fontWeight: 600,
                   opacity: busy ? 0.6 : 1, cursor: busy ? 'default' : 'pointer',
                 }}>
-                  <Zap size={16} /> Buy now
+                  <Zap size={16} /> Submit basket
                 </button>
                 <button onClick={handleAddToCart} disabled={busy} className="aw-btn" style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -229,7 +233,7 @@ export default function ProductDetail() {
                   opacity: busy ? 0.6 : 1, cursor: busy ? 'default' : 'pointer',
                 }}>
                   <ShoppingCart size={16} /> Add to cart
-                </button>
+                </button></>}
               </div>
 
               {otherCartCount > 0 && (
@@ -237,13 +241,13 @@ export default function ProductDetail() {
                   marginTop: 14, padding: 14, borderRadius: 12, background: 'var(--surface)',
                   border: '1px solid var(--border)', fontSize: 13, color: 'var(--text2)',
                 }}>
-                  You have {otherCartCount} other item{otherCartCount > 1 ? 's' : ''} in your cart. Buy Now checks out your whole cart together.
+                  You have {otherCartCount} other item{otherCartCount > 1 ? 's' : ''} in your cart. Submitting your basket includes all items in your cart.
                   <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
                     <button onClick={handleReplaceCartAndBuy} disabled={busy} style={{
                       background: 'var(--inverse-bg)', color: 'var(--inverse-text)', border: 'none',
                       padding: '8px 14px', borderRadius: 100, fontSize: 12.5, fontWeight: 600,
                       opacity: busy ? 0.6 : 1, cursor: busy ? 'default' : 'pointer',
-                    }}>Replace cart & buy now</button>
+                    }}>Replace cart & submit basket</button>
                     <button onClick={() => setOtherCartCount(0)} disabled={busy} style={{
                       background: 'none', border: 'none', color: 'var(--text3)', fontSize: 12.5, cursor: 'pointer',
                     }}>Cancel</button>

@@ -15,6 +15,7 @@ export const SELLER_IMPORT_COLUMNS = [
   'price_amount',
   'currency',
   'origin_country',
+  'equipment_location',
   'new_price_estimate',
   'quantity',
 ];

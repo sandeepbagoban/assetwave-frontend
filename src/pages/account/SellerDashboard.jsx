@@ -1,3 +1,5 @@
+import { formatPrice } from '../../lib/format';
+import CountrySelect from '../../components/shared/CountrySelect';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Store, Plus, Trash2, Pencil, Truck, Clock, X, Upload, Calendar, LayoutDashboard, Package, ClipboardList } from 'lucide-react';
 import PageHeader from '../../components/shared/PageHeader';
@@ -20,7 +22,7 @@ const labelStyle = { ...baseLabelStyle, fontSize: 12, marginBottom: 6 };
 
 const EMPTY_FORM = {
   title: '', category_id: '', brand: '', model: '', year_manufactured: '', condition: 'good',
-  description: '', price_amount: '', currency: 'USD', origin_country: '', new_price_estimate: '', quantity: 1,
+  description: '', price_amount: '', currency: 'USD', equipment_location: '', origin_country: '', new_price_estimate: '', quantity: 1,
   weight_kg: '', length_cm: '', width_cm: '', height_cm: '',
 };
 
@@ -67,8 +69,8 @@ function ApplyForm({ onApplied }) {
         </div>
         <div className="aw-grid-2" style={{ display: 'grid', gap: 12 }}>
           <div>
-            <label style={labelStyle}>Country (2-letter code)</label>
-            <input style={inputStyle} required maxLength={2} value={form.country} onChange={e => setForm(f => ({ ...f, country: e.target.value.toUpperCase() }))} />
+            <label style={labelStyle}>Country</label>
+            <CountrySelect style={inputStyle} required  value={form.country} onChange={e => setForm(f => ({ ...f, country: e.target.value.toUpperCase() }))} />
           </div>
           <div>
             <label style={labelStyle}>Account type</label>
@@ -111,7 +113,7 @@ function ListingForm({ categories, initial, onSaved, onCancel }) {
     const payload = {
       ...form,
       year_manufactured: form.year_manufactured ? Number(form.year_manufactured) : undefined,
-      price_amount: Number(form.price_amount),
+      price_amount: form.price_amount === '' || form.price_amount == null ? null : Number(form.price_amount),
       new_price_estimate: form.new_price_estimate ? Number(form.new_price_estimate) : undefined,
       quantity: Number(form.quantity) || 1,
       weight_kg: form.weight_kg ? Number(form.weight_kg) : undefined,
@@ -189,8 +191,11 @@ function ListingForm({ categories, initial, onSaved, onCancel }) {
           <input style={inputStyle} maxLength={2} value={form.origin_country} onChange={e => setForm(f => ({ ...f, origin_country: e.target.value.toUpperCase() }))} />
         </div>
         <div>
-          <label style={labelStyle}>Price (USD)</label>
-          <input style={inputStyle} type="number" min="0.01" step="0.01" required value={form.price_amount} onChange={update('price_amount')} />
+          <label style={labelStyle}>Currency</label>
+          <select style={inputStyle} value={form.currency} onChange={update('currency')}>{['USD','EUR','GBP','MUR','ZAR','AED','INR','AUD','CAD','CHF','SGD','JPY'].map(c => <option key={c} value={c}>{c}</option>)}</select>
+        </div><div><label style={labelStyle}>Equipment location</label><CountrySelect style={inputStyle} value={form.equipment_location || ''} onChange={update('equipment_location')} /></div><div>
+          <label style={labelStyle}>Price (optional; leave blank for price on request)</label>
+          <input style={inputStyle} type="number" min="0.01" step="0.01" value={form.price_amount ?? ''} onChange={update('price_amount')} />
         </div>
         <div>
           <label style={labelStyle}>New price estimate (optional)</label>
@@ -301,7 +306,7 @@ function BulkImportPanel({ onCancel, onImported }) {
   return (
     <div className="aw-surface" style={{ borderRadius: 18, padding: 24, marginBottom: 24 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
-        <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}>Bulk upload listings</h3>
+        <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}>Bulk upload listings</h3><a href="/AWXchange_Inventory_Template.xlsx" download>Download template</a>
         <button onClick={onCancel} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer' }}><X size={16} /></button>
       </div>
 
@@ -448,7 +453,7 @@ function OverviewTab() {
 
   const KPIS = [
     { label: 'Total Products', value: stats.total_listings.toLocaleString() },
-    { label: 'Inventory Value', value: `$${stats.inventory_value_usd.toLocaleString()}` },
+    { label: 'USD-priced inventory', value: `$${stats.inventory_value_usd.toLocaleString()}` },
     { label: 'Active Listings', value: stats.active_listings.toLocaleString() },
     { label: 'Sold Listings', value: stats.sold_listings.toLocaleString() },
     { label: 'Pending Orders', value: stats.pending_orders.toLocaleString() },
@@ -613,13 +618,13 @@ export default function SellerDashboard() {
         </div>
       ),
     },
-    { key: 'price', header: 'Price', render: (listing) => `$${listing.price_amount.toLocaleString()}` },
+    { key: 'price', header: 'Price', render: (listing) => formatPrice(listing.price_amount, listing.currency) },
     { key: 'quantity', header: 'Qty' },
     {
       key: 'actions', header: '',
       render: (listing) => (
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'flex-end' }}>
-          <button onClick={() => { setEditing({ ...listing, price_amount: String(listing.price_amount) }); setShowForm(true); }} style={iconBtnStyle}><Pencil size={14} /></button>
+          <button onClick={() => { setEditing({ ...listing, price_amount: listing.price_amount == null ? '' : String(listing.price_amount) }); setShowForm(true); }} style={iconBtnStyle}><Pencil size={14} /></button>
           <ConfirmButton icon={Trash2} confirmLabel="Delete this listing?" onConfirm={() => handleDelete(listing.id)} onDone={loadData} />
         </div>
       ),

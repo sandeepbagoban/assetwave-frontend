@@ -4,8 +4,8 @@
 
 import { apiClient } from './client';
 
-export async function register({ email, password, full_name, phone }) {
-  return apiClient.post('/auth/register', { email, password, full_name, phone }, { auth: false });
+export async function register({ email, password, full_name, phone, accepted_terms, legal_version }) {
+  return apiClient.post('/auth/register', { email, password, full_name, phone, accepted_terms, legal_version }, { auth: false });
 }
 
 export async function login({ email, password }) {

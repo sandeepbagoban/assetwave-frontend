@@ -9,8 +9,8 @@
 // VITE_API_BASE_URL can be left unset and the app will use mock data
 // from src/lib/api/mocks/ instead — see individual api modules.
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
-const USE_MOCKS = !BASE_URL; // No backend URL configured yet -> use mock data
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/v1';
+const USE_MOCKS = import.meta.env.DEV && import.meta.env.VITE_USE_MOCKS === 'true'; // No backend URL configured yet -> use mock data
 
 function getAuthToken() {
   return localStorage.getItem('assetwave_access_token');

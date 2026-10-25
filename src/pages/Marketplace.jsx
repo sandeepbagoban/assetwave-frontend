@@ -1,3 +1,5 @@
+import { getCategories } from '../lib/api/categories';
+import CountrySelect from '../components/shared/CountrySelect';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, SlidersHorizontal, ShieldCheck, ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -6,7 +8,7 @@ import PageHeader from '../components/shared/PageHeader';
 import CtaBanner from '../components/home/CtaBanner';
 import { ErrorBlock, EmptyBlock } from '../components/shared/ui/AsyncBlocks';
 import Skeleton from '../components/shared/ui/Skeleton';
-import { countryFlag } from '../lib/format';
+import { countryFlag, formatPrice } from '../lib/format';
 
 const CONDITIONS = [
   { id: '', label: 'Any condition' },
@@ -15,14 +17,6 @@ const CONDITIONS = [
   { id: 'fair', label: 'Fair' },
 ];
 
-const CATEGORIES = [
-  { id: '', label: 'All equipment' },
-  { id: 'transmitters', label: 'Transmitters' },
-  { id: 'cameras', label: 'Cameras' },
-  { id: 'audio', label: 'Audio' },
-  { id: 'satellite', label: 'Satellite' },
-  { id: 'lighting', label: 'Lighting' },
-];
 
 const CONDITION_STYLE = {
   excellent: { bg: 'rgba(74,222,128,0.12)', color: '#4ADE80' },
@@ -32,7 +26,7 @@ const CONDITION_STYLE = {
 
 function ListingCard({ listing }) {
   const cond = CONDITION_STYLE[listing.condition] || CONDITION_STYLE.good;
-  const savingPct = listing.new_price_estimate
+  const savingPct = listing.new_price_estimate && listing.price_amount != null
     ? Math.round((1 - listing.price_amount / listing.new_price_estimate) * 100)
     : null;
 
@@ -59,17 +53,17 @@ function ListingCard({ listing }) {
       <div style={{ padding: '18px 18px 16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11.5, color: 'var(--text3)', marginBottom: 10 }}>
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ADE80' }} />
-          {countryFlag(listing.seller.country)} {listing.seller.name}
-          {listing.seller.verified && <ShieldCheck size={12} color="var(--violet3)" />}
+          {countryFlag(listing.seller?.country)} {listing.seller?.name || 'Seller'}
+          {listing.seller?.verified && <ShieldCheck size={12} color="var(--violet3)" />}
         </div>
         <h3 style={{ fontSize: 14.5, fontWeight: 600, color: 'var(--text)', marginBottom: 4, lineHeight: 1.35 }}>{listing.title}</h3>
-        <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 16 }}>{listing.year_manufactured} &middot; {countryFlag(listing.origin_country)} {listing.origin_country}</div>
+        <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 16 }}>{listing.year_manufactured} &middot; {countryFlag(listing.equipment_location)} {listing.equipment_location || 'Location on request'}</div>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
           <div>
             {listing.new_price_estimate && (
-              <div style={{ fontSize: 11.5, color: 'var(--text4)', textDecoration: 'line-through' }}>${listing.new_price_estimate.toLocaleString()}</div>
+              <div style={{ fontSize: 11.5, color: 'var(--text4)', textDecoration: 'line-through' }}>{formatPrice(listing.new_price_estimate, listing.currency)}</div>
             )}
-            <div className="serif" style={{ fontSize: 22, color: 'var(--text)' }}>${listing.price_amount.toLocaleString()}</div>
+            <div className="serif" style={{ fontSize: 22, color: 'var(--text)' }}>{formatPrice(listing.price_amount, listing.currency)}</div>
           </div>
           {savingPct !== null && (
             <span style={{ fontSize: 11, fontWeight: 600, color: '#4ADE80', background: 'rgba(74,222,128,0.12)', padding: '3px 8px', borderRadius: 6 }}>
@@ -83,8 +77,8 @@ function ListingCard({ listing }) {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         fontSize: 11, color: 'var(--text3)',
       }}>
-        <span title="Simulated for this demo — no real payment is captured" style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--violet3)', fontWeight: 500, cursor: 'help' }}>
-          <ShieldCheck size={12} /> Escrow protected (demo)
+        <span title="Every deal is managed by the AWXchange team" style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--violet3)', fontWeight: 500, cursor: 'help' }}>
+          <ShieldCheck size={12} /> Team-managed pilot
         </span>
         <ArrowUpRight size={13} />
       </div>
@@ -110,6 +104,9 @@ function ListingCardSkeleton() {
 }
 
 export default function Marketplace() {
+  const [categories, setCategories] = useState([]);
+  const [categoryError, setCategoryError] = useState('');
+  useEffect(() => { getCategories().then(setCategories).catch(e => setCategoryError(e.message)); }, []);
   const [category, setCategory] = useState('');
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -149,7 +146,7 @@ export default function Marketplace() {
         eyebrow="Marketplace"
         title="Professional gear,"
         titleItalic="verified sellers"
-        desc="Every listing comes from a KYB-verified broadcaster or media company. This demo simulates Every deal is managed by the AWXchange team. payments end-to-end."
+        desc="Telecom and broadcast equipment from approved sellers. During our pilot, every order is managed personally by the AWXchange team."
       />
 
       <section className="section-sm" style={{ background: 'var(--bg)' }}>
@@ -199,23 +196,23 @@ export default function Marketplace() {
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 8 }}>Min price ($)</div>
+                <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 8 }}>Min price (listing currency)</div>
                 <input type="number" min="0" value={minPrice} onChange={e => setMinPrice(e.target.value)} placeholder="0" style={{
                   width: 110, background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 8,
                   padding: '8px 12px', color: 'var(--text)', fontSize: 13, outline: 'none',
                 }} />
               </div>
               <div>
-                <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 8 }}>Max price ($)</div>
+                <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 8 }}>Max price (listing currency)</div>
                 <input type="number" min="0" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} placeholder="Any" style={{
                   width: 110, background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 8,
                   padding: '8px 12px', color: 'var(--text)', fontSize: 13, outline: 'none',
                 }} />
               </div>
               <div>
-                <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 8 }}>Country (2-letter code)</div>
-                <input maxLength={2} value={country} onChange={e => setCountry(e.target.value.toUpperCase())} placeholder="Any" style={{
-                  width: 90, background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 8,
+                <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 8 }}>Equipment location</div>
+                <CountrySelect placeholder="All locations" value={country} onChange={e => setCountry(e.target.value.toUpperCase())} style={{
+                  width: 210, background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 8,
                   padding: '8px 12px', color: 'var(--text)', fontSize: 13, outline: 'none', textTransform: 'uppercase',
                 }} />
               </div>
@@ -227,9 +224,10 @@ export default function Marketplace() {
             </div>
           )}
 
+          {categoryError && <ErrorBlock message={categoryError} prefix="Could not load categories" />}
           {/* Category pills */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 40, flexWrap: 'wrap' }}>
-            {CATEGORIES.map(c => (
+            {[{ id: '', label: 'All equipment' }, ...categories.map(c => ({ id: c.slug, label: c.name }))].map(c => (
               <button key={c.id} onClick={() => setCategory(c.id)} style={{
                 padding: '9px 18px', borderRadius: 100, fontSize: 13.5, fontWeight: 500,
                 border: '1px solid ' + (category === c.id ? 'var(--violet)' : 'var(--border)'),

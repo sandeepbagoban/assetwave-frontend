@@ -9,7 +9,7 @@ const REASON_BY_PREFIX = [
   ['/orders/', 'orders'],
 ];
 
-export default function ProtectedRoute({ children }) {
+export default function ProtectedRoute({ children, pilot = false }) {
   const { user } = useAuth();
   const location = useLocation();
 
@@ -17,5 +17,6 @@ export default function ProtectedRoute({ children }) {
     const reason = REASON_BY_PREFIX.find(([prefix]) => location.pathname.startsWith(prefix))?.[1];
     return <Navigate to="/login" state={{ from: location.pathname, reason }} replace />;
   }
+  if (pilot && !user.pilot_buyer && user.role !== 'admin') return <Navigate to="/contact" replace />;
   return children;
 }

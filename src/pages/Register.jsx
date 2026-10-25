@@ -1,3 +1,4 @@
+import CountrySelect from '../components/shared/CountrySelect';
 import { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { UserPlus, ShoppingBag, Store } from 'lucide-react';
@@ -33,7 +34,7 @@ export default function Register() {
     }
     setSubmitting(true);
     try {
-      await register(form);
+      await register({ ...form, accepted_terms: true, legal_version: '2026-10-25' });
     } catch (err) {
       setSubmitting(false);
       setError(err.message || 'Registration failed.');
@@ -113,8 +114,8 @@ export default function Register() {
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                   <div>
-                    <label style={labelStyle}>Country (2-letter code)</label>
-                    <input style={inputStyle} required maxLength={2} value={sellerForm.country} onChange={e => setSellerForm(f => ({ ...f, country: e.target.value.toUpperCase() }))} />
+                    <label style={labelStyle}>Country</label>
+                    <CountrySelect style={inputStyle} required  value={sellerForm.country} onChange={e => setSellerForm(f => ({ ...f, country: e.target.value.toUpperCase() }))} />
                   </div>
                   <div>
                     <label style={labelStyle}>Account type</label>
